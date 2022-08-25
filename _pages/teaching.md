@@ -7,6 +7,12 @@ author_profile: true
 
 ## Instructor of Record
 
+# North Dakota State University
+- ECON810: Econometric Theory I -- Fall 2022
+- ECON202: Principles of Macroeconomics -- Fall 2022
+
+# West Virginia University
+
 - ECON331: Money and Banking -- Fall 2020 (online, asynchronous), Spring 2021 (online, synchronous), Fall 2021
 
 - ECON302: Intermediate Macroeconomic Theory -- Fall 2019, Spring 2020
