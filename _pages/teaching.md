@@ -14,11 +14,8 @@ author_profile: true
 
 ### West Virginia University
 - BADM618: Macro and Managerial Economics -- Summer 2022 (online, asynchronous)
-
 - ECON331: Money and Banking -- Fall 2020 (online, asynchronous), Spring 2021 (online, synchronous), Fall 2021
-
 - ECON302: Intermediate Macroeconomic Theory -- Fall 2019, Spring 2020
-
 - ECON202: Principles of Macroeconomics -- Summer 2019
 
 Evaluations:
