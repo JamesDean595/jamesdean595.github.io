@@ -13,6 +13,7 @@ author_profile: true
 - ECON202: Principles of Macroeconomics -- Fall 2022 (online, asynchronous), Spring 2023 (online, asynchronous)
 
 ### West Virginia University
+- BADM618: Macro and Managerial Economics -- Summer 2022 (online, asynchronous)
 
 - ECON331: Money and Banking -- Fall 2020 (online, asynchronous), Spring 2021 (online, synchronous), Fall 2021
 
