@@ -12,12 +12,12 @@ author_profile: true
 
 
 ## Working Papers
-- ["Better On Average: Average Inflation Targeting with Unconventional Monetary Policy"](/files/Better_On_Average_JMP.pdf), under review
+- ["Better On Average: Average Inflation Targeting with Unconventional Monetary Policy"](/files/Better_On_Average.pdf), under review
 
 - ["Is the Taylor Rule Still an Adequate Representation of Monetary Policy in Macroeconomic Models?"](/files/Taylor_Rule.pdf) (with S. Schuh), under review
 
 
-- ["A New Environment For Monetary Policy: Interest Bearing Reserves and Policy Implementation"](/files/IOER.pdf), under review
+- ["A New Environment For Monetary Policy: Interest Bearing Reserves and Policy Implementation"](/files/IOR_Literature_Review.pdf), under review
 
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf)
 
@@ -28,6 +28,7 @@ author_profile: true
 ## Works in Progress 
 - The Racial Political Economy of Bank Entry Restrictions (with J. Hall)
 - Does the Minimum Wage Improve Upward Mobility? Evidence from Canada (with V. Geloso)
+- Time Varying Output Gaps and Monetary Policy (with S. Schuh)
 
 
 
