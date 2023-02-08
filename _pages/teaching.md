@@ -20,7 +20,7 @@ author_profile: true
 
 Evaluations:
 - [Summary](/files/Teaching_Effectiveness.pdf)
-- [All Evaluations](/files/Evals_Effectiveness.pdf)
+- [All Evaluations](/files/Effectiveness_AllEvals.pdf)
              
 Selected Student Comments:
 - "I think that James is able to explain things better and more clearly than any other professor I've had."
