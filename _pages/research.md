@@ -19,7 +19,7 @@ author_profile: true
 
 - ["A New Environment For Monetary Policy: Interest Bearing Reserves and Policy Implementation"](/files/IOR_Literature_Review.pdf), under review
 
-- ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4653144), under review
+- ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4653144), (with V. Geloso) under review
 
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf)
 
