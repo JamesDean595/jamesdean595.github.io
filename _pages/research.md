@@ -6,7 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
-- ["On the Long-Run Properties of Income and Stock Prices: The Stability of the `Golden Ratios'" (with J. Hall), <i>Journal of Financial Economic Policy</i>, forthcoming
+- "On the Long-Run Properties of Income and Stock Prices: The Stability of the `Golden Ratios'" (with J. Hall), <i>Journal of Financial Economic Policy</i>, forthcoming
 - ["Economic Freedom Improves Income Mobility: Evidence from Canadian Provinces, 1982–2018"](https://www.cambridge.org/core/journals/journal-of-institutional-economics/article/economic-freedom-improves-income-mobility-evidence-from-canadian-provinces-19822018/01BC8700CF6897480369F0BBB9BA8F97) (with V. Geloso), <i>Journal of Institutional Economics</i> 18.5 (2022), 807-826
     - [Twitter Thread](https://twitter.com/VincentGeloso/status/1409530926896402439?s=20)
 - ["Who Gains from Economic Freedom? A Panel Analysis of Decile Income Levels"](https://reunido.uniovi.es/index.php/EBL/article/view/15513) (with R. Lawson) <i>Economics and Business Letters</i> Vol. 10, No. 2 (June 2021).
