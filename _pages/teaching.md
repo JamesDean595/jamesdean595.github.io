@@ -7,6 +7,10 @@ author_profile: true
 
 ## Instructor of Record
 
+### Western Carolina University 
+- ECON493: Financial Institutions -- Spring 2024
+- ECON232: Introductory Macroeconomics and Social Issues
+
 ### North Dakota State University
 - ECON810: Econometric Theory I -- Fall 2022
 - ECON343: Intermediate Macroeconomic Theory  -- Spring 2023
