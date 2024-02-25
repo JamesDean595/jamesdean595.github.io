@@ -9,7 +9,7 @@ author_profile: true
 
 ### Western Carolina University 
 - ECON493: Financial Institutions -- Spring 2024
-- ECON232: Introductory Macroeconomics and Social Issues
+- ECON232: Introductory Macroeconomics and Social Issues --  Spring 2024
 
 ### North Dakota State University
 - ECON810: Econometric Theory I -- Fall 2022
