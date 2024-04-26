@@ -13,8 +13,8 @@ author_profile: true
 
 ### North Dakota State University
 - ECON810: Econometric Theory I -- Fall 2022
-- ECON343: Intermediate Macroeconomic Theory  -- Spring 2023
-- ECON202: Principles of Macroeconomics -- Fall 2022 (online, asynchronous), Spring 2023 (online, asynchronous)
+- ECON343: Intermediate Macroeconomic Theory  -- Spring 2023, Fall 2023
+- ECON202: Principles of Macroeconomics -- Fall 2022 (online, asynchronous), Spring 2023 (online, asynchronous), Fall 2023
 
 ### West Virginia University
 - BADM618: Macro and Managerial Economics -- Summer 2022 (online, asynchronous)
