@@ -8,8 +8,8 @@ author_profile: true
 ## Instructor of Record
 
 ### Western Carolina University 
-- ECON303: Financial Institutions -- Spring 2024, Fall 2024
-- ECON232: Introductory Macroeconomics and Social Issues --  Spring 2024, Fall 2024
+- ECON/FIN335: Financial Institutions 
+- ECON232: Introductory Macroeconomics and Social Issues 
 
 ### North Dakota State University
 - ECON810: Econometric Theory I -- Fall 2022
@@ -22,9 +22,9 @@ author_profile: true
 - ECON302: Intermediate Macroeconomic Theory -- Fall 2019, Spring 2020
 - ECON202: Principles of Macroeconomics -- Summer 2019
 
-Evaluations:
+<!-- Evaluations:
 - [Summary](/files/Teaching_Effectiveness.pdf)
-- [All Evaluations](/files/Effectiveness_AllEvals.pdf)
+- [All Evaluations](/files/Effectiveness_AllEvals.pdf) -->
              
 Selected Student Comments:
 - "I think that James is able to explain things better and more clearly than any other professor I've had."
@@ -36,10 +36,6 @@ Selected Student Comments:
 - "His classes were very informative and fun to watch. It really takes a special person to make econ fun and he did a very good job."
 
 
-## As Teaching Assistant
 
-- ECON702: Advanced Macroeconomic Theory II (for Scott Schuh) -- Spring 2019
-
-- BUSA201: Survey of Economics (for Judge Glock) -- Spring 2018
 
 
