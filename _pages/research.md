@@ -12,6 +12,10 @@ author_profile: true
     - [Twitter Thread](https://twitter.com/VincentGeloso/status/1409530926896402439?s=20)
 - ["Who Gains from Economic Freedom? A Panel Analysis of Decile Income Levels"](https://reunido.uniovi.es/index.php/EBL/article/view/15513) (with R. Lawson) <i>Economics and Business Letters</i> Vol. 10, No. 2 (June 2021).
 
+  ## Book Chapters
+  -["The Racial Political Economy of Bank Entry Restrictions"](https://link.springer.com/chapter/10.1007/978-3-031-87179-5_6) <i> Empirical Applications of the Median Voter Model. <i> Springer, Cham, 2025. 105-114. 
+
+
 
 ## Working Papers
 - ["Better On Average: Average Inflation Targeting with Unconventional Monetary Policy"](/files/Better_On_Average.pdf), under review
