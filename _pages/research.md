@@ -20,8 +20,8 @@ author_profile: true
 ## Working Papers
 - ["Better On Average: Average Inflation Targeting with Unconventional Monetary Policy"](/files/Better_On_Average.pdf), under review
 
-- ["Is the Taylor Rule Still an Adequate Representation of Monetary Policy in Macroeconomic Models?"](/files/Taylor_Rule.pdf) (with S. Schuh), under review
-- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), under review
+- ["Is the Taylor Rule Still an Adequate Representation of Monetary Policy in Macroeconomic Models?"](/files/Taylor_Rule.pdf) (with S. Schuh), revisions requested
+- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf)
 - "Does Oil Production Matter for State Level Inflation?" (with M. Roy)
 
