@@ -28,7 +28,6 @@ author_profile: true
 
 
 ## Works in Progress 
-- The Racial Political Economy of Bank Entry Restrictions (with J. Hall)
 - Does the Minimum Wage Improve Upward Mobility? Evidence from Canada (with V. Geloso)
 - Re-examining the Output Gap Restriction and Role of Aggregate Supply in Macroeconomic Fluctuations (with S. Schuh)
 
