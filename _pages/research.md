@@ -6,7 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
-- ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](/files/Averag_Inflation_Targeting_SEJ_Accepted.pdf), accepted at <i>Southern Economic Journal</i>
+- ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](/files/Average_Inflation_Targeting_SEJ_Accepted.pdf), accepted at <i>Southern Economic Journal</i>
 - ["Is the Taylor Rule Still an Adequate Representation of Monetary Policy in Macroeconomic Models?"](/files/Taylor_Rule_Empirical_Econ_Formatting____Revisions.pdf) (with S. Schuh), accepted at <i>Empirical Economics</i>
 - ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://www.sciencedirect.com/science/article/pii/S0167268124002117?dgcid=author), (with V. Geloso), <i>Journal of Economic Behavior and Control</i>, 224 (2024): 282-296.
 - ["On the Long-Run Properties of Income and Stock Prices: The Stability of the `Golden Ratios'"](https://www.emerald.com/insight/content/doi/10.1108/JFEP-12-2023-0388/full/html) (with J. Hall), <i>Journal of Financial Economic Policy</i>, 16.3 (2024), 315-329.
