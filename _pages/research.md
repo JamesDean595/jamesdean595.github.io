@@ -21,7 +21,8 @@ author_profile: true
 
 ## Working Papers
 - "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
-- ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf)
+- ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf), revisions requested
+- "Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era", revisions requested
 - "Does Oil Production Matter for State Level Inflation?" (with M. Roy)
 
 
