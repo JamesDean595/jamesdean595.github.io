@@ -8,7 +8,7 @@ author_profile: true
 ## Publications 
 - ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](https://onlinelibrary.wiley.com/doi/10.1002/soej.70020), <i>Southern Economic Journal</i>, 2026
 - ["From Conventional to Unconventional Monetary Policy: Is the Taylor Rule an Adequate Representation in Macro Models?"](/files/Taylor_Rule_Empirical_Econ_Formatting____Revisions.pdf) (with S. Schuh), accepted at <i>Empirical Economics</i>
-- ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://www.sciencedirect.com/science/article/pii/S0167268124002117?dgcid=author), (with V. Geloso), <i>Journal of Economic Behavior and Control</i>, 224 (2024): 282-296.
+- ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://www.sciencedirect.com/science/article/pii/S0167268124002117?dgcid=author), (with V. Geloso), <i>Journal of Economic Behavior and Organization</i>, 224 (2024): 282-296.
 - ["On the Long-Run Properties of Income and Stock Prices: The Stability of the `Golden Ratios'"](https://www.emerald.com/insight/content/doi/10.1108/JFEP-12-2023-0388/full/html) (with J. Hall), <i>Journal of Financial Economic Policy</i>, 16.3 (2024), 315-329.
 - ["Economic Freedom Improves Income Mobility: Evidence from Canadian Provinces, 1982–2018"](https://www.cambridge.org/core/journals/journal-of-institutional-economics/article/economic-freedom-improves-income-mobility-evidence-from-canadian-provinces-19822018/01BC8700CF6897480369F0BBB9BA8F97) (with V. Geloso), <i>Journal of Institutional Economics</i> 18.5 (2022), 807-826
     - [Twitter Thread](https://twitter.com/VincentGeloso/status/1409530926896402439?s=20)
