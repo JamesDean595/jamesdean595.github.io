@@ -23,13 +23,8 @@ author_profile: true
 ## Working Papers
 - "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
 - "Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era", revisions requested
-- "Does Oil Production Matter for State Level Inflation?" (with M. Roy)
-
-
-
-## Works in Progress 
-- Does the Minimum Wage Improve Upward Mobility? Evidence from Canada (with V. Geloso)
-- Re-examining the Output Gap Restriction and Role of Aggregate Supply in Macroeconomic Fluctuations (with S. Schuh)
+- "Does the Minimum Wage Improve Upward Mobility? Evidence from Canada" (with V. Geloso)
+- "COVID Inflation Whodunit? Potential Output, with Money, in the United States" (with S. Schuh)
 
 
 
