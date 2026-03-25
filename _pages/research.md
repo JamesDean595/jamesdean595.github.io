@@ -6,6 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
+- ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf), accepted at <i>Economics Bulletin</i>
 - ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](https://onlinelibrary.wiley.com/doi/10.1002/soej.70020), <i>Southern Economic Journal</i>, 2026
 - ["From Conventional to Unconventional Monetary Policy: Is the Taylor Rule an Adequate Representation in Macro Models?"](https://trebuchet.public.springernature.app/get_content/0d29d575-5c3a-499a-9269-eff891cb96df?utm_source=rct_congratemailt&utm_medium=email&utm_campaign=nonoa_20260204&utm_content=10.1007/s00181-025-02868-0) (with S. Schuh), <i>Empirical Economics</i> 70 (2026).
 - ["Poverty Spells and Economic Freedom: Canadian Evidence"](https://www.sciencedirect.com/science/article/pii/S0167268124002117?dgcid=author), (with V. Geloso), <i>Journal of Economic Behavior and Organization</i>, 224 (2024): 282-296.
