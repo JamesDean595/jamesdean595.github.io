@@ -6,6 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
+- "Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era", accepted at <i>Applied Economics Letters</i>
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](/files/finstab.pdf), accepted at <i>Economics Bulletin</i>
 - ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](https://onlinelibrary.wiley.com/doi/10.1002/soej.70020), <i>Southern Economic Journal</i>, 2026
 - ["From Conventional to Unconventional Monetary Policy: Is the Taylor Rule an Adequate Representation in Macro Models?"](https://trebuchet.public.springernature.app/get_content/0d29d575-5c3a-499a-9269-eff891cb96df?utm_source=rct_congratemailt&utm_medium=email&utm_campaign=nonoa_20260204&utm_content=10.1007/s00181-025-02868-0) (with S. Schuh), <i>Empirical Economics</i> 70 (2026).
@@ -22,7 +23,6 @@ author_profile: true
 
 ## Working Papers
 - "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
-- "Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era", revisions requested
 - "Does the Minimum Wage Improve Upward Mobility? Evidence from Canada" (with V. Geloso)
 - "COVID Inflation Whodunit? Potential Output, with Money, in the United States" (with S. Schuh)
 
