@@ -20,7 +20,8 @@ author_profile: true
 ## Book Chapters
 - ["The Racial Political Economy of Bank Entry Restrictions"](https://link.springer.com/chapter/10.1007/978-3-031-87179-5_6) <i> Empirical Applications of the Median Voter Model. </i> Springer, Cham, 2025. 105-114. 
 
-
+## Book Reviews
+- ["Review of: Inflation Is About More than Money: Economics, Politics, and the Social Fabric"](https://christianeconomists.org/article/review-of-inflation-is-about-more-than-money-economics-politics-and-the-social-fabric/)<i> Faith and Economics</i>, 86 (2026). 
 
 ## Working Papers
 - "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
