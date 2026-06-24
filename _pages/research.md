@@ -23,10 +23,11 @@ author_profile: true
 ## Book Reviews
 - ["Review of: Inflation Is About More than Money: Economics, Politics, and the Social Fabric"](https://christianeconomists.org/article/review-of-inflation-is-about-more-than-money-economics-politics-and-the-social-fabric/)<i> Faith and Economics</i>, 86 (2026). 
 
-## Working Papers
+## Working Papers and Works In Progress
 - "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
 - "Does the Minimum Wage Improve Upward Mobility? Evidence from Canada" (with V. Geloso)
 - "COVID Inflation Whodunit? Potential Output, with Money, in the United States" (with S. Schuh)
+- "Does Fiscal Stress Shape Monetary Policy?"
 
 
 
