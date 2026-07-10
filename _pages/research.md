@@ -6,6 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
+- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), accepted at <i>International Economics</i>
 - ["Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era"](https://www.tandfonline.com/doi/full/10.1080/13504851.2026.2654788), <i>Applied Economics Letters</i>, 2026
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](https://www.accessecon.com/Pubs/EB/2026/Volume46/EB-26-V46-I1-P22.pdf), <i>Economics Bulletin</i>, 40, 1 (2026)
 - ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](https://onlinelibrary.wiley.com/doi/10.1002/soej.70020), <i>Southern Economic Journal</i>, 2026
@@ -17,6 +18,8 @@ author_profile: true
     - [Twitter Thread](https://twitter.com/VincentGeloso/status/1409530926896402439?s=20)
 - ["Who Gains from Economic Freedom? A Panel Analysis of Decile Income Levels"](https://reunido.uniovi.es/index.php/EBL/article/view/15513) (with R. Lawson) <i>Economics and Business Letters</i> Vol. 10, No. 2 (June 2021).
 
+<i>Italics</i> indicate student co-author.
+
 ## Book Chapters
 - ["The Racial Political Economy of Bank Entry Restrictions"](https://link.springer.com/chapter/10.1007/978-3-031-87179-5_6) <i> Empirical Applications of the Median Voter Model. </i> Springer, Cham, 2025. 105-114. 
 
@@ -24,7 +27,6 @@ author_profile: true
 - ["Review of: Inflation Is About More than Money: Economics, Politics, and the Social Fabric"](https://christianeconomists.org/article/review-of-inflation-is-about-more-than-money-economics-politics-and-the-social-fabric/)<i> Faith and Economics</i>, 86 (2026). 
 
 ## Working Papers and Works In Progress
-- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), revisions requested
 - "Does the Minimum Wage Improve Upward Mobility? Evidence from Canada" (with V. Geloso)
 - "COVID Inflation Whodunit? Potential Output, with Money, in the United States" (with S. Schuh)
 - "Does Fiscal Stress Shape Monetary Policy?"
