@@ -6,7 +6,7 @@ author_profile: true
 ---
 
 ## Publications 
-- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with M. Roy), accepted at <i>International Economics</i>
+- "The Spillover of United States Monetary Policy on Three European Agricultural Commodity Prices" (with <i>M. Roy</i>), accepted at <i>International Economics</i>
 - ["Estimating the Federal Reserve's Inflation Target Through the Average Inflation Targeting Era"](https://www.tandfonline.com/doi/full/10.1080/13504851.2026.2654788), <i>Applied Economics Letters</i>, 2026
 - ["Unconventional US Monetary Policy and International Financial Market Stability"](https://www.accessecon.com/Pubs/EB/2026/Volume46/EB-26-V46-I1-P22.pdf), <i>Economics Bulletin</i>, 40, 1 (2026)
 - ["Better On Average: Average Inflation Targeting with An Unclear Averaging Window"](https://onlinelibrary.wiley.com/doi/10.1002/soej.70020), <i>Southern Economic Journal</i>, 2026
