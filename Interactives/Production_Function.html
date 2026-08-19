@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Function Model</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --A:    #1a6fc4;
+    --K:    #c47a00;
+    --HK:   #3a8a2a;
+    --L:    #8b3a8a;
+    --inst: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 4px; }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .formula {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+
+  .container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 980px;
+  }
+
+  .chart-wrap {
+    flex: 1;
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  svg { display: block; width: 100%; height: auto; }
+
+  .controls {
+    width: 236px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .control-group {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .ctrl-K    { border-left-color: var(--K); }
+  .ctrl-A    { border-left-color: var(--A); }
+  .ctrl-HK   { border-left-color: var(--HK); }
+  .ctrl-L    { border-left-color: var(--L); }
+  .ctrl-inst { border-left-color: var(--inst); }
+
+  .control-group h3 {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.85;
+  }
+  .ctrl-K    h3 { color: var(--K); }
+  .ctrl-A    h3 { color: var(--A); }
+  .ctrl-HK   h3 { color: var(--HK); }
+  .ctrl-L    h3 { color: var(--L); }
+  .ctrl-inst h3 { color: var(--inst); }
+
+  .sublabel {
+    font-size: 0.73rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+
+  .slider-row { display: flex; flex-direction: column; gap: 5px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .slider-label .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 5px; border-radius: 3px;
+    outline: none; cursor: pointer;
+  }
+
+  .track-K    { background: #f0d8a0; }
+  .track-A    { background: #b8d4ef; }
+  .track-HK   { background: #b8e0b0; }
+  .track-L    { background: #ddb8dd; }
+  .track-inst { background: #f0b8b0; }
+
+  .track-K::-webkit-slider-thumb    { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--K);   border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .track-A::-webkit-slider-thumb    { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--A);   border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .track-HK::-webkit-slider-thumb   { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--HK);  border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .track-L::-webkit-slider-thumb    { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--L);   border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .track-inst::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--inst);border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .track-K::-moz-range-thumb    { width:18px;height:18px;border-radius:50%;background:var(--K);   border:2px solid white;cursor:pointer; }
+  .track-A::-moz-range-thumb    { width:18px;height:18px;border-radius:50%;background:var(--A);   border:2px solid white;cursor:pointer; }
+  .track-HK::-moz-range-thumb   { width:18px;height:18px;border-radius:50%;background:var(--HK);  border:2px solid white;cursor:pointer; }
+  .track-L::-moz-range-thumb    { width:18px;height:18px;border-radius:50%;background:var(--L);   border:2px solid white;cursor:pointer; }
+  .track-inst::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:var(--inst);border:2px solid white;cursor:pointer; }
+
+  .eq-display {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .eq-item { text-align: center; }
+  .eq-item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .eq-item .value { font-size: 1.05rem; font-weight: 600; }
+
+  .num-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 44px;
+    padding: 2px 4px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .num-input:focus { border-color: #9a9288; background: #faf7f2; }
+  .num-input.invalid { border-color: #c0392b; color: #c0392b; }
+
+  .reset-btn {
+    width: 100%; padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+
+  @media (max-width: 720px) {
+    .container { flex-direction: column; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>The Aggregate Production Function</h1>
+<p class="subtitle">Interactive Growth Model</p>
+<p class="formula">Y = A · f ( K, HK, L, Institutions )</p>
+
+<div class="container">
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 520 460" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="controls">
+
+    <div class="control-group ctrl-K">
+      <h3>Physical Capital (K)</h3>
+      <p class="sublabel">Moves along the curve</p>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Capital stock</span>
+          <input type="number" id="val-K" class="num-input" min="1" max="100" value="50" step="1">
+        </div>
+        <input type="range" id="sl-K" class="track-K" min="1" max="100" value="50" step="1">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-A">
+      <h3>Technology (A)</h3>
+      <p class="sublabel">Shifts the entire curve</p>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>TFP level</span>
+          <input type="number" id="val-A" class="num-input" min="0.3" max="2.5" value="1.0" step="0.1">
+        </div>
+        <input type="range" id="sl-A" class="track-A" min="0.3" max="2.5" value="1.0" step="0.1">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-HK">
+      <h3>Human Capital (HK)</h3>
+      <p class="sublabel">Shifts the entire curve</p>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Education &amp; skills</span>
+          <input type="number" id="val-HK" class="num-input" min="0.3" max="2.5" value="1.0" step="0.1">
+        </div>
+        <input type="range" id="sl-HK" class="track-HK" min="0.3" max="2.5" value="1.0" step="0.1">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-L">
+      <h3>Labor (L)</h3>
+      <p class="sublabel">Shifts the entire curve</p>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Workforce size</span>
+          <input type="number" id="val-L" class="num-input" min="0.3" max="2.5" value="1.0" step="0.1">
+        </div>
+        <input type="range" id="sl-L" class="track-L" min="0.3" max="2.5" value="1.0" step="0.1">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-inst">
+      <h3>Institutions</h3>
+      <p class="sublabel">Shifts the entire curve</p>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Rule of law &amp; markets</span>
+          <input type="number" id="val-inst" class="num-input" min="0.3" max="2.5" value="1.0" step="0.1">
+        </div>
+        <input type="range" id="sl-inst" class="track-inst" min="0.3" max="2.5" value="1.0" step="0.1">
+      </div>
+    </div>
+
+    <div class="eq-display">
+      <div class="eq-item">
+        <div class="label">K</div>
+        <div class="value" style="color:var(--K)" id="disp-K">50</div>
+      </div>
+      <div class="eq-item">
+        <div class="label">Y (GDP)</div>
+        <div class="value" style="color:var(--text)" id="disp-Y">—</div>
+      </div>
+      <div class="eq-item">
+        <div class="label">MPK</div>
+        <div class="value" style="color:var(--A)" id="disp-MPK">—</div>
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset to Baseline</button>
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('chart');
+const NS  = 'http://www.w3.org/2000/svg';
+
+const W = 520, H = 460;
+const PAD = { top: 30, right: 52, bottom: 62, left: 68 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top  - PAD.bottom;
+
+const K_MAX = 100;
+const Y_MAX = 130;
+
+// Y = SCALE * A * HK^0.35 * L^0.35 * Inst^0.20 * (K/100)^0.40
+// SCALE set so that at K=50, all factors=1 → Y=70
+const K_EXP  = 0.28;
+const HK_EXP = 0.35;
+const L_EXP  = 0.35;
+const IN_EXP = 0.20;
+const SCALE  = 70 / Math.pow(0.5, K_EXP);
+
+function yOf(K, A, HK, L, inst) {
+  if (K <= 0) return 0;
+  return SCALE * A
+    * Math.pow(HK,   HK_EXP)
+    * Math.pow(L,    L_EXP)
+    * Math.pow(inst, IN_EXP)
+    * Math.pow(K / 100, K_EXP);
+}
+
+function mpkOf(K, A, HK, L, inst) {
+  if (K <= 0) return 0;
+  return K_EXP * yOf(K, A, HK, L, inst) / K;
+}
+
+let state = { K: 50, A: 1.0, HK: 1.0, L: 1.0, inst: 1.0 };
+
+/* ─── SVG helpers ─── */
+function svgEl(tag) { return document.createElementNS(NS, tag); }
+function add(e)     { svg.appendChild(e); return e; }
+
+function mkLine(x1,y1,x2,y2,stroke,sw,dash) {
+  const e = svgEl('line');
+  e.setAttribute('x1',x1); e.setAttribute('y1',y1);
+  e.setAttribute('x2',x2); e.setAttribute('y2',y2);
+  e.setAttribute('stroke',stroke);
+  e.setAttribute('stroke-width', sw||1.5);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkPath(pts, stroke, sw, dash) {
+  const d = pts.map((p,i) => `${i?'L':'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+  const e = svgEl('path');
+  e.setAttribute('d', d);
+  e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw||2.5);
+  e.setAttribute('fill', 'none');
+  e.setAttribute('stroke-linecap', 'round');
+  e.setAttribute('stroke-linejoin', 'round');
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkCircle(cx,cy,r,fill,stroke,sw) {
+  const e = svgEl('circle');
+  e.setAttribute('cx',cx); e.setAttribute('cy',cy); e.setAttribute('r',r);
+  e.setAttribute('fill', fill);
+  if (stroke) { e.setAttribute('stroke',stroke); e.setAttribute('stroke-width', sw||1.5); }
+  return e;
+}
+
+function mkText(x,y,str,fill,size,anchor,italic,bold) {
+  const e = svgEl('text');
+  e.setAttribute('x',x); e.setAttribute('y',y);
+  e.setAttribute('fill', fill);
+  e.setAttribute('font-size', size||13);
+  e.setAttribute('font-family', italic ? 'Crimson Pro, Georgia, serif' : 'JetBrains Mono, monospace');
+  e.setAttribute('font-style', italic ? 'italic' : 'normal');
+  e.setAttribute('font-weight', bold ? '700' : 'normal');
+  e.setAttribute('text-anchor', anchor||'middle');
+  e.setAttribute('dominant-baseline', 'middle');
+  e.textContent = str;
+  return e;
+}
+
+function sx(K) { return PAD.left + (K / K_MAX) * PLOT_W; }
+function sy(Y) { return PAD.top  + (1 - Y / Y_MAX) * PLOT_H; }
+
+/* ─── Render ─── */
+function render() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const { K, A, HK, L, inst } = state;
+  const isBaseline = (A === 1.0 && HK === 1.0 && L === 1.0 && inst === 1.0);
+
+  // Backgrounds
+  const bg = svgEl('rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2');
+  add(bg);
+  const pb = svgEl('rect');
+  pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top);
+  pb.setAttribute('width', PLOT_W); pb.setAttribute('height', PLOT_H);
+  pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', '2');
+  add(pb);
+
+  // Grid
+  for (let k = 0; k <= 100; k += 25)
+    add(mkLine(sx(k), PAD.top, sx(k), PAD.top+PLOT_H, '#ddd8ce', 1));
+  for (let y = 0; y <= Y_MAX; y += 25)
+    add(mkLine(PAD.left, sy(y), PAD.left+PLOT_W, sy(y), '#ddd8ce', 1));
+
+  // Axes
+  add(mkLine(PAD.left, PAD.top+PLOT_H, PAD.left+PLOT_W, PAD.top+PLOT_H, '#6b6560', 1.5));
+  add(mkLine(PAD.left, PAD.top,        PAD.left,         PAD.top+PLOT_H, '#6b6560', 1.5));
+
+  // Tick labels
+  for (let k = 0; k <= 100; k += 25)
+    add(mkText(sx(k), PAD.top+PLOT_H+14, k, '#7a7268', 10, 'middle', false));
+  for (let y = 0; y <= Y_MAX; y += 25)
+    add(mkText(PAD.left-10, sy(y), y, '#7a7268', 10, 'end', false));
+
+  // Axis labels
+  add(mkText(PAD.left+PLOT_W/2, H-10, 'Physical Capital (K)', '#7a7268', 13, 'middle', true));
+  const yLbl = svgEl('text');
+  yLbl.setAttribute('x', 14); yLbl.setAttribute('y', PAD.top+PLOT_H/2);
+  yLbl.setAttribute('fill', '#7a7268'); yLbl.setAttribute('font-size', 13);
+  yLbl.setAttribute('font-family', 'Crimson Pro, Georgia, serif');
+  yLbl.setAttribute('font-style', 'italic'); yLbl.setAttribute('text-anchor', 'middle');
+  yLbl.setAttribute('transform', `rotate(-90,14,${PAD.top+PLOT_H/2})`);
+  yLbl.textContent = 'Output, Y (real GDP)';
+  add(yLbl);
+
+  /* ── Baseline ghost curve (shown when shifted away) ── */
+  if (!isBaseline) {
+    const ghostPts = [];
+    for (let k = 1; k <= K_MAX; k++) {
+      const y = yOf(k, 1.0, 1.0, 1.0, 1.0);
+      if (y <= Y_MAX) ghostPts.push([sx(k), sy(y)]);
+    }
+    if (ghostPts.length > 1) {
+      add(mkPath(ghostPts, '#c0bab0', 1.8, '6,4'));
+      const tip = ghostPts[ghostPts.length - 1];
+      add(mkText(tip[0]+7, tip[1]-1, 'F₁', '#a09080', 15, 'start', true, false));
+    }
+
+    // Shift arrow at K=72
+    const arrowK = 72;
+    const y1svg = sy(yOf(arrowK, 1.0, 1.0, 1.0, 1.0));
+    const y2svg = sy(yOf(arrowK, A, HK, L, inst));
+    const ax = sx(arrowK);
+    if (Math.abs(y1svg - y2svg) > 6) {
+      const up = y2svg < y1svg; // SVG y is inverted
+      const ayStart = up ? y1svg - 3 : y1svg + 3;
+      const ayEnd   = up ? y2svg + 8 : y2svg - 8;
+      if (Math.sign(ayEnd - ayStart) === (up ? -1 : 1)) {
+        add(mkLine(ax, ayStart, ax, ayEnd, '#9a9288', 1.4));
+        const arrowPoly = svgEl('polygon');
+        const tipY = up ? y2svg : y2svg;
+        const d = up ? -1 : 1;
+        arrowPoly.setAttribute('points',
+          `${ax},${tipY} ${ax-5},${tipY + d*9} ${ax+5},${tipY + d*9}`);
+        arrowPoly.setAttribute('fill', '#9a9288');
+        add(arrowPoly);
+      }
+    }
+  }
+
+  /* ── Active curve ── */
+  const curvePts = [];
+  for (let k = 1; k <= K_MAX; k++) {
+    const y = yOf(k, A, HK, L, inst);
+    if (y <= Y_MAX) curvePts.push([sx(k), sy(y)]);
+  }
+  if (curvePts.length > 1) {
+    add(mkPath(curvePts, '#2a2520', 2.8));
+    const tip = curvePts[curvePts.length - 1];
+    const lbl = isBaseline ? 'F(K)' : 'F₂';
+    add(mkText(tip[0]+7, tip[1]-1, lbl, '#2a2520', 15, 'start', true, true));
+  }
+
+  /* ── Point on curve ── */
+  const Yval = yOf(K, A, HK, L, inst);
+  const inRange = Yval >= 0 && Yval <= Y_MAX;
+  const ptx = sx(K);
+  const pty = sy(Yval);
+
+  if (inRange) {
+    // Drop lines
+    add(mkLine(ptx, pty, ptx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
+    add(mkLine(PAD.left, pty, ptx, pty, '#c0392b', 1.2, '5,4'));
+
+    // Axis markers
+    add(mkCircle(ptx, PAD.top+PLOT_H, 4, '#c47a00'));
+    add(mkText(ptx, PAD.top+PLOT_H+28, 'K', '#c47a00', 14, 'middle', true, true));
+    add(mkCircle(PAD.left, pty, 3.5, '#c0392b'));
+    add(mkText(PAD.left-36, pty, 'Y', '#c0392b', 14, 'end', true, true));
+
+    // Point dot
+    add(mkCircle(ptx, pty, 7, '#c0392b', 'white', 2));
+
+    // MPK tangent line
+    const mpk = mpkOf(K, A, HK, L, inst);
+    const slope_svg = -mpk * (PLOT_H / Y_MAX) / (PLOT_W / K_MAX);
+    const half = 40;
+    const dx = half / Math.sqrt(1 + slope_svg * slope_svg);
+    const dy = slope_svg * dx;
+    add(mkLine(ptx-dx, pty-dy, ptx+dx, pty+dy, '#1a6fc4', 1.8));
+  }
+
+  // Update readout
+  document.getElementById('disp-K').textContent   = Math.round(K);
+  document.getElementById('disp-Y').textContent   = inRange ? Yval.toFixed(1) : '—';
+  document.getElementById('disp-MPK').textContent = inRange ? mpkOf(K, A, HK, L, inst).toFixed(2) : '—';
+}/* ─── Wiring ─── */
+const CONFIGS = {
+  K:    { min: 1,   max: 100, step: 1,   def: 50,  float: false },
+  A:    { min: 0.3, max: 2.5, step: 0.1, def: 1.0, float: true  },
+  HK:   { min: 0.3, max: 2.5, step: 0.1, def: 1.0, float: true  },
+  L:    { min: 0.3, max: 2.5, step: 0.1, def: 1.0, float: true  },
+  inst: { min: 0.3, max: 2.5, step: 0.1, def: 1.0, float: true  },
+};
+
+function setVal(key, raw) {
+  const cfg = CONFIGS[key];
+  const v = cfg.float ? parseFloat(raw) : parseInt(raw);
+  if (isNaN(v)) return false;
+  const clamped = Math.min(cfg.max, Math.max(cfg.min, v));
+  state[key] = clamped;
+  document.getElementById('sl-' + key).value  = clamped;
+  document.getElementById('val-' + key).value = cfg.float ? clamped.toFixed(1) : clamped;
+  document.getElementById('val-' + key).classList.remove('invalid');
+  return true;
+}
+
+Object.keys(CONFIGS).forEach(key => {
+  const cfg = CONFIGS[key];
+
+  // Slider → input + state
+  document.getElementById('sl-' + key).addEventListener('input', function() {
+    const v = cfg.float ? parseFloat(this.value) : parseInt(this.value);
+    state[key] = v;
+    document.getElementById('val-' + key).value = cfg.float ? v.toFixed(1) : v;
+    document.getElementById('val-' + key).classList.remove('invalid');
+    render();
+  });
+
+  // Typed input → slider + state (live as they type)
+  document.getElementById('val-' + key).addEventListener('input', function() {
+    const raw = this.value;
+    const v = cfg.float ? parseFloat(raw) : parseInt(raw);
+    if (isNaN(v) || v < cfg.min || v > cfg.max) {
+      this.classList.add('invalid');
+      return; // don't update chart yet
+    }
+    this.classList.remove('invalid');
+    state[key] = v;
+    document.getElementById('sl-' + key).value = v;
+    render();
+  });
+
+  // On blur: clamp and clean up
+  document.getElementById('val-' + key).addEventListener('blur', function() {
+    const raw = this.value;
+    const v = cfg.float ? parseFloat(raw) : parseInt(raw);
+    if (isNaN(v)) {
+      setVal(key, cfg.def);
+    } else {
+      setVal(key, v);
+    }
+    render();
+  });
+
+  // Enter key confirms
+  document.getElementById('val-' + key).addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { this.blur(); }
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', function() {
+  Object.keys(CONFIGS).forEach(key => setVal(key, CONFIGS[key].def));
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

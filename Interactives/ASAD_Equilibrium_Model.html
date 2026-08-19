@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AS/AD Model — ECON 232</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --ad: #1a6fc4;
+    --sras: #c47a00;
+    --lras: #3a8a2a;
+    --eq: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 { font-size: 1.5rem; font-weight: bold; letter-spacing: 0.02em; margin-bottom: 2px; text-align: center; }
+  .subtitle {
+    font-size: 0.78rem; color: var(--muted);
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 20px; letter-spacing: 0.06em;
+    text-transform: uppercase; text-align: center;
+  }
+
+  .main-wrap {
+    display: flex; gap: 24px; align-items: flex-start;
+    width: 100%; max-width: 980px;
+  }
+
+  .chart-wrap {
+    flex: 1; background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  svg { display: block; width: 100%; height: auto; user-select: none; }
+
+  .controls {
+    width: 240px; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  .ctrl-box {
+    background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .ctrl-box h3 {
+    font-size: 0.7rem; font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 11px; padding-bottom: 7px;
+    border-bottom: 2px solid currentColor; opacity: 0.9;
+  }
+  .h-ad    { color: var(--ad); }
+  .h-sras  { color: var(--sras); }
+  .h-lras  { color: var(--lras); }
+  .h-eq    { color: var(--eq); }
+  .h-muted { color: var(--muted); }
+
+  .slider-row { display: flex; flex-direction: column; gap: 5px; }
+  .slider-label {
+    display: flex; justify-content: space-between;
+    align-items: center; font-size: 0.8rem; color: var(--muted);
+  }
+  .slider-label .val {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.72rem; font-weight: bold; color: var(--text);
+    min-width: 32px; text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 5px; border-radius: 3px; outline: none; cursor: pointer;
+  }
+  .s-ad   { background: #b8d4ef; }
+  .s-sras { background: #f0d8a0; }
+  .s-lras { background: #b8e0b0; }
+  .s-ad::-webkit-slider-thumb   { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ad);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-sras::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--sras);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-lras::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--lras);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-ad::-moz-range-thumb   { width:18px;height:18px;border-radius:50%;background:var(--ad);border:2px solid #fff;cursor:pointer; }
+  .s-sras::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:var(--sras);border:2px solid #fff;cursor:pointer; }
+  .s-lras::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:var(--lras);border:2px solid #fff;cursor:pointer; }
+
+  /* Ghost legend */
+  .ghost-legend {
+    display: flex; flex-direction: column; gap: 5px;
+    margin-top: 4px;
+  }
+  .ghost-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.72rem; color: var(--muted);
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .ghost-swatch {
+    width: 28px; height: 2px; flex-shrink: 0;
+    border-top: 2px dashed currentColor;
+    opacity: 0.55;
+  }
+  .ghost-swatch.ad-color   { color: var(--ad); }
+  .ghost-swatch.sras-color { color: var(--sras); }
+  .ghost-swatch.lras-color { color: var(--lras); }
+
+  /* Equilibrium display */
+  .eq-row { display: flex; justify-content: space-around; margin-bottom: 8px; }
+  .eq-item { text-align: center; }
+  .eq-item .lbl { font-family:'Courier New',Courier,monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px; }
+  .eq-item .val2 { font-size:1.05rem;font-weight:bold;color:var(--eq); }
+  .unemp-row { border-top:1px solid var(--border);padding-top:7px;text-align:center; }
+  .unemp-row .lbl { font-family:'Courier New',Courier,monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px; }
+  .unemp-val { font-size:.88rem;font-weight:bold;font-style:italic; }
+  .unemp-val.above { color:#c0392b; }
+  .unemp-val.at    { color:#3a8a2a; }
+  .unemp-val.below { color:#1a6fc4; }
+
+  .narr-text { font-size:.8rem;color:var(--text);line-height:1.55;font-style:italic; }
+
+  .reset-btn {
+    width:100%;padding:9px;background:transparent;
+    border:1px solid var(--border);border-radius:6px;color:var(--muted);
+    font-family:'Courier New',Courier,monospace;font-size:.7rem;
+    letter-spacing:.08em;cursor:pointer;transition:all .12s;text-transform:uppercase;
+  }
+  .reset-btn:hover { border-color:var(--text);color:var(--text);background:var(--surface); }
+
+  @media (max-width:700px) {
+    .main-wrap { flex-direction:column; }
+    .controls { width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Aggregate Supply &amp; Demand</h1>
+<p class="subtitle">ECON 232 &mdash; Introductory Macroeconomics</p>
+
+<div class="main-wrap">
+  <div class="chart-wrap">
+    <svg id="chart-full" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="controls">
+
+    <!-- AD slider -->
+    <div class="ctrl-box">
+      <h3 class="h-ad">Aggregate Demand</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift AD</span><span class="val" id="fad-val">0</span></div>
+        <input type="range" class="s-ad" id="fad-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <!-- SRAS slider -->
+    <div class="ctrl-box">
+      <h3 class="h-sras">Short-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift SRAS</span><span class="val" id="fsras-val">0</span></div>
+        <input type="range" class="s-sras" id="fsras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <!-- LRAS slider -->
+    <div class="ctrl-box">
+      <h3 class="h-lras">Long-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift LRAS</span><span class="val" id="flras-val">0</span></div>
+        <input type="range" class="s-lras" id="flras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <!-- Ghost legend -->
+    <div class="ctrl-box">
+      <h3 class="h-muted">Silhouettes</h3>
+      <div class="ghost-legend">
+        <div class="ghost-row"><div class="ghost-swatch ad-color"></div>Previous AD position</div>
+        <div class="ghost-row"><div class="ghost-swatch sras-color"></div>Previous SRAS position</div>
+        <div class="ghost-row"><div class="ghost-swatch lras-color"></div>Previous LRAS position</div>
+      </div>
+      <p style="font-size:0.7rem;color:var(--muted);margin-top:8px;font-family:'Courier New',Courier,monospace;">
+        Silhouettes update each time you release a slider.
+      </p>
+    </div>
+
+    <!-- Equilibrium readout -->
+    <div class="ctrl-box">
+      <h3 class="h-eq">Equilibrium</h3>
+      <div class="eq-row">
+        <div class="eq-item"><div class="lbl">Y (SR)</div><div class="val2" id="eq-y">100</div></div>
+        <div class="eq-item"><div class="lbl">Y*</div><div class="val2" id="eq-ystar" style="color:var(--lras)">100</div></div>
+        <div class="eq-item"><div class="lbl">P</div><div class="val2" id="eq-p">100.0</div></div>
+      </div>
+      <div class="unemp-row">
+        <div class="lbl">Unemployment</div>
+        <div class="unemp-val at" id="unemp-val">U = U*</div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetFull()">&#8635; Reset to Equilibrium</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS  = 'http://www.w3.org/2000/svg';
+  var W   = 520, H = 440;
+  var PAD = { top: 30, right: 36, bottom: 55, left: 62 };
+  var PW  = W - PAD.left - PAD.right;
+  var PH  = H - PAD.top  - PAD.bottom;
+  var YMN = 0, YMX = 200, PMN = 0, PMX = 200;
+  var EQY = 100, EQP = 100;
+  var ADS = 1.2, SRASS = 1.2;
+
+  // Current slider values
+  var S = { ad: 0, sras: 0, lras: 0 };
+
+  // Ghost history: the committed shift value at the moment the user last
+  // released a slider. Null means no ghost for that curve yet.
+  var Ghost = { ad: null, sras: null, lras: null };
+
+  // ── Math ──────────────────────────────────────
+  function tx(y) { return PAD.left + (y - YMN) / (YMX - YMN) * PW; }
+  function ty(p) { return PAD.top  + (1 - (p - PMN) / (PMX - PMN)) * PH; }
+
+  function adP(Y, s)    { return EQP - ADS   * (Y - EQY - s); }
+  function srasP(Y, s)  { return EQP + SRASS * (Y - EQY - s); }
+  function lrasY(s)     { return EQY + s; }
+
+  function eqPt(adShift, srasShift) {
+    var Y = (ADS * (EQY + adShift) + SRASS * (EQY + srasShift)) / (ADS + SRASS);
+    return { Y: Y, P: adP(Y, adShift) };
+  }
+
+  function curvePts(fn, shift) {
+    var arr = [];
+    for (var Y = YMN; Y <= YMX; Y++) {
+      var P = fn(Y, shift);
+      if (P >= PMN && P <= PMX) arr.push([tx(Y), ty(P)]);
+    }
+    return arr;
+  }
+
+  // ── SVG helpers ───────────────────────────────
+  function e(tag) { return document.createElementNS(NS, tag); }
+
+  function mline(x1, y1, x2, y2, col, sw, dash, op) {
+    var n = e('line');
+    n.setAttribute('x1', x1); n.setAttribute('y1', y1);
+    n.setAttribute('x2', x2); n.setAttribute('y2', y2);
+    n.setAttribute('stroke', col);
+    n.setAttribute('stroke-width', sw || 1.5);
+    if (dash) n.setAttribute('stroke-dasharray', dash);
+    if (op !== undefined) n.setAttribute('opacity', op);
+    return n;
+  }
+
+  function mpath(ptsArr, col, sw, dash, op) {
+    var d = '';
+    for (var i = 0; i < ptsArr.length; i++)
+      d += (i === 0 ? 'M' : 'L') + ptsArr[i][0].toFixed(1) + ',' + ptsArr[i][1].toFixed(1) + ' ';
+    var n = e('path');
+    n.setAttribute('d', d.trim());
+    n.setAttribute('stroke', col);
+    n.setAttribute('stroke-width', sw || 2.5);
+    n.setAttribute('fill', 'none');
+    n.setAttribute('stroke-linecap', 'round');
+    if (dash) n.setAttribute('stroke-dasharray', dash);
+    if (op !== undefined) n.setAttribute('opacity', op);
+    return n;
+  }
+
+  function mcirc(cx, cy, r, fill, scol, sw) {
+    var n = e('circle');
+    n.setAttribute('cx', cx); n.setAttribute('cy', cy); n.setAttribute('r', r);
+    n.setAttribute('fill', fill);
+    if (scol) { n.setAttribute('stroke', scol); n.setAttribute('stroke-width', sw || 1.5); }
+    return n;
+  }
+
+  function mtxt(x, y, str, fill, sz, anchor, italic, bold) {
+    var n = e('text');
+    n.setAttribute('x', x); n.setAttribute('y', y);
+    n.setAttribute('fill', fill); n.setAttribute('font-size', sz || 13);
+    n.setAttribute('font-family', italic ? 'Georgia, serif' : 'Courier New, monospace');
+    n.setAttribute('font-style', italic ? 'italic' : 'normal');
+    n.setAttribute('font-weight', bold ? '700' : 'normal');
+    n.setAttribute('text-anchor', anchor || 'middle');
+    n.setAttribute('dominant-baseline', 'middle');
+    n.textContent = str;
+    return n;
+  }
+
+  function mtxtSub(x, y, base, sub, fill, sz, anchor, italic, bold) {
+    var n = e('text');
+    n.setAttribute('x', x); n.setAttribute('y', y);
+    n.setAttribute('fill', fill); n.setAttribute('font-size', sz || 13);
+    n.setAttribute('font-family', italic ? 'Georgia, serif' : 'Courier New, monospace');
+    n.setAttribute('font-style', italic ? 'italic' : 'normal');
+    n.setAttribute('font-weight', bold ? '700' : 'normal');
+    n.setAttribute('text-anchor', anchor || 'middle');
+    n.setAttribute('dominant-baseline', 'middle');
+    var bspan = document.createElementNS(NS, 'tspan'); bspan.textContent = base;
+    var sspan = document.createElementNS(NS, 'tspan');
+    sspan.setAttribute('baseline-shift', 'sub');
+    sspan.setAttribute('font-size', Math.round((sz || 13) * 0.72));
+    sspan.textContent = sub;
+    n.appendChild(bspan); n.appendChild(sspan);
+    return n;
+  }
+
+  // ── Scaffold ──────────────────────────────────
+  function scaffold(svg) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var bg = e('rect'); bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2'); svg.appendChild(bg);
+    var pb = e('rect'); pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top); pb.setAttribute('width', PW); pb.setAttribute('height', PH); pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', 2); svg.appendChild(pb);
+    for (var gy = 0; gy <= 200; gy += 50) svg.appendChild(mline(tx(gy), PAD.top, tx(gy), PAD.top + PH, '#ddd8ce', 1));
+    for (var gp = 0; gp <= 200; gp += 50) svg.appendChild(mline(PAD.left, ty(gp), PAD.left + PW, ty(gp), '#ddd8ce', 1));
+    svg.appendChild(mline(PAD.left, PAD.top + PH, PAD.left + PW, PAD.top + PH, '#6b6560', 1.5));
+    svg.appendChild(mline(PAD.left, PAD.top, PAD.left, PAD.top + PH, '#6b6560', 1.5));
+    for (var tp = 0; tp <= 200; tp += 50) svg.appendChild(mtxt(PAD.left - 8, ty(tp), tp, '#7a7268', 10, 'end', false));
+    for (var ty2 = 0; ty2 <= 200; ty2 += 50) svg.appendChild(mtxt(tx(ty2), PAD.top + PH + 14, ty2, '#7a7268', 10, 'middle', false));
+    svg.appendChild(mtxt(PAD.left + PW / 2, H - 8, 'Real Output (Y)', '#7a7268', 12, 'middle', true));
+    var pl = e('text'); pl.setAttribute('x', 13); pl.setAttribute('y', PAD.top + PH / 2); pl.setAttribute('fill', '#7a7268'); pl.setAttribute('font-size', 12); pl.setAttribute('font-family', 'Georgia, serif'); pl.setAttribute('font-style', 'italic'); pl.setAttribute('text-anchor', 'middle'); pl.setAttribute('transform', 'rotate(-90,13,' + (PAD.top + PH / 2) + ')'); pl.textContent = 'Price Level (P)'; svg.appendChild(pl);
+  }
+
+  function drawFixedEq(svg, Y, P) {
+    var sx = tx(Y), sy = ty(P);
+    svg.appendChild(mline(sx, sy, sx, PAD.top + PH, '#c0392b', 1.2, '5,4'));
+    svg.appendChild(mline(PAD.left, sy, sx, sy, '#c0392b', 1.2, '5,4'));
+    svg.appendChild(mcirc(PAD.left, sy, 3.5, '#c0392b'));
+    svg.appendChild(mtxt(PAD.left - 32, sy, 'P', '#c0392b', 13, 'end', true, true));
+    svg.appendChild(mcirc(sx, sy, 6, '#c0392b', 'white', 1.5));
+  }
+
+  // ── Render ────────────────────────────────────
+  function renderFull() {
+    var svg = document.getElementById('chart-full');
+    if (!svg) return;
+    scaffold(svg);
+
+    var adS   = S.ad;
+    var srasS = S.sras;
+    var lrasS = S.lras;
+
+    // ── Ghost curves (drawn first, underneath everything) ──
+    // Ghost AD: only if ghost position differs from current
+    if (Ghost.ad !== null && Ghost.ad !== adS) {
+      var gadp = curvePts(adP, Ghost.ad);
+      if (gadp.length > 1) {
+        svg.appendChild(mpath(gadp, '#1a6fc4', 1.8, '7,4', 0.4));
+        var gat = gadp[gadp.length - 1];
+        svg.appendChild(mtxtSub(gat[0] + 8, gat[1], 'AD', ghostLabel('ad'), '#1a6fc4', 10, 'start', true));
+      }
+    }
+
+    // Ghost SRAS
+    if (Ghost.sras !== null && Ghost.sras !== srasS) {
+      var gsrp = curvePts(srasP, Ghost.sras);
+      if (gsrp.length > 1) {
+        svg.appendChild(mpath(gsrp, '#c47a00', 1.8, '7,4', 0.4));
+        var gst = gsrp[gsrp.length - 1];
+        svg.appendChild(mtxtSub(gst[0] + 8, gst[1], 'SRAS', ghostLabel('sras'), '#c47a00', 10, 'start', true));
+      }
+    }
+
+    // ── Ghost LRAS ──
+    if (Ghost.lras !== null && Ghost.lras !== lrasS) {
+      var gLx = tx(lrasY(Ghost.lras));
+      if (gLx >= PAD.left && gLx <= PAD.left + PW) {
+        svg.appendChild(mline(gLx, PAD.top, gLx, PAD.top + PH, '#3a8a2a', 1.8, '7,4', 0.4));
+        svg.appendChild(mtxtSub(gLx, PAD.top - 14, 'LRAS', String(MoveCount.lras - 1), '#3a8a2a', 10, 'middle', true));
+      }
+    }
+
+    // ── Active LRAS ──
+    var lyv = lrasY(lrasS);
+    var lsx = tx(lyv);
+    var lok = lsx >= PAD.left && lsx <= PAD.left + PW;
+    if (lok) {
+      svg.appendChild(mline(lsx, PAD.top, lsx, PAD.top + PH, '#3a8a2a', 2.5));
+      if (Ghost.lras !== null && Ghost.lras !== lrasS) {
+        svg.appendChild(mtxtSub(lsx, PAD.top - 14, 'LRAS', String(MoveCount.lras), '#3a8a2a', 12, 'middle', true));
+      } else {
+        svg.appendChild(mtxt(lsx, PAD.top - 14, 'LRAS', '#3a8a2a', 12, 'middle', true));
+      }
+    }
+
+    // ── Active AD ──
+    var ap = curvePts(adP, adS);
+    if (ap.length > 1) {
+      svg.appendChild(mpath(ap, '#1a6fc4', 2.5));
+      var at = ap[ap.length - 1];
+      // Label: if a ghost exists for AD (history exists), use subscript to indicate current
+      if (Ghost.ad !== null && Ghost.ad !== adS) {
+        svg.appendChild(mtxtSub(at[0] + 8, at[1], 'AD', currentLabel('ad'), '#1a6fc4', 13, 'start', true));
+      } else {
+        svg.appendChild(mtxt(at[0] + 8, at[1], 'AD', '#1a6fc4', 13, 'start', true));
+      }
+    }
+
+    // ── Active SRAS ──
+    var sp = curvePts(srasP, srasS);
+    if (sp.length > 1) {
+      svg.appendChild(mpath(sp, '#c47a00', 2.5));
+      var st = sp[sp.length - 1];
+      if (Ghost.sras !== null && Ghost.sras !== srasS) {
+        svg.appendChild(mtxtSub(st[0] + 8, st[1], 'SRAS', currentLabel('sras'), '#c47a00', 13, 'start', true));
+      } else {
+        svg.appendChild(mtxt(st[0] + 8, st[1], 'SRAS', '#c47a00', 13, 'start', true));
+      }
+    }
+
+    // ── Equilibrium ──
+    var eq  = eqPt(adS, srasS);
+    var esx = tx(eq.Y), esy = ty(eq.P);
+    var ok  = eq.Y >= YMN && eq.Y <= YMX && eq.P >= PMN && eq.P <= PMX;
+    var atLR = lok && ok && Math.abs(eq.Y - lyv) < 1.5;
+
+    if (ok) {
+      drawFixedEq(svg, eq.Y, eq.P);
+      document.getElementById('eq-y').textContent     = Math.round(eq.Y);
+      document.getElementById('eq-p').textContent     = eq.P.toFixed(1);
+      document.getElementById('eq-ystar').textContent = lok ? Math.round(lyv) : '\u2014';
+
+      var uEl = document.getElementById('unemp-val');
+      if (lok) {
+        var diff = eq.Y - lyv;
+        if (Math.abs(diff) < 1.5) { uEl.textContent = 'U = U*'; uEl.className = 'unemp-val at'; }
+        else if (diff > 0)         { uEl.textContent = 'U < U* (overheating)'; uEl.className = 'unemp-val below'; }
+        else                       { uEl.textContent = 'U > U* (recession)'; uEl.className = 'unemp-val above'; }
+      } else {
+        uEl.textContent = '\u2014'; uEl.className = 'unemp-val at';
+      }
+    } else {
+      document.getElementById('eq-y').textContent = '\u2014';
+      document.getElementById('eq-p').textContent = '\u2014';
+      document.getElementById('eq-ystar').textContent = lok ? Math.round(lyv) : '\u2014';
+      var uEl2 = document.getElementById('unemp-val');
+      uEl2.textContent = '\u2014'; uEl2.className = 'unemp-val at';
+    }
+
+    // ── X-axis labels ──
+    if (lok) {
+      svg.appendChild(mcirc(lsx, PAD.top + PH, 4, '#3a8a2a'));
+      if (atLR) {
+        svg.appendChild(mtxt(lsx, PAD.top + PH + 26, 'Y = Y*', '#3a8a2a', 13, 'middle', true, true));
+      } else {
+        svg.appendChild(mtxt(lsx, PAD.top + PH + 26, 'Y*', '#3a8a2a', 13, 'middle', true, true));
+        if (ok) {
+          svg.appendChild(mcirc(esx, PAD.top + PH, 3.5, '#c0392b'));
+          var gap = esx - lsx;
+          var nudge = Math.abs(gap) < 22 ? (gap >= 0 ? 14 : -14) : 0;
+          svg.appendChild(mtxt(esx + nudge, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+        }
+      }
+    } else if (ok) {
+      svg.appendChild(mcirc(esx, PAD.top + PH, 3.5, '#c0392b'));
+      svg.appendChild(mtxt(esx, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+    }
+
+    // ── Narrative ──
+    updateNarr(ok ? eq : null, lok ? lyv : null, atLR);
+  }
+
+  // Ghost label: pick a subscript for the ghost based on its shift value
+  // relative to 0 (original). Keep it simple: always label ghost as the
+  // "prior" state — use a small italicized "prev" marker via subscript number.
+  // Strategy: ghost gets the lower subscript number.
+  function ghostLabel(curve) {
+    // Ghost is the older position; current is newer.
+    // We want: if ghost=0 it was at original, current moved away → ghost=0, current=1
+    // If ghost≠0 and current=0, ghost=1, current=0
+    // General: ghost always labeled with its ordinal relative to original
+    var g = Ghost[curve];
+    if (g === 0) return '0';          // ghost is the original equilibrium
+    return '\u2080';                   // fallback — subscript 0 via unicode
+  }
+
+  function currentLabel(curve) {
+    var g = Ghost[curve];
+    if (g === 0) return '1';          // original was the ghost → current is 1
+    return '0';                        // ghost is off-center → current heading back to 0
+  }
+
+  // Simpler: just track move count per curve and use that
+  var MoveCount = { ad: 0, sras: 0, lras: 0 };
+
+  function ghostLabelN(curve) {
+    return String(MoveCount[curve] - 1);
+  }
+  function currentLabelN(curve) {
+    return String(MoveCount[curve]);
+  }
+
+  function updateNarr(eq, ystar, atLR) {
+    var n = document.getElementById('full-narr');
+    if (!n) return;
+
+    var adMoved   = S.ad !== 0;
+    var srasMoved = S.sras !== 0;
+    var lrasMoved = S.lras !== 0;
+
+    if (!adMoved && !srasMoved && !lrasMoved) {
+      n.textContent = 'The economy is at long-run equilibrium. Output equals potential (Y = Y*) and unemployment is at the natural rate. Shift AD or SRAS to create a recession, then shift back to recover.';
+      return;
+    }
+
+    var parts = [];
+    if (adMoved) {
+      if (S.ad > 0) parts.push('AD has shifted right — higher spending raises output and the price level in the short run.');
+      else parts.push('AD has shifted left — lower spending reduces output and pushes unemployment above the natural rate.');
+    }
+    if (srasMoved) {
+      if (S.sras > 0) parts.push('SRAS has shifted right — lower input costs or wages allow more output at every price level.');
+      else parts.push('SRAS has shifted left — higher input costs reduce output and raise prices (stagflation).');
+    }
+    if (lrasMoved) {
+      if (S.lras > 0) parts.push('LRAS has shifted right — the economy\'s productive capacity has grown.');
+      else parts.push('LRAS has shifted left — the economy\'s productive capacity has shrunk.');
+    }
+
+    if (atLR && eq) {
+      parts.push('Output is back at potential (Y = Y*) and unemployment has returned to the natural rate.');
+    } else if (eq && ystar !== null) {
+      var diff = eq.Y - ystar;
+      if (diff < -1.5) parts.push('Output is still below potential — a recessionary gap remains.');
+      else if (diff > 1.5) parts.push('Output is above potential — an inflationary gap has opened.');
+    }
+
+    n.textContent = parts.join(' ');
+  }
+
+  // ── Ghost commit: called on slider "change" (mouseup/touchend) ──
+  function commitGhost(curve, value) {
+    // Only create a ghost if the value actually changed from current ghost
+    var currentVal = S[curve];
+    // The ghost should capture where the curve WAS before this drag session.
+    // We record it when drag starts (on mousedown/touchstart of slider),
+    // but since we only have change events easily, we record the ghost as
+    // the value at the PREVIOUS commit.
+    Ghost[curve] = prevCommit[curve];
+    prevCommit[curve] = value;
+    MoveCount[curve]++;
+  }
+
+  // Track the committed value before each drag session starts
+  var prevCommit = { ad: 0, sras: 0, lras: 0 };
+
+  // ── Reset ──────────────────────────────────────
+  function fmt(v) { return v > 0 ? '+' + v : '' + v; }
+
+  function resetFull() {
+    S.ad = 0; S.sras = 0; S.lras = 0;
+    Ghost.ad = null; Ghost.sras = null; Ghost.lras = null;
+    prevCommit.ad = 0; prevCommit.sras = 0; prevCommit.lras = 0;
+    MoveCount.ad = 0; MoveCount.sras = 0; MoveCount.lras = 0;
+    document.getElementById('fad-slider').value   = 0; document.getElementById('fad-val').textContent   = '0';
+    document.getElementById('fsras-slider').value = 0; document.getElementById('fsras-val').textContent = '0';
+    document.getElementById('flras-slider').value = 0; document.getElementById('flras-val').textContent = '0';
+    renderFull();
+  }
+  window.resetFull = resetFull;
+
+  // ── Slider wiring ──────────────────────────────
+  // `input` → live update while dragging (no ghost update)
+  // `change` → fires on mouseup/touchend → commit ghost then render
+  // `mousedown`/`touchstart` → record pre-drag value for ghost
+
+  function wireSlider(sliderId, valId, curve) {
+    var el = document.getElementById(sliderId);
+
+    // Record position at the start of each drag
+    function recordPre() {
+      prevCommit[curve] = S[curve];
+    }
+    el.addEventListener('mousedown', recordPre);
+    el.addEventListener('touchstart', recordPre, { passive: true });
+
+    el.addEventListener('input', function () {
+      S[curve] = +this.value;
+      document.getElementById(valId).textContent = fmt(this.value);
+      renderFull();
+    });
+
+    el.addEventListener('change', function () {
+      // Commit: ghost becomes pre-drag position if it actually moved
+      if (S[curve] !== prevCommit[curve]) {
+        Ghost[curve] = prevCommit[curve];
+        MoveCount[curve]++;
+      }
+      renderFull();
+    });
+  }
+
+  wireSlider('fad-slider',   'fad-val',   'ad');
+  wireSlider('fsras-slider', 'fsras-val', 'sras');
+  wireSlider('flras-slider', 'flras-val', 'lras');
+
+  // ── Init ──────────────────────────────────────
+  function init() { renderFull(); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Possibilities Frontier</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --ppf: #1a6fc4;
+    --ppf2: #c0392b;
+    --inside: #3a8a2a;
+    --outside: #9b59b6;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: 0.02em; color: var(--text); margin-bottom: 4px; }
+  .subtitle { font-size: 0.82rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 24px; letter-spacing: 0.05em; }
+
+  .container { display: flex; gap: 24px; align-items: flex-start; width: 100%; max-width: 980px; }
+
+  .chart-wrap {
+    flex: 1; background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .controls { width: 235px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+
+  .control-group {
+    background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .control-group h3 {
+    font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 7px;
+    border-bottom: 2px solid currentColor; opacity: 0.85;
+  }
+
+  .ctrl-setup h3  { color: #555; }
+  .ctrl-shape h3  { color: #555; }
+  .ctrl-x h3     { color: #2e86ab; }
+  .ctrl-y h3     { color: #c47a00; }
+
+  /* Text inputs */
+  .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .input-row:last-child { margin-bottom: 0; }
+
+  .input-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .input-group.full { flex: unset; width: 100%; }
+
+  .input-group label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .input-group input[type=text],
+  .input-group input[type=number] {
+    width: 100%; padding: 6px 8px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+    font-weight: 600; text-align: center; outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .input-group input[type=number]::-webkit-outer-spin-button,
+  .input-group input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .input-group input:focus { border-color: var(--text); background: white; }
+
+  /* Toggle switch */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+  }
+
+  .toggle-label {
+    font-size: 0.82rem; color: var(--text); flex: 1;
+    line-height: 1.3;
+  }
+
+  .toggle-label span {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--muted); margin-top: 2px;
+  }
+
+  .toggle {
+    position: relative; width: 44px; height: 24px; flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-track {
+    position: absolute; inset: 0; cursor: pointer;
+    background: #c8c0b4; border-radius: 24px;
+    transition: background 0.2s;
+  }
+
+  .toggle-track::before {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; left: 3px; top: 3px;
+    background: white; border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+
+  .toggle input:checked + .toggle-track { background: var(--ppf); }
+  .toggle input:checked + .toggle-track::before { transform: translateX(20px); }
+
+  /* Sliders */
+  .slider-row { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+  .slider-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; color: var(--muted);
+  }
+
+  .slider-label .val {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.70rem;
+    font-weight: 500; color: var(--text); min-width: 30px; text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 5px; border-radius: 3px; outline: none; cursor: pointer;
+  }
+
+  .x-slider { background: #a8d4ec; }
+  .x-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #2e86ab; border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  .x-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #2e86ab; border: 2px solid white; cursor: pointer;
+  }
+
+  .y-slider { background: #f0d8a0; }
+  .y-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #c47a00; border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  .y-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #c47a00; border: 2px solid white; cursor: pointer;
+  }
+
+  .ctrl-both h3  { color: #6a3d9a; }
+
+  .both-slider { background: #d8c8f0; }
+  .both-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #6a3d9a; border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  .both-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #6a3d9a; border: 2px solid white; cursor: pointer;
+  }
+    width: 100%; padding: 9px; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; cursor: pointer;
+    transition: all 0.15s; text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+
+  @media (max-width: 700px) {
+    .container { flex-direction: column; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Production Possibilities Frontier</h1>
+<p class="subtitle" id="page-subtitle">Interactive PPF Model</p>
+<h2 id="chart-title-display" style="font-size:1.45rem; font-weight:600; letter-spacing:0.02em; color:var(--text); margin-bottom:20px; margin-top:-12px; font-family:'Crimson Pro',Georgia,serif; min-height:1.6rem;"></h2>
+
+<div class="container">
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 520 480" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="controls">
+
+    <!-- Setup -->
+    <div class="control-group ctrl-setup">
+      <h3>Goods</h3>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Chart Title</label>
+          <input type="text" id="chart-title" placeholder="e.g. Opportunity Crust" value="">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Good X (horizontal)</label>
+          <input type="text" id="good-x" placeholder="e.g. Wings" value="">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Good Y (vertical)</label>
+          <input type="text" id="good-y" placeholder="e.g. Pizza" value="">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Max X</label>
+          <input type="number" id="max-x" value="100" min="1" step="1">
+        </div>
+        <div class="input-group">
+          <label>Max Y</label>
+          <input type="number" id="max-y" value="100" min="1" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Shape toggle -->
+    <div class="control-group ctrl-shape">
+      <h3>Opportunity Cost</h3>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Increasing OC
+          <span id="shape-label">currently: Constant</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="shape-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Shift both sectors (tech / resources for whole economy) -->
+    <div class="control-group ctrl-both">
+      <h3>Both Capacities</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift Both</span>
+          <span class="val" id="both-shift-val">0%</span>
+        </div>
+        <input type="range" class="both-slider" id="both-shift" min="-50" max="50" value="0" step="1">
+      </div>
+    </div>
+
+    <!-- Shift X sector -->
+    <div class="control-group ctrl-x">
+      <h3 id="x-header">Good X Capacity</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift</span>
+          <span class="val" id="x-shift-val">0%</span>
+        </div>
+        <input type="range" class="x-slider" id="x-shift" min="-50" max="50" value="0" step="1">
+      </div>
+    </div>
+
+    <!-- Shift Y sector -->
+    <div class="control-group ctrl-y">
+      <h3 id="y-header">Good Y Capacity</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift</span>
+          <span class="val" id="y-shift-val">0%</span>
+        </div>
+        <input type="range" class="y-slider" id="y-shift" min="-50" max="50" value="0" step="1">
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset</button>
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('chart');
+const NS = 'http://www.w3.org/2000/svg';
+
+const W = 520, H = 480;
+const PAD = { top: 30, right: 30, bottom: 62, left: 68 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top - PAD.bottom;
+
+let state = {
+  maxX: 100,
+  maxY: 100,
+  increasing: false,
+  xShift: 0,    // % shift of X intercept only
+  yShift: 0,    // % shift of Y intercept only
+  bothShift: 0, // % shift of both intercepts together
+};
+
+// ── PPF math ───────────────────────────────────────────────
+// Effective intercepts after shifts — both acts as a base shift, x/y add on top
+function xIntercept(s) { return s.maxX * (1 + s.bothShift / 100) * (1 + s.xShift / 100); }
+function yIntercept(s) { return s.maxY * (1 + s.bothShift / 100) * (1 + s.yShift / 100); }
+
+// Constant OC: straight line from (0, Ymax) to (Xmax, 0)
+// Y = Ymax - (Ymax/Xmax)*X
+function ppfLinear(X, Xmax, Ymax) {
+  return Ymax - (Ymax / Xmax) * X;
+}
+
+// Increasing OC: concave curve — use quarter-ellipse shape
+// (X/Xmax)^2 + (Y/Ymax)^2 = 1  → Y = Ymax * sqrt(1 - (X/Xmax)^2)
+function ppfConcave(X, Xmax, Ymax) {
+  const t = X / Xmax;
+  if (t > 1) return 0;
+  return Ymax * Math.sqrt(Math.max(0, 1 - t * t));
+}
+
+function ppfY(X, Xmax, Ymax, increasing) {
+  return increasing ? ppfConcave(X, Xmax, Ymax) : ppfLinear(X, Xmax, Ymax);
+}
+
+// ── Axis scaling ───────────────────────────────────────────
+function niceStep(maxVal) {
+  const raw = maxVal / 4;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  let step;
+  if (norm < 1.5) step = 1;
+  else if (norm < 3.5) step = 2;
+  else if (norm < 7.5) step = 5;
+  else step = 10;
+  return step * mag;
+}
+
+// Axis max: give 10% headroom beyond the largest possible intercept
+function axisMaxX(s) { return xIntercept(s) * 1.15; }
+function axisMaxY(s) { return yIntercept(s) * 1.15; }
+
+function toSvgX(x, xMax) { return PAD.left + (x / xMax) * PLOT_W; }
+function toSvgY(y, yMax) { return PAD.top + (1 - y / yMax) * PLOT_H; }
+
+// ── SVG helpers ────────────────────────────────────────────
+function svgEl(tag) { return document.createElementNS(NS, tag); }
+
+function mkLine(x1, y1, x2, y2, stroke, sw, dash) {
+  const e = svgEl('line');
+  e.setAttribute('x1', x1); e.setAttribute('y1', y1);
+  e.setAttribute('x2', x2); e.setAttribute('y2', y2);
+  e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw || 1.5);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkPath(pts, stroke, sw, fill, opacity) {
+  const d = pts.map((p,i) => `${i?'L':'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+  const e = svgEl('path');
+  e.setAttribute('d', d); e.setAttribute('stroke', stroke || 'none');
+  e.setAttribute('stroke-width', sw || 2.5);
+  e.setAttribute('fill', fill || 'none');
+  if (opacity) e.setAttribute('opacity', opacity);
+  e.setAttribute('stroke-linecap', 'round'); e.setAttribute('stroke-linejoin', 'round');
+  return e;
+}
+
+function mkCircle(cx, cy, r, fill, stroke, sw) {
+  const e = svgEl('circle');
+  e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r);
+  e.setAttribute('fill', fill);
+  if (stroke) { e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw||1.5); }
+  return e;
+}
+
+function mkText(x, y, str, fill, size, anchor, italic, bold) {
+  const e = svgEl('text');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  e.setAttribute('fill', fill); e.setAttribute('font-size', size || 13);
+  e.setAttribute('font-family', italic ? 'Crimson Pro, Georgia, serif' : 'JetBrains Mono, monospace');
+  e.setAttribute('font-style', italic ? 'italic' : 'normal');
+  e.setAttribute('font-weight', bold ? '700' : 'normal');
+  e.setAttribute('text-anchor', anchor || 'middle');
+  e.setAttribute('dominant-baseline', 'middle');
+  e.textContent = str;
+  return e;
+}
+
+function add(e) { svg.appendChild(e); return e; }
+
+function fmtTick(v) {
+  const r = parseFloat(v.toPrecision(4));
+  return r % 1 === 0 ? r.toString() : r.toString();
+}
+
+// ── Render ─────────────────────────────────────────────────
+function render() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const s = state;
+  const Xi = xIntercept(s);
+  const Yi = yIntercept(s);
+  const xMax = axisMaxX(s);
+  const yMax = axisMaxY(s);
+  const xStep = niceStep(xMax);
+  const yStep = niceStep(yMax);
+
+  const tx = x => toSvgX(x, xMax);
+  const ty = y => toSvgY(y, yMax);
+
+  const goodX = document.getElementById('good-x').value.trim() || 'Good X';
+  const goodY = document.getElementById('good-y').value.trim() || 'Good Y';
+
+  // Update page subtitle
+  const sub = document.getElementById('page-subtitle');
+  const gx = document.getElementById('good-x').value.trim();
+  const gy = document.getElementById('good-y').value.trim();
+  if (gx && gy) sub.textContent = `${gx} vs. ${gy}`;
+  else if (gx || gy) sub.textContent = `PPF: ${gx || gy}`;
+  else sub.textContent = 'Interactive PPF Model';
+
+  // Update slider headers
+  document.getElementById('x-header').textContent =
+    (document.getElementById('good-x').value.trim() || 'Good X') + ' Capacity';
+  document.getElementById('y-header').textContent =
+    (document.getElementById('good-y').value.trim() || 'Good Y') + ' Capacity';
+
+  // Update chart title h2
+  document.getElementById('chart-title-display').textContent =
+    document.getElementById('chart-title').value.trim();
+
+  const bg = svgEl('rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2');
+  add(bg);
+  const pb = svgEl('rect');
+  pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top);
+  pb.setAttribute('width', PLOT_W); pb.setAttribute('height', PLOT_H);
+  pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', '2');
+  add(pb);
+
+  // ── Grid
+  for (let x = 0; x <= xMax; x += xStep)
+    add(mkLine(tx(x), PAD.top, tx(x), PAD.top+PLOT_H, '#ddd8ce', 1));
+  for (let y = 0; y <= yMax; y += yStep)
+    add(mkLine(PAD.left, ty(y), PAD.left+PLOT_W, ty(y), '#ddd8ce', 1));
+
+  // ── Axes
+  add(mkLine(PAD.left, PAD.top+PLOT_H, PAD.left+PLOT_W, PAD.top+PLOT_H, '#6b6560', 1.5));
+  add(mkLine(PAD.left, PAD.top, PAD.left, PAD.top+PLOT_H, '#6b6560', 1.5));
+
+  // ── Tick labels
+  for (let y = 0; y <= yMax; y += yStep)
+    add(mkText(PAD.left-8, ty(y), fmtTick(y), '#7a7268', 10, 'end', false));
+  for (let x = 0; x <= xMax; x += xStep)
+    add(mkText(tx(x), PAD.top+PLOT_H+14, fmtTick(x), '#7a7268', 10, 'middle', false));
+
+  // ── Axis labels
+  add(mkText(PAD.left+PLOT_W/2, H-10, goodX, '#7a7268', 12, 'middle', true));
+  const yLbl = svgEl('text');
+  yLbl.setAttribute('x', 13); yLbl.setAttribute('y', PAD.top+PLOT_H/2);
+  yLbl.setAttribute('fill', '#7a7268'); yLbl.setAttribute('font-size', 12);
+  yLbl.setAttribute('font-family', 'Crimson Pro, Georgia, serif');
+  yLbl.setAttribute('font-style', 'italic'); yLbl.setAttribute('text-anchor', 'middle');
+  yLbl.setAttribute('transform', `rotate(-90,13,${PAD.top+PLOT_H/2})`);
+  yLbl.textContent = goodY;
+  add(yLbl);
+
+  // ── Build PPF curve points
+  const steps = 300;
+  const ppfPts = [];
+  for (let i = 0; i <= steps; i++) {
+    const X = (i / steps) * Xi;
+    const Y = ppfY(X, Xi, Yi, s.increasing);
+    if (Y >= 0) ppfPts.push([tx(X), ty(Y)]);
+  }
+
+  // ── Ghost silhouette of ORIGINAL PPF (only when shifted)
+  const shifted = s.xShift !== 0 || s.yShift !== 0 || s.bothShift !== 0;
+  if (shifted) {
+    const Xi0 = s.maxX;  // completely unshifted intercepts
+    const Yi0 = s.maxY;
+    const ghostPts = [];
+    for (let i = 0; i <= steps; i++) {
+      const X = (i / steps) * Xi0;
+      const Y = ppfY(X, Xi0, Yi0, s.increasing);
+      if (Y >= 0) ghostPts.push([tx(X), ty(Y)]);
+    }
+    if (ghostPts.length > 1) {
+      // Ghost dashed curve
+      const ghostPath = mkPath(ghostPts, '#1a6fc4', 1.8);
+      ghostPath.setAttribute('stroke-dasharray', '6,4');
+      ghostPath.setAttribute('opacity', '0.35');
+      add(ghostPath);
+      // Ghost intercept dots
+      add(mkCircle(tx(Xi0), PAD.top+PLOT_H, 3.5, 'none', '#1a6fc4', 1.5));
+      const ghostCircleY = svgEl('circle');
+      ghostCircleY.setAttribute('cx', PAD.left); ghostCircleY.setAttribute('cy', ty(Yi0));
+      ghostCircleY.setAttribute('r', 3.5); ghostCircleY.setAttribute('fill', 'none');
+      ghostCircleY.setAttribute('stroke', '#1a6fc4'); ghostCircleY.setAttribute('stroke-width', 1.5);
+      ghostCircleY.setAttribute('opacity', '0.35');
+      add(ghostCircleY);
+      // "Original PPF" label near ghost curve midpoint
+      const gmid = ghostPts[Math.floor(ghostPts.length * 0.55)];
+      const lbl = mkText(gmid[0]+22, gmid[1]-8, 'Original PPF', '#1a6fc4', 11, 'middle', true, false);
+      lbl.setAttribute('opacity', '0.5');
+      add(lbl);
+    }
+  }
+
+  // ── Shaded feasible region (fill under PPF to axes)
+  if (ppfPts.length > 1) {
+    const fillPts = [
+      ...ppfPts,
+      [tx(Xi), ty(0)],   // bottom-right intercept
+      [tx(0),  ty(0)],   // origin
+      [tx(0),  ty(Yi)],  // top-left intercept (close back to start)
+    ];
+    add(mkPath(fillPts, 'none', 0, '#1a6fc4', 0.08));
+  }
+
+  // ── PPF curve itself
+  if (ppfPts.length > 1) {
+    add(mkPath(ppfPts, '#1a6fc4', 2.8));
+
+    // Label near the middle of the curve
+    const mid = ppfPts[Math.floor(ppfPts.length * 0.55)];
+    add(mkText(mid[0]+18, mid[1]-10, 'PPF', '#1a6fc4', 13, 'middle', true, true));
+  }
+
+  // ── Intercept dots + labels
+  // X intercept
+  const xDotX = tx(Xi), xDotY = ty(0);
+  add(mkCircle(xDotX, PAD.top+PLOT_H, 4, '#1a6fc4'));
+  add(mkText(xDotX, PAD.top+PLOT_H+28, fmtTick(Xi), '#1a6fc4', 11, 'middle', false, true));
+
+  // Y intercept
+  const yDotY = ty(Yi);
+  add(mkCircle(PAD.left, yDotY, 4, '#1a6fc4'));
+  add(mkText(PAD.left-32, yDotY, fmtTick(Yi), '#1a6fc4', 11, 'end', false, true));
+
+  // ── Region labels
+  // "Attainable" inside
+  const insideX = tx(Xi * 0.3);
+  const insideY = ty(Yi * 0.3);
+  add(mkText(insideX, insideY, 'Attainable', '#3a8a2a', 11, 'middle', true));
+
+  // "Unattainable" outside — position beyond midpoint of curve
+  const outsideX = tx(Xi * 0.72);
+  const outsideY = ty(Yi * 0.72);
+  add(mkText(outsideX, outsideY, 'Unattainable', '#9b59b6', 11, 'middle', true));
+}
+
+// ── Wiring ─────────────────────────────────────────────────
+function fmt(v) { return v > 0 ? '+'+v+'%' : v+'%'; }
+
+document.getElementById('chart-title').addEventListener('input', render);
+document.getElementById('good-x').addEventListener('input', render);
+document.getElementById('good-y').addEventListener('input', render);
+
+document.getElementById('max-x').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (v > 0) { state.maxX = v; render(); }
+});
+document.getElementById('max-y').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (v > 0) { state.maxY = v; render(); }
+});
+
+document.getElementById('shape-toggle').addEventListener('change', function() {
+  state.increasing = this.checked;
+  document.getElementById('shape-label').textContent =
+    this.checked ? 'currently: Increasing' : 'currently: Constant';
+  render();
+});
+
+document.getElementById('both-shift').addEventListener('input', function() {
+  state.bothShift = +this.value;
+  document.getElementById('both-shift-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('x-shift').addEventListener('input', function() {
+  state.xShift = +this.value;
+  document.getElementById('x-shift-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('y-shift').addEventListener('input', function() {
+  state.yShift = +this.value;
+  document.getElementById('y-shift-val').textContent = fmt(this.value);
+  render();
+});
+
+document.getElementById('reset-btn').addEventListener('click', function() {
+  state.xShift = 0; state.yShift = 0; state.bothShift = 0;
+  document.getElementById('x-shift').value = 0;
+  document.getElementById('y-shift').value = 0;
+  document.getElementById('both-shift').value = 0;
+  document.getElementById('x-shift-val').textContent = '0%';
+  document.getElementById('y-shift-val').textContent = '0%';
+  document.getElementById('both-shift-val').textContent = '0%';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

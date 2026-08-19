@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market for Loanable Funds</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --invest: #1a6fc4;
+    --save: #c47a00;
+    --eq: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 980px;
+  }
+
+  .chart-wrap {
+    flex: 1;
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .controls {
+    width: 235px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .control-group {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .control-group h3 {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.85;
+  }
+
+  .ctrl-eq h3     { color: var(--eq); }
+  .ctrl-invest h3 { color: var(--invest); }
+  .ctrl-save h3   { color: var(--save); }
+
+  .eq-inputs { display: flex; gap: 10px; }
+
+  .eq-input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .eq-input-group label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eq-input-group input[type=number] {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--eq);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .eq-input-group input[type=number]::-webkit-outer-spin-button,
+  .eq-input-group input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .eq-input-group input[type=number]:focus {
+    border-color: var(--eq);
+    background: white;
+  }
+
+  .input-hint {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  .slider-row { display: flex; flex-direction: column; gap: 6px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .slider-label .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 34px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  #invest-slider { background: #b8d4ef; }
+  #invest-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--invest); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #invest-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--invest); border: 2px solid white; cursor: pointer;
+  }
+
+  #save-slider { background: #f0d8a0; }
+  #save-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--save); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #save-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--save); border: 2px solid white; cursor: pointer;
+  }
+
+  .reset-btn {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+
+  @media (max-width: 700px) {
+    .container { flex-direction: column; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Market for Loanable Funds</h1>
+<p class="subtitle">Savings &amp; Investment</p>
+
+<div class="container">
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="controls">
+
+    <!-- Equilibrium setup -->
+    <div class="control-group ctrl-eq">
+      <h3>Initial Equilibrium</h3>
+      <div class="eq-inputs">
+        <div class="eq-input-group">
+          <label>r* (%)</label>
+          <input type="number" id="input-r" value="5" min="0.1" step="0.5">
+          <div class="input-hint">interest rate</div>
+        </div>
+        <div class="eq-input-group">
+          <label>Q* ($)</label>
+          <input type="number" id="input-q" value="100" min="1" step="1">
+          <div class="input-hint">qty of funds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Investment (Demand for loanable funds) -->
+    <div class="control-group ctrl-invest">
+      <h3>Investment (D)</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift Investment</span>
+          <span class="val" id="invest-val">0%</span>
+        </div>
+        <input type="range" id="invest-slider" min="-50" max="50" value="0" step="1">
+      </div>
+    </div>
+
+    <!-- Savings (Supply of loanable funds) -->
+    <div class="control-group ctrl-save">
+      <h3>Savings (S)</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift Savings</span>
+          <span class="val" id="save-val">0%</span>
+        </div>
+        <input type="range" id="save-slider" min="-50" max="50" value="0" step="1">
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset Shifts</button>
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('chart');
+const NS = 'http://www.w3.org/2000/svg';
+
+const W = 520, H = 440;
+const PAD = { top: 30, right: 40, bottom: 55, left: 72 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top - PAD.bottom;
+
+let state = {
+  eqR: 5,      // equilibrium interest rate (%)
+  eqQ: 100,    // equilibrium quantity of loanable funds
+  investShift: 0,  // % shift
+  saveShift: 0,
+};
+
+function axisMax(eq) { return eq * 2; }
+
+function niceStep(eq) {
+  const raw = (eq * 2) / 5;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  let step;
+  if (norm < 1.5) step = 1;
+  else if (norm < 3.5) step = 2;
+  else if (norm < 7.5) step = 5;
+  else step = 10;
+  return step * mag;
+}
+
+function toSvgX(q, qMax) { return PAD.left + (q / qMax) * PLOT_W; }
+function toSvgY(r, rMax) { return PAD.top + (1 - r / rMax) * PLOT_H; }
+
+// Investment = Demand for loanable funds: downward sloping
+//   r = eqR - eqR*(Q - eqQ - shiftQ)/eqQ
+// Savings = Supply of loanable funds: upward sloping
+//   r = eqR*(Q - shiftQ)/eqQ
+// Intersection: eqQ + (dShift + sShift)/2
+function investR(Q, eqR, eqQ, shiftQ) {
+  return eqR - eqR * (Q - eqQ - shiftQ) / eqQ;
+}
+function saveR(Q, eqR, eqQ, shiftQ) {
+  return eqR * (Q - shiftQ) / eqQ;
+}
+function equilibrium(eqR, eqQ, dShift, sShift) {
+  const Q = eqQ + (dShift + sShift) / 2;
+  const r = saveR(Q, eqR, eqQ, sShift);
+  return { Q, r };
+}
+
+function svgEl(tag) { return document.createElementNS(NS, tag); }
+
+function mkLine(x1, y1, x2, y2, stroke, sw, dash) {
+  const e = svgEl('line');
+  e.setAttribute('x1', x1); e.setAttribute('y1', y1);
+  e.setAttribute('x2', x2); e.setAttribute('y2', y2);
+  e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw || 1.5);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkPath(pts, stroke, sw) {
+  const d = pts.map((p,i) => `${i?'L':'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+  const e = svgEl('path');
+  e.setAttribute('d', d); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw || 2.5);
+  e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
+  return e;
+}
+
+function mkCircle(cx, cy, r, fill, stroke, sw) {
+  const e = svgEl('circle');
+  e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r);
+  e.setAttribute('fill', fill);
+  if (stroke) { e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw||1.5); }
+  return e;
+}
+
+function mkText(x, y, str, fill, size, anchor, italic, bold) {
+  const e = svgEl('text');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  e.setAttribute('fill', fill); e.setAttribute('font-size', size || 13);
+  e.setAttribute('font-family', italic ? 'Crimson Pro, Georgia, serif' : 'JetBrains Mono, monospace');
+  e.setAttribute('font-style', italic ? 'italic' : 'normal');
+  e.setAttribute('font-weight', bold ? '700' : 'normal');
+  e.setAttribute('text-anchor', anchor || 'middle');
+  e.setAttribute('dominant-baseline', 'middle');
+  e.textContent = str;
+  return e;
+}
+
+function add(e) { svg.appendChild(e); return e; }
+
+function fmtTick(v, isRate) {
+  if (v === 0) return '0';
+  const r = parseFloat(v.toPrecision(4));
+  const s = r % 1 === 0 ? r.toString() : r.toString();
+  return isRate ? s + '%' : s;
+}
+
+function render() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const { eqR, eqQ, investShift, saveShift } = state;
+
+  const qMax = axisMax(eqQ);
+  const rMax = axisMax(eqR);
+  const qStep = niceStep(eqQ);
+  const rStep = niceStep(eqR);
+
+  const dShiftQ = (investShift / 100) * eqQ;
+  const sShiftQ = (saveShift  / 100) * eqQ;
+
+  const tx = q => toSvgX(q, qMax);
+  const ty = r => toSvgY(r, rMax);
+
+  // Backgrounds
+  const bg = svgEl('rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2');
+  add(bg);
+  const pb = svgEl('rect');
+  pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top);
+  pb.setAttribute('width', PLOT_W); pb.setAttribute('height', PLOT_H);
+  pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', '2');
+  add(pb);
+
+  // Grid
+  for (let q = 0; q <= qMax; q += qStep)
+    add(mkLine(tx(q), PAD.top, tx(q), PAD.top+PLOT_H, '#ddd8ce', 1));
+  for (let r = 0; r <= rMax; r += rStep)
+    add(mkLine(PAD.left, ty(r), PAD.left+PLOT_W, ty(r), '#ddd8ce', 1));
+
+  // Axes
+  add(mkLine(PAD.left, PAD.top+PLOT_H, PAD.left+PLOT_W, PAD.top+PLOT_H, '#6b6560', 1.5));
+  add(mkLine(PAD.left, PAD.top, PAD.left, PAD.top+PLOT_H, '#6b6560', 1.5));
+
+  // Tick labels — r axis (interest rate, with %)
+  for (let r = 0; r <= rMax; r += rStep)
+    add(mkText(PAD.left-8, ty(r), fmtTick(r, true), '#7a7268', 10, 'end', false));
+
+  // Tick labels — Q axis
+  for (let q = 0; q <= qMax; q += qStep)
+    add(mkText(tx(q), PAD.top+PLOT_H+14, fmtTick(q, false), '#7a7268', 10, 'middle', false));
+
+  // Axis labels
+  add(mkText(PAD.left+PLOT_W/2, H-8, 'Quantity of Loanable Funds', '#7a7268', 12, 'middle', true));
+  const rLbl = svgEl('text');
+  rLbl.setAttribute('x', 13); rLbl.setAttribute('y', PAD.top+PLOT_H/2);
+  rLbl.setAttribute('fill', '#7a7268'); rLbl.setAttribute('font-size', 12);
+  rLbl.setAttribute('font-family', 'Crimson Pro, Georgia, serif');
+  rLbl.setAttribute('font-style', 'italic'); rLbl.setAttribute('text-anchor', 'middle');
+  rLbl.setAttribute('transform', `rotate(-90,13,${PAD.top+PLOT_H/2})`);
+  rLbl.textContent = 'Interest Rate (r)';
+  add(rLbl);
+
+  // ── Ghost silhouettes (original curve position when shifted) ──
+  const shifted = investShift !== 0 || saveShift !== 0;
+  if (shifted) {
+    if (investShift !== 0) {
+      const ghostIPts = [];
+      for (let q = 0; q <= qMax; q += qMax/200) {
+        const r = investR(q, eqR, eqQ, 0);
+        if (r >= 0 && r <= rMax) ghostIPts.push([tx(q), ty(r)]);
+      }
+      if (ghostIPts.length > 1) {
+        const gp = mkPath(ghostIPts, '#1a6fc4', 1.8);
+        gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+      }
+    }
+    if (saveShift !== 0) {
+      const ghostSPts = [];
+      for (let q = 0; q <= qMax; q += qMax/200) {
+        const r = saveR(q, eqR, eqQ, 0);
+        if (r >= 0 && r <= rMax) ghostSPts.push([tx(q), ty(r)]);
+      }
+      if (ghostSPts.length > 1) {
+        const gp = mkPath(ghostSPts, '#c47a00', 1.8);
+        gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+      }
+    }
+  }
+
+  // ── Investment curve (Demand — downward sloping) ──────────
+  const iPts = [];
+  for (let q = 0; q <= qMax; q += qMax/200) {
+    const r = investR(q, eqR, eqQ, dShiftQ);
+    if (r >= 0 && r <= rMax) iPts.push([tx(q), ty(r)]);
+  }
+  if (iPts.length > 1) {
+    add(mkPath(iPts, '#1a6fc4', 2.5));
+    const tip = iPts[iPts.length-1];
+    add(mkText(tip[0]+7, tip[1]-9, 'I', '#1a6fc4', 13, 'start', true, true));
+    add(mkText(tip[0]+7, tip[1]+9, '(Demand)', '#1a6fc4', 11, 'start', true, false));
+  }
+
+  // ── Savings curve (Supply — upward sloping) ───────────────
+  const sPts = [];
+  for (let q = 0; q <= qMax; q += qMax/200) {
+    const r = saveR(q, eqR, eqQ, sShiftQ);
+    if (r >= 0 && r <= rMax) sPts.push([tx(q), ty(r)]);
+  }
+  if (sPts.length > 1) {
+    add(mkPath(sPts, '#c47a00', 2.5));
+    const tip = sPts[sPts.length-1];
+    add(mkText(tip[0]+7, tip[1]-9, 'S', '#c47a00', 13, 'start', true, true));
+    add(mkText(tip[0]+7, tip[1]+9, '(Supply)', '#c47a00', 11, 'start', true, false));
+  }
+
+  // ── Equilibrium ───────────────────────────────────────────
+  const eq = equilibrium(eqR, eqQ, dShiftQ, sShiftQ);
+  const eqSx = tx(eq.Q);
+  const eqSy = ty(eq.r);
+  const eqOk = eq.Q >= 0 && eq.Q <= qMax && eq.r >= 0 && eq.r <= rMax;
+
+  if (eqOk) {
+    add(mkLine(eqSx, eqSy, eqSx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
+    add(mkLine(PAD.left, eqSy, eqSx, eqSy, '#c0392b', 1.2, '5,4'));
+    add(mkCircle(PAD.left, eqSy, 3.5, '#c0392b'));
+    add(mkCircle(eqSx, PAD.top+PLOT_H, 3.5, '#c0392b'));
+    add(mkText(PAD.left-40, eqSy, 'r*', '#c0392b', 13, 'end', true, true));
+    add(mkText(eqSx, PAD.top+PLOT_H+28, 'Q*', '#c0392b', 13, 'middle', true, true));
+    add(mkCircle(eqSx, eqSy, 6, '#c0392b', 'white', 1.5));
+  }
+}
+
+// ── Wiring ────────────────────────────────────────────────
+function fmt(v) { return v > 0 ? '+'+v+'%' : v+'%'; }
+
+document.getElementById('input-r').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (v > 0) { state.eqR = v; render(); }
+});
+document.getElementById('input-q').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (v > 0) { state.eqQ = v; render(); }
+});
+document.getElementById('invest-slider').addEventListener('input', function() {
+  state.investShift = +this.value;
+  document.getElementById('invest-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('save-slider').addEventListener('input', function() {
+  state.saveShift = +this.value;
+  document.getElementById('save-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('reset-btn').addEventListener('click', function() {
+  state.investShift = 0;
+  state.saveShift = 0;
+  document.getElementById('invest-slider').value = 0;
+  document.getElementById('save-slider').value = 0;
+  document.getElementById('invest-val').textContent = '0%';
+  document.getElementById('save-val').textContent = '0%';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

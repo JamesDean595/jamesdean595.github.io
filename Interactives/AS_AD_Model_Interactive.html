@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AS/AD Model</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --ad: #1a6fc4;
+    --sras: #c47a00;
+    --lras: #3a8a2a;
+    --eq: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 980px;
+  }
+
+  .chart-wrap {
+    flex: 1;
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .controls {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .control-group {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .control-group h3 {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.85;
+  }
+
+  .ctrl-ad h3   { color: var(--ad); }
+  .ctrl-sras h3 { color: var(--sras); }
+  .ctrl-lras h3 { color: var(--lras); }
+
+  .slider-row { display: flex; flex-direction: column; gap: 6px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .slider-label .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  #ad-slider { background: #b8d4ef; }
+  #ad-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--ad); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #ad-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--ad); border: 2px solid white; cursor: pointer;
+  }
+
+  #sras-slider { background: #f0d8a0; }
+  #sras-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--sras); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #sras-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--sras); border: 2px solid white; cursor: pointer;
+  }
+
+  #lras-slider { background: #b8e0b0; }
+  #lras-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--lras); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #lras-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--lras); border: 2px solid white; cursor: pointer;
+  }
+
+  .eq-display {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .eq-row {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .eq-item { text-align: center; }
+
+  .eq-item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .eq-item .value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--eq);
+  }
+
+  .unemp-row {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    text-align: center;
+  }
+
+  .unemp-row .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .unemp-val {
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic;
+  }
+
+  .unemp-val.above  { color: #c0392b; }  /* Y < Y*: recession, U > U* */
+  .unemp-val.at     { color: #3a8a2a; }  /* Y = Y*: U = U* */
+  .unemp-val.below  { color: #1a6fc4; }  /* Y > Y*: boom, U < U* */
+
+  .reset-btn {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+
+  @media (max-width: 700px) {
+    .container { flex-direction: column; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Aggregate Supply &amp; Demand</h1>
+<p class="subtitle">Interactive Macro Model</p>
+
+<div class="container">
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="controls">
+
+    <div class="control-group ctrl-ad">
+      <h3>Aggregate Demand</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift AD</span>
+          <span class="val" id="ad-val">0</span>
+        </div>
+        <input type="range" id="ad-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-sras">
+      <h3>Short-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift SRAS</span>
+          <span class="val" id="sras-val">0</span>
+        </div>
+        <input type="range" id="sras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-lras">
+      <h3>Long-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift LRAS</span>
+          <span class="val" id="lras-val">0</span>
+        </div>
+        <input type="range" id="lras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+
+    <div class="eq-display">
+      <div class="eq-row">
+        <div class="eq-item">
+          <div class="label">Y (SR)</div>
+          <div class="value" id="eq-y">100</div>
+        </div>
+        <div class="eq-item">
+          <div class="label">Y*</div>
+          <div class="value" id="eq-ystar" style="color:var(--lras)">100</div>
+        </div>
+        <div class="eq-item">
+          <div class="label">P*</div>
+          <div class="value" id="eq-p">100.0</div>
+        </div>
+      </div>
+      <div class="unemp-row">
+        <div class="label">Unemployment</div>
+        <div class="unemp-val at" id="unemp-val">U = U*</div>
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset to Equilibrium</button>
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('chart');
+const NS = 'http://www.w3.org/2000/svg';
+
+const W = 520, H = 440;
+const PAD = { top: 30, right: 36, bottom: 55, left: 62 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top - PAD.bottom;
+
+const Y_MIN = 0, Y_MAX = 200;
+const P_MIN = 0, P_MAX = 200;
+const EQ_Y = 100, EQ_P = 100;
+const AD_SLOPE = 1.2;
+const SRAS_SLOPE = 1.2;
+
+const DEFAULTS = { adShift: 0, srasShift: 0, lrasShift: 0 };
+let state = { ...DEFAULTS };
+
+function toSvgX(y) { return PAD.left + (y - Y_MIN) / (Y_MAX - Y_MIN) * PLOT_W; }
+function toSvgY(p) { return PAD.top + (1 - (p - P_MIN) / (P_MAX - P_MIN)) * PLOT_H; }
+
+function adP(Y, s)   { return EQ_P - AD_SLOPE   * (Y - EQ_Y - s); }
+function srasP(Y, s) { return EQ_P + SRAS_SLOPE * (Y - EQ_Y - s); }
+function lrasX(s)    { return EQ_Y + s; }
+
+function adSrasEq(adS, srasS) {
+  const Y = (AD_SLOPE * (EQ_Y + adS) + SRAS_SLOPE * (EQ_Y + srasS)) / (AD_SLOPE + SRAS_SLOPE);
+  return { Y, P: adP(Y, adS) };
+}
+
+function svgEl(tag) { return document.createElementNS(NS, tag); }
+
+function mkLine(x1, y1, x2, y2, stroke, sw, dash) {
+  const e = svgEl('line');
+  e.setAttribute('x1', x1); e.setAttribute('y1', y1);
+  e.setAttribute('x2', x2); e.setAttribute('y2', y2);
+  e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw || 1.5);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkPath(pts, stroke, sw) {
+  const d = pts.map((p,i) => `${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const e = svgEl('path');
+  e.setAttribute('d', d); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw || 2.5);
+  e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
+  return e;
+}
+
+function mkCircle(cx, cy, r, fill, stroke, sw) {
+  const e = svgEl('circle');
+  e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r);
+  e.setAttribute('fill', fill);
+  if (stroke) { e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw||1.5); }
+  return e;
+}
+
+function mkText(x, y, str, fill, size, anchor, italic, bold) {
+  const e = svgEl('text');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  e.setAttribute('fill', fill); e.setAttribute('font-size', size || 13);
+  e.setAttribute('font-family', italic ? 'Crimson Pro, Georgia, serif' : 'JetBrains Mono, monospace');
+  e.setAttribute('font-style', italic ? 'italic' : 'normal');
+  e.setAttribute('font-weight', bold ? '700' : 'normal');
+  e.setAttribute('text-anchor', anchor || 'middle');
+  e.setAttribute('dominant-baseline', 'middle');
+  e.textContent = str;
+  return e;
+}
+
+function add(e) { svg.appendChild(e); return e; }
+
+function render() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const { adShift, srasShift, lrasShift } = state;
+
+  // Backgrounds
+  const bg = svgEl('rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2');
+  add(bg);
+  const pb = svgEl('rect');
+  pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top);
+  pb.setAttribute('width', PLOT_W); pb.setAttribute('height', PLOT_H);
+  pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', '2');
+  add(pb);
+
+  // Grid
+  for (let y = 0; y <= 200; y += 50)
+    add(mkLine(toSvgX(y), PAD.top, toSvgX(y), PAD.top+PLOT_H, '#ddd8ce', 1));
+  for (let p = 0; p <= 200; p += 50)
+    add(mkLine(PAD.left, toSvgY(p), PAD.left+PLOT_W, toSvgY(p), '#ddd8ce', 1));
+
+  // Axes
+  add(mkLine(PAD.left, PAD.top+PLOT_H, PAD.left+PLOT_W, PAD.top+PLOT_H, '#6b6560', 1.5));
+  add(mkLine(PAD.left, PAD.top, PAD.left, PAD.top+PLOT_H, '#6b6560', 1.5));
+
+  // Tick labels
+  for (let p = 0; p <= 200; p += 50)
+    add(mkText(PAD.left-8, toSvgY(p), p, '#7a7268', 10, 'end', false));
+  for (let y = 0; y <= 200; y += 50)
+    add(mkText(toSvgX(y), PAD.top+PLOT_H+14, y, '#7a7268', 10, 'middle', false));
+
+  // Axis labels
+  add(mkText(PAD.left+PLOT_W/2, H-8, 'Output (Y)', '#7a7268', 12, 'middle', true));
+  const pLbl = svgEl('text');
+  pLbl.setAttribute('x', 13); pLbl.setAttribute('y', PAD.top+PLOT_H/2);
+  pLbl.setAttribute('fill', '#7a7268'); pLbl.setAttribute('font-size', 12);
+  pLbl.setAttribute('font-family', 'Crimson Pro, Georgia, serif');
+  pLbl.setAttribute('font-style', 'italic'); pLbl.setAttribute('text-anchor', 'middle');
+  pLbl.setAttribute('transform', `rotate(-90,13,${PAD.top+PLOT_H/2})`);
+  pLbl.textContent = 'Price Level (P)';
+  add(pLbl);
+
+  // ── Ghost silhouettes (shown when any curve is shifted) ───
+  const shifted = adShift !== 0 || srasShift !== 0 || lrasShift !== 0;
+  if (shifted) {
+    const ghostOpts = (stroke) => ({ stroke, sw: 1.8, dash: '6,4', opacity: 0.32 });
+
+    // Ghost LRAS
+    const ghostLrasX = toSvgX(EQ_Y);
+    if (ghostLrasX >= PAD.left && ghostLrasX <= PAD.left+PLOT_W) {
+      const gl = mkLine(ghostLrasX, PAD.top, ghostLrasX, PAD.top+PLOT_H, '#3a8a2a', 1.8, '6,4');
+      gl.setAttribute('opacity', '0.32'); add(gl);
+    }
+
+    // Ghost AD
+    const ghostAdPts = [];
+    for (let Y = Y_MIN; Y <= Y_MAX; Y++) {
+      const P = adP(Y, 0);
+      if (P >= P_MIN && P <= P_MAX) ghostAdPts.push([toSvgX(Y), toSvgY(P)]);
+    }
+    if (ghostAdPts.length > 1) {
+      const gp = mkPath(ghostAdPts, '#1a6fc4', 1.8);
+      gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+    }
+
+    // Ghost SRAS
+    const ghostSrasPts = [];
+    for (let Y = Y_MIN; Y <= Y_MAX; Y++) {
+      const P = srasP(Y, 0);
+      if (P >= P_MIN && P <= P_MAX) ghostSrasPts.push([toSvgX(Y), toSvgY(P)]);
+    }
+    if (ghostSrasPts.length > 1) {
+      const gp = mkPath(ghostSrasPts, '#c47a00', 1.8);
+      gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+    }
+  }
+
+  // ── LRAS ──────────────────────────────────
+  const lrasYv = lrasX(lrasShift);
+  const lrasSx = toSvgX(lrasYv);
+  const lrasOk = lrasSx >= PAD.left && lrasSx <= PAD.left+PLOT_W;
+  if (lrasOk) {
+    add(mkLine(lrasSx, PAD.top, lrasSx, PAD.top+PLOT_H, '#3a8a2a', 2.5));
+    add(mkText(lrasSx, PAD.top-14, 'LRAS', '#3a8a2a', 12, 'middle', true));
+  }
+
+  // ── AD curve ──────────────────────────────
+  const adPts = [];
+  for (let Y = Y_MIN; Y <= Y_MAX; Y++) {
+    const P = adP(Y, adShift);
+    if (P >= P_MIN && P <= P_MAX) adPts.push([toSvgX(Y), toSvgY(P)]);
+  }
+  if (adPts.length > 1) {
+    add(mkPath(adPts, '#1a6fc4', 2.5));
+    const tip = adPts[adPts.length-1];
+    add(mkText(tip[0]+7, tip[1], 'AD', '#1a6fc4', 13, 'start', true));
+  }
+
+  // ── SRAS curve ────────────────────────────
+  const srasPts = [];
+  for (let Y = Y_MIN; Y <= Y_MAX; Y++) {
+    const P = srasP(Y, srasShift);
+    if (P >= P_MIN && P <= P_MAX) srasPts.push([toSvgX(Y), toSvgY(P)]);
+  }
+  if (srasPts.length > 1) {
+    add(mkPath(srasPts, '#c47a00', 2.5));
+    const tip = srasPts[srasPts.length-1];
+    add(mkText(tip[0]+7, tip[1], 'SRAS', '#c47a00', 13, 'start', true));
+  }
+
+  // ── Short-run equilibrium ─────────────────
+  const eq = adSrasEq(adShift, srasShift);
+  const eqSx = toSvgX(eq.Y);
+  const eqSy = toSvgY(eq.P);
+  const eqOk = eq.Y >= Y_MIN && eq.Y <= Y_MAX && eq.P >= P_MIN && eq.P <= P_MAX;
+
+  // Are SR and LR equilibria effectively the same?
+  const atLR = lrasOk && eqOk && Math.abs(eq.Y - lrasYv) < 1.5;
+
+  if (eqOk) {
+    // Dotted drop lines
+    add(mkLine(eqSx, eqSy, eqSx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
+    add(mkLine(PAD.left, eqSy, eqSx, eqSy, '#c0392b', 1.2, '5,4'));
+    // P on price axis
+    add(mkCircle(PAD.left, eqSy, 3.5, '#c0392b'));
+    add(mkText(PAD.left-32, eqSy, 'P', '#c0392b', 13, 'end', true, true));
+    // Equilibrium dot
+    add(mkCircle(eqSx, eqSy, 6, '#c0392b', 'white', 1.5));
+
+    document.getElementById('eq-y').textContent = Math.round(eq.Y);
+    document.getElementById('eq-p').textContent = eq.P.toFixed(1);
+
+    // Y*
+    document.getElementById('eq-ystar').textContent = lrasOk ? Math.round(lrasYv) : '—';
+
+    // Unemployment indicator
+    const uEl = document.getElementById('unemp-val');
+    if (lrasOk) {
+      const diff = eq.Y - lrasYv;
+      if (Math.abs(diff) < 1.5) {
+        uEl.textContent = 'U = U*'; uEl.className = 'unemp-val at';
+      } else if (diff > 0) {
+        uEl.textContent = 'U < U*  (boom)'; uEl.className = 'unemp-val below';
+      } else {
+        uEl.textContent = 'U > U*  (recession)'; uEl.className = 'unemp-val above';
+      }
+    } else {
+      uEl.textContent = '—'; uEl.className = 'unemp-val at';
+    }
+  } else {
+    document.getElementById('eq-y').textContent = '—';
+    document.getElementById('eq-p').textContent = '—';
+    document.getElementById('eq-ystar').textContent = lrasOk ? Math.round(lrasYv) : '—';
+    const uEl = document.getElementById('unemp-val');
+    uEl.textContent = '—'; uEl.className = 'unemp-val at';
+  }
+
+  // ── X-axis labels ─────────────────────────
+  if (lrasOk) {
+    add(mkCircle(lrasSx, PAD.top+PLOT_H, 4, '#3a8a2a'));
+    if (atLR) {
+      // Single merged label
+      add(mkText(lrasSx, PAD.top+PLOT_H+26, 'Y = Y*', '#3a8a2a', 13, 'middle', true, true));
+    } else {
+      add(mkText(lrasSx, PAD.top+PLOT_H+26, 'Y*', '#3a8a2a', 13, 'middle', true, true));
+      if (eqOk) {
+        add(mkCircle(eqSx, PAD.top+PLOT_H, 3.5, '#c0392b'));
+        // Nudge Y label away from Y* if they're close
+        const gap = eqSx - lrasSx;
+        const nudge = Math.abs(gap) < 22 ? (gap >= 0 ? 14 : -14) : 0;
+        add(mkText(eqSx + nudge, PAD.top+PLOT_H+26, 'Y', '#c0392b', 13, 'middle', true, true));
+      }
+    }
+  } else if (eqOk) {
+    add(mkCircle(eqSx, PAD.top+PLOT_H, 3.5, '#c0392b'));
+    add(mkText(eqSx, PAD.top+PLOT_H+26, 'Y', '#c0392b', 13, 'middle', true, true));
+  }
+}
+
+// ── Wiring ────────────────────────────────
+function fmt(v) { return v > 0 ? '+'+v : ''+v; }
+
+document.getElementById('ad-slider').addEventListener('input', function() {
+  state.adShift = +this.value;
+  document.getElementById('ad-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('sras-slider').addEventListener('input', function() {
+  state.srasShift = +this.value;
+  document.getElementById('sras-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('lras-slider').addEventListener('input', function() {
+  state.lrasShift = +this.value;
+  document.getElementById('lras-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('reset-btn').addEventListener('click', function() {
+  state = { ...DEFAULTS };
+  ['ad','sras','lras'].forEach(k => {
+    document.getElementById(k+'-slider').value = 0;
+    document.getElementById(k+'-val').textContent = '0';
+  });
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

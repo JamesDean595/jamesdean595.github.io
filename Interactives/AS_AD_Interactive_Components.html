@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AS/AD Model — ECON 232</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --ad: #1a6fc4;
+    --sras: #c47a00;
+    --lras: #3a8a2a;
+    --eq: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 { font-size: 1.5rem; font-weight: bold; letter-spacing: 0.02em; margin-bottom: 2px; text-align: center; }
+  .subtitle {
+    font-size: 0.78rem; color: var(--muted);
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 20px; letter-spacing: 0.06em;
+    text-transform: uppercase; text-align: center;
+  }
+
+  .tab-bar {
+    display: flex; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    margin-bottom: 20px; background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  .tab-btn {
+    padding: 9px 22px; border: none; background: transparent;
+    color: var(--muted); font-family: 'Courier New', Courier, monospace;
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-right: 1px solid var(--border);
+    transition: background 0.12s, color 0.12s;
+  }
+  .tab-btn:last-child { border-right: none; }
+  .tab-btn:hover { background: var(--bg); color: var(--text); }
+  .tab-btn.t-ad   { background: var(--ad);   color: #fff; }
+  .tab-btn.t-sras { background: var(--sras);  color: #fff; }
+  .tab-btn.t-lras { background: var(--lras);  color: #fff; }
+  .tab-btn.t-full { background: #3d2d1a;      color: #f5f0e8; }
+
+  .tab-panel { display: none; width: 100%; max-width: 980px; }
+  .tab-panel.active { display: flex; gap: 24px; align-items: flex-start; }
+
+  .chart-wrap {
+    flex: 1; background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  svg { display: block; width: 100%; height: auto; user-select: none; }
+
+  /* Draggable cursor on the hit-target circle */
+  .drag-handle { cursor: grab; }
+  .drag-handle:active { cursor: grabbing; }
+
+  .controls {
+    width: 230px; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  .ctrl-box {
+    background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .ctrl-box h3 {
+    font-size: 0.7rem; font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 11px; padding-bottom: 7px;
+    border-bottom: 2px solid currentColor; opacity: 0.9;
+  }
+  .h-ad   { color: var(--ad); }
+  .h-sras { color: var(--sras); }
+  .h-lras { color: var(--lras); }
+  .h-eq   { color: var(--eq); }
+  .h-muted { color: var(--muted); }
+
+  .slider-row { display: flex; flex-direction: column; gap: 5px; }
+  .slider-label {
+    display: flex; justify-content: space-between;
+    align-items: center; font-size: 0.8rem; color: var(--muted);
+  }
+  .slider-label .val {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.72rem; font-weight: bold; color: var(--text);
+    min-width: 32px; text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 5px; border-radius: 3px; outline: none; cursor: pointer;
+  }
+  .s-ad   { background: #b8d4ef; }
+  .s-sras { background: #f0d8a0; }
+  .s-lras { background: #b8e0b0; }
+  .s-ad::-webkit-slider-thumb   { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ad);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-sras::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--sras);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-lras::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--lras);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer; }
+  .s-ad::-moz-range-thumb   { width:18px;height:18px;border-radius:50%;background:var(--ad);border:2px solid #fff;cursor:pointer; }
+  .s-sras::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:var(--sras);border:2px solid #fff;cursor:pointer; }
+  .s-lras::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:var(--lras);border:2px solid #fff;cursor:pointer; }
+
+  /* Readout box for isolated tabs */
+  .readout-box {
+    background: #faf7f2; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .readout-box h3 {
+    font-size: 0.7rem; font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border); color: var(--muted); opacity: 0.9;
+  }
+  .readout-row { display: flex; justify-content: space-around; }
+  .readout-item { text-align: center; }
+  .readout-item .rlbl {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.6rem; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px;
+  }
+  .readout-item .rval { font-size: 1.05rem; font-weight: bold; color: var(--eq); }
+
+  .drag-hint {
+    font-size: 0.74rem; color: var(--muted); font-style: italic;
+    text-align: center; margin-top: 8px;
+  }
+
+  /* Full model eq display */
+  .eq-row { display: flex; justify-content: space-around; margin-bottom: 8px; }
+  .eq-item { text-align: center; }
+  .eq-item .lbl { font-family:'Courier New',Courier,monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px; }
+  .eq-item .val2 { font-size:1.05rem;font-weight:bold;color:var(--eq); }
+  .unemp-row { border-top:1px solid var(--border);padding-top:7px;text-align:center; }
+  .unemp-row .lbl { font-family:'Courier New',Courier,monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px; }
+  .unemp-val { font-size:.88rem;font-weight:bold;font-style:italic; }
+  .unemp-val.above { color:#c0392b; }
+  .unemp-val.at    { color:#3a8a2a; }
+  .unemp-val.below { color:#1a6fc4; }
+
+  .narr-text { font-size:.82rem;color:var(--text);line-height:1.55;font-style:italic; }
+
+  .shifters-list { list-style:none; }
+  .shifters-list li { font-size:.78rem;color:var(--muted);padding:2px 0 2px 12px;position:relative;line-height:1.4; }
+  .shifters-list li::before { content:'\2192';position:absolute;left:0; }
+
+  .reset-btn {
+    width:100%;padding:9px;background:transparent;
+    border:1px solid var(--border);border-radius:6px;color:var(--muted);
+    font-family:'Courier New',Courier,monospace;font-size:.7rem;
+    letter-spacing:.08em;cursor:pointer;transition:all .12s;text-transform:uppercase;
+  }
+  .reset-btn:hover { border-color:var(--text);color:var(--text);background:var(--surface); }
+
+  @media (max-width:700px) {
+    .tab-panel.active { flex-direction:column; }
+    .controls { width:100%; }
+    .tab-btn { padding:9px 12px;font-size:.65rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Aggregate Supply &amp; Demand</h1>
+<p class="subtitle">ECON 232 &mdash; Introductory Macroeconomics</p>
+
+<div class="tab-bar">
+  <button class="tab-btn" id="tab-ad"   onclick="switchTab('ad')">AD</button>
+  <button class="tab-btn" id="tab-sras" onclick="switchTab('sras')">SRAS</button>
+  <button class="tab-btn" id="tab-lras" onclick="switchTab('lras')">LRAS</button>
+  <button class="tab-btn" id="tab-full" onclick="switchTab('full')">Full Model</button>
+</div>
+
+<!-- AD TAB -->
+<div class="tab-panel" id="panel-ad">
+  <div class="chart-wrap">
+    <svg id="chart-ad" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="controls">
+    <div class="ctrl-box">
+      <h3 class="h-ad">Aggregate Demand</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift AD</span><span class="val" id="ad-val">0</span></div>
+        <input type="range" class="s-ad" id="ad-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="readout-box">
+      <h3>Point on Curve</h3>
+      <div class="readout-row">
+        <div class="readout-item"><div class="rlbl">Price Level</div><div class="rval" id="ad-p-read">100</div></div>
+        <div class="readout-item"><div class="rlbl">Output</div><div class="rval" id="ad-y-read">100</div></div>
+      </div>
+      <p class="drag-hint">Drag the red dot along the curve</p>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">Rightward Shifters</h3>
+      <ul class="shifters-list">
+        <li>Consumer confidence / wealth</li>
+        <li>Government spending (G)</li>
+        <li>Tax cuts (T)</li>
+        <li>Net exports (NX)</li>
+        <li>Lower real interest rates</li>
+        <li>Money supply expansion</li>
+      </ul>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">What's Happening</h3>
+      <p class="narr-text" id="ad-narr">Move the slider to shift AD. The dashed curve shows the original position.</p>
+    </div>
+    <button class="reset-btn" onclick="resetTab('ad')">&#8635; Reset</button>
+  </div>
+</div>
+
+<!-- SRAS TAB -->
+<div class="tab-panel" id="panel-sras">
+  <div class="chart-wrap">
+    <svg id="chart-sras" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="controls">
+    <div class="ctrl-box">
+      <h3 class="h-sras">Short-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift SRAS</span><span class="val" id="sras-val">0</span></div>
+        <input type="range" class="s-sras" id="sras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="readout-box">
+      <h3>Point on Curve</h3>
+      <div class="readout-row">
+        <div class="readout-item"><div class="rlbl">Price Level</div><div class="rval" id="sras-p-read">100</div></div>
+        <div class="readout-item"><div class="rlbl">Output</div><div class="rval" id="sras-y-read">100</div></div>
+      </div>
+      <p class="drag-hint">Drag the red dot along the curve</p>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">Rightward Shifters</h3>
+      <ul class="shifters-list">
+        <li>Lower input prices / wages</li>
+        <li>Lower oil / energy prices</li>
+        <li>Higher productivity</li>
+        <li>Lower expected inflation</li>
+        <li>Fewer regulations</li>
+        <li>Business subsidies</li>
+      </ul>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">What's Happening</h3>
+      <p class="narr-text" id="sras-narr">Move the slider to shift SRAS. The dashed curve shows the original position.</p>
+    </div>
+    <button class="reset-btn" onclick="resetTab('sras')">&#8635; Reset</button>
+  </div>
+</div>
+
+<!-- LRAS TAB -->
+<div class="tab-panel" id="panel-lras">
+  <div class="chart-wrap">
+    <svg id="chart-lras" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="controls">
+    <div class="ctrl-box">
+      <h3 class="h-lras">Long-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift LRAS</span><span class="val" id="lras-val">0</span></div>
+        <input type="range" class="s-lras" id="lras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="readout-box">
+      <h3>Point on Curve</h3>
+      <div class="readout-row">
+        <div class="readout-item"><div class="rlbl">Price Level</div><div class="rval" id="lras-p-read">100</div></div>
+        <div class="readout-item"><div class="rlbl">Output (Y*)</div><div class="rval" id="lras-y-read">100</div></div>
+      </div>
+      <p class="drag-hint">Drag the red dot up &amp; down</p>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">Rightward Shifters</h3>
+      <ul class="shifters-list">
+        <li>Labor force growth</li>
+        <li>Capital stock increases</li>
+        <li>Technology / TFP gains</li>
+        <li>Human capital / education</li>
+        <li>Natural resource discovery</li>
+        <li>Better institutions</li>
+      </ul>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-muted">What's Happening</h3>
+      <p class="narr-text" id="lras-narr">Move the slider to shift LRAS. The dashed line shows the original Y*.</p>
+    </div>
+    <button class="reset-btn" onclick="resetTab('lras')">&#8635; Reset</button>
+  </div>
+</div>
+
+<!-- FULL MODEL TAB -->
+<div class="tab-panel" id="panel-full">
+  <div class="chart-wrap">
+    <svg id="chart-full" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="controls">
+    <div class="ctrl-box">
+      <h3 class="h-ad">Aggregate Demand</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift AD</span><span class="val" id="fad-val">0</span></div>
+        <input type="range" class="s-ad" id="fad-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-sras">Short-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift SRAS</span><span class="val" id="fsras-val">0</span></div>
+        <input type="range" class="s-sras" id="fsras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-lras">Long-Run AS</h3>
+      <div class="slider-row">
+        <div class="slider-label"><span>Shift LRAS</span><span class="val" id="flras-val">0</span></div>
+        <input type="range" class="s-lras" id="flras-slider" min="-60" max="60" value="0" step="2">
+      </div>
+    </div>
+    <div class="ctrl-box">
+      <h3 class="h-eq">Equilibrium</h3>
+      <div class="eq-row">
+        <div class="eq-item"><div class="lbl">Y (SR)</div><div class="val2" id="eq-y">100</div></div>
+        <div class="eq-item"><div class="lbl">Y*</div><div class="val2" id="eq-ystar" style="color:var(--lras)">100</div></div>
+        <div class="eq-item"><div class="lbl">P*</div><div class="val2" id="eq-p">100.0</div></div>
+      </div>
+      <div class="unemp-row">
+        <div class="lbl">Unemployment</div>
+        <div class="unemp-val at" id="unemp-val">U = U*</div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetTab('full')">&#8635; Reset to Equilibrium</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS  = 'http://www.w3.org/2000/svg';
+  var W   = 520, H = 440;
+  var PAD = { top: 30, right: 36, bottom: 55, left: 62 };
+  var PW  = W - PAD.left - PAD.right;
+  var PH  = H - PAD.top  - PAD.bottom;
+  var YMN = 0, YMX = 200, PMN = 0, PMX = 200;
+  var EQY = 100, EQP = 100;
+  var ADS = 1.2, SRASS = 1.2;
+
+  // Curve state (shifts)
+  var S = {
+    ad:   { ad: 0 },
+    sras: { sras: 0 },
+    lras: { lras: 0 },
+    full: { ad: 0, sras: 0, lras: 0 }
+  };
+
+  // Draggable P position per isolated tab.
+  // Stored as a Y-axis SVG coordinate (so it survives re-renders).
+  // Initialized to the midpoint of the plot.
+  var dragP = {
+    ad:   ty(EQP),   // svg-y corresponding to P=100
+    sras: ty(EQP),
+    lras: ty(EQP)
+  };
+
+  // ── Math ──────────────────────────────────────
+  function tx(y) { return PAD.left + (y - YMN) / (YMX - YMN) * PW; }
+  function ty(p) { return PAD.top  + (1 - (p - PMN) / (PMX - PMN)) * PH; }
+  function fromSvgY(sy) { return PMX - (sy - PAD.top) / PH * (PMX - PMN); }
+  // invert AD:  P = EQP - ADS*(Y - EQY - s)  =>  Y = EQY + s + (EQP - P)/ADS
+  function adYfromP(P, s)   { return EQY + s + (EQP - P) / ADS; }
+  // invert SRAS: P = EQP + SRASS*(Y - EQY - s) => Y = EQY + s + (P - EQP)/SRASS
+  function srasYfromP(P, s) { return EQY + s + (P - EQP) / SRASS; }
+
+  function adP(Y, s)    { return EQP - ADS   * (Y - EQY - s); }
+  function srasP(Y, s)  { return EQP + SRASS * (Y - EQY - s); }
+  function lrasY(s)     { return EQY + s; }
+  function eqPt(as, ss) {
+    var Y = (ADS * (EQY + as) + SRASS * (EQY + ss)) / (ADS + SRASS);
+    return { Y: Y, P: adP(Y, as) };
+  }
+
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+  // ── SVG helpers ───────────────────────────────
+  function e(tag) { return document.createElementNS(NS, tag); }
+
+  function mline(x1, y1, x2, y2, col, sw, dash, op) {
+    var n = e('line');
+    n.setAttribute('x1', x1); n.setAttribute('y1', y1);
+    n.setAttribute('x2', x2); n.setAttribute('y2', y2);
+    n.setAttribute('stroke', col);
+    n.setAttribute('stroke-width', sw || 1.5);
+    if (dash) n.setAttribute('stroke-dasharray', dash);
+    if (op !== undefined) n.setAttribute('opacity', op);
+    return n;
+  }
+
+  function mpath(ptsArr, col, sw, dash, op) {
+    var d = '';
+    for (var i = 0; i < ptsArr.length; i++)
+      d += (i === 0 ? 'M' : 'L') + ptsArr[i][0].toFixed(1) + ',' + ptsArr[i][1].toFixed(1) + ' ';
+    var n = e('path');
+    n.setAttribute('d', d.trim());
+    n.setAttribute('stroke', col);
+    n.setAttribute('stroke-width', sw || 2.5);
+    n.setAttribute('fill', 'none');
+    n.setAttribute('stroke-linecap', 'round');
+    if (dash) n.setAttribute('stroke-dasharray', dash);
+    if (op !== undefined) n.setAttribute('opacity', op);
+    return n;
+  }
+
+  function mcirc(cx, cy, r, fill, scol, sw) {
+    var n = e('circle');
+    n.setAttribute('cx', cx); n.setAttribute('cy', cy); n.setAttribute('r', r);
+    n.setAttribute('fill', fill);
+    if (scol) { n.setAttribute('stroke', scol); n.setAttribute('stroke-width', sw || 1.5); }
+    return n;
+  }
+
+  function mtxt(x, y, str, fill, sz, anchor, italic, bold) {
+    var n = e('text');
+    n.setAttribute('x', x); n.setAttribute('y', y);
+    n.setAttribute('fill', fill); n.setAttribute('font-size', sz || 13);
+    n.setAttribute('font-family', italic ? 'Georgia, serif' : 'Courier New, monospace');
+    n.setAttribute('font-style', italic ? 'italic' : 'normal');
+    n.setAttribute('font-weight', bold ? '700' : 'normal');
+    n.setAttribute('text-anchor', anchor || 'middle');
+    n.setAttribute('dominant-baseline', 'middle');
+    n.textContent = str;
+    return n;
+  }
+
+  function curvePts(fn, shift) {
+    var arr = [];
+    for (var Y = YMN; Y <= YMX; Y++) {
+      var P = fn(Y, shift);
+      if (P >= PMN && P <= PMX) arr.push([tx(Y), ty(P)]);
+    }
+    return arr;
+  }
+
+  // ── Scaffold ──────────────────────────────────
+  function scaffold(svg) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var bg = e('rect'); bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2'); svg.appendChild(bg);
+    var pb = e('rect'); pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top); pb.setAttribute('width', PW); pb.setAttribute('height', PH); pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', 2); svg.appendChild(pb);
+    for (var gy = 0; gy <= 200; gy += 50) svg.appendChild(mline(tx(gy), PAD.top, tx(gy), PAD.top + PH, '#ddd8ce', 1));
+    for (var gp = 0; gp <= 200; gp += 50) svg.appendChild(mline(PAD.left, ty(gp), PAD.left + PW, ty(gp), '#ddd8ce', 1));
+    svg.appendChild(mline(PAD.left, PAD.top + PH, PAD.left + PW, PAD.top + PH, '#6b6560', 1.5));
+    svg.appendChild(mline(PAD.left, PAD.top, PAD.left, PAD.top + PH, '#6b6560', 1.5));
+    for (var tp = 0; tp <= 200; tp += 50) svg.appendChild(mtxt(PAD.left - 8, ty(tp), tp, '#7a7268', 10, 'end', false));
+    for (var ty2 = 0; ty2 <= 200; ty2 += 50) svg.appendChild(mtxt(tx(ty2), PAD.top + PH + 14, ty2, '#7a7268', 10, 'middle', false));
+    svg.appendChild(mtxt(PAD.left + PW / 2, H - 8, 'Real Output (Y)', '#7a7268', 12, 'middle', true));
+    var pl = e('text'); pl.setAttribute('x', 13); pl.setAttribute('y', PAD.top + PH / 2); pl.setAttribute('fill', '#7a7268'); pl.setAttribute('font-size', 12); pl.setAttribute('font-family', 'Georgia, serif'); pl.setAttribute('font-style', 'italic'); pl.setAttribute('text-anchor', 'middle'); pl.setAttribute('transform', 'rotate(-90,13,' + (PAD.top + PH / 2) + ')'); pl.textContent = 'Price Level (P)'; svg.appendChild(pl);
+  }
+
+  // ── Fixed eq dot (Full Model) ─────────────────
+  function drawFixedEq(svg, Y, P) {
+    var sx = tx(Y), sy = ty(P);
+    svg.appendChild(mline(sx, sy, sx, PAD.top + PH, '#c0392b', 1.2, '5,4'));
+    svg.appendChild(mline(PAD.left, sy, sx, sy, '#c0392b', 1.2, '5,4'));
+    svg.appendChild(mcirc(PAD.left, sy, 3.5, '#c0392b'));
+    svg.appendChild(mtxt(PAD.left - 32, sy, 'P', '#c0392b', 13, 'end', true, true));
+    svg.appendChild(mcirc(sx, sy, 6, '#c0392b', 'white', 1.5));
+  }
+
+  // ── Draggable P marker ────────────────────────
+  // Draws drop-lines + label + a large invisible hit circle for dragging.
+  // svgY: current vertical position (svg coordinates)
+  // dotX: horizontal position on the curve
+  // Returns the hit-circle element so we can attach drag listeners.
+  function drawDragMarker(svg, svgY, dotX, label) {
+    var sy = svgY;
+    // drop lines
+    svg.appendChild(mline(dotX, sy, dotX, PAD.top + PH, '#c0392b', 1.2, '5,4'));
+    svg.appendChild(mline(PAD.left, sy, dotX, sy, '#c0392b', 1.2, '5,4'));
+    // axis tick
+    svg.appendChild(mcirc(PAD.left, sy, 3.5, '#c0392b'));
+    // label
+    svg.appendChild(mtxt(PAD.left - 32, sy, label || 'P', '#c0392b', 13, 'end', true, true));
+    // visible dot
+    svg.appendChild(mcirc(dotX, sy, 6, '#c0392b', 'white', 1.5));
+    // invisible large hit target
+    var hit = mcirc(dotX, sy, 14, 'transparent');
+    hit.setAttribute('class', 'drag-handle');
+    svg.appendChild(hit);
+    return hit;
+  }
+
+  // ── Drag logic ────────────────────────────────
+  // We store drag state globally to handle mousemove on document.
+  var drag = { active: false, tab: null, svgEl: null };
+
+  function getSvgPoint(svgEl, clientX, clientY) {
+    var rect = svgEl.getBoundingClientRect();
+    // SVG viewBox is 520×440; actual rendered size may differ
+    var scaleX = W / rect.width;
+    var scaleY = H / rect.height;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top)  * scaleY
+    };
+  }
+
+  function startDrag(tab, svgEl, e) {
+    drag.active = true;
+    drag.tab    = tab;
+    drag.svgEl  = svgEl;
+    e.preventDefault();
+  }
+
+  function onMove(clientX, clientY) {
+    if (!drag.active) return;
+    var pt  = getSvgPoint(drag.svgEl, clientX, clientY);
+    // Clamp svgY within the plot area
+    var sy  = clamp(pt.y, PAD.top, PAD.top + PH);
+    dragP[drag.tab] = sy;
+    RENDERS[drag.tab]();
+  }
+
+  function endDrag() { drag.active = false; }
+
+  document.addEventListener('mousemove', function (ev) { onMove(ev.clientX, ev.clientY); });
+  document.addEventListener('mouseup',   endDrag);
+  document.addEventListener('touchmove', function (ev) {
+    if (drag.active) { ev.preventDefault(); onMove(ev.touches[0].clientX, ev.touches[0].clientY); }
+  }, { passive: false });
+  document.addEventListener('touchend',  endDrag);
+
+  // ── AD TAB ────────────────────────────────────
+  function renderAD() {
+    var svg = document.getElementById('chart-ad');
+    if (!svg) return;
+    scaffold(svg);
+
+    var sh      = S.ad.ad;
+    var shifted = sh !== 0;
+
+    // Ghost
+    if (shifted) {
+      var gp = curvePts(adP, 0);
+      if (gp.length > 1) {
+        svg.appendChild(mpath(gp, '#1a6fc4', 1.8, '6,4', 0.35));
+        var ot = gp[gp.length - 1];
+        svg.appendChild(mtxt(ot[0] + 7, ot[1], 'AD\u2080', '#1a6fc4', 11, 'start', true));
+      }
+    }
+
+    // Active curve
+    var ap = curvePts(adP, sh);
+    if (ap.length > 1) {
+      svg.appendChild(mpath(ap, '#1a6fc4', 2.5));
+      var at = ap[ap.length - 1];
+      svg.appendChild(mtxt(at[0] + 7, at[1], shifted ? 'AD\u2081' : 'AD', '#1a6fc4', shifted ? 11 : 13, 'start', true));
+    }
+
+    // Draggable P marker
+    // Convert current dragP svgY back to price level, then find X on AD curve
+    var curSvgY = clamp(dragP.ad, PAD.top, PAD.top + PH);
+    var P       = clamp(fromSvgY(curSvgY), PMN, PMX);
+    var Y       = adYfromP(P, sh);
+    // If Y is out of range, clamp it and recompute P
+    if (Y < YMN) { Y = YMN; P = adP(Y, sh); }
+    if (Y > YMX) { Y = YMX; P = adP(Y, sh); }
+    var dotX    = tx(Y);
+    var dotY    = ty(P);
+    // keep dragP in sync with clamped value
+    dragP.ad    = dotY;
+
+    // x-axis label
+    svg.appendChild(mcirc(dotX, PAD.top + PH, 3.5, '#c0392b'));
+    svg.appendChild(mtxt(dotX, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+
+    var hit = drawDragMarker(svg, dotY, dotX, 'P');
+    (function (s) {
+      hit.addEventListener('mousedown', function (ev) { startDrag('ad', s, ev); });
+      hit.addEventListener('touchstart', function (ev) { startDrag('ad', s, ev); }, { passive: false });
+    })(svg);
+
+    // Update readout
+    var pr = document.getElementById('ad-p-read');
+    var yr = document.getElementById('ad-y-read');
+    if (pr) pr.textContent = P.toFixed(1);
+    if (yr) yr.textContent = Math.round(Y);
+
+    // Narrative
+    var n = document.getElementById('ad-narr');
+    if (n) {
+      if (sh > 0)      n.textContent = 'AD shifts right by ' + sh + '. Buyers demand more at every price level \u2014 output and prices both rise in the short run.';
+      else if (sh < 0) n.textContent = 'AD shifts left by ' + Math.abs(sh) + '. Spending falls \u2014 output and prices both fall in the short run, consistent with a recession.';
+      else             n.textContent = 'The economy is at its initial equilibrium. Shift AD to see demand-side shocks, or drag the dot along the curve.';
+    }
+  }
+
+  // ── SRAS TAB ──────────────────────────────────
+  function renderSRAS() {
+    var svg = document.getElementById('chart-sras');
+    if (!svg) return;
+    scaffold(svg);
+
+    var sh      = S.sras.sras;
+    var shifted = sh !== 0;
+
+    // Ghost
+    if (shifted) {
+      var gp = curvePts(srasP, 0);
+      if (gp.length > 1) {
+        svg.appendChild(mpath(gp, '#c47a00', 1.8, '6,4', 0.35));
+        var ot = gp[gp.length - 1];
+        svg.appendChild(mtxt(ot[0] + 7, ot[1], 'SRAS\u2080', '#c47a00', 11, 'start', true));
+      }
+    }
+
+    // Active curve
+    var sp = curvePts(srasP, sh);
+    if (sp.length > 1) {
+      svg.appendChild(mpath(sp, '#c47a00', 2.5));
+      var st = sp[sp.length - 1];
+      svg.appendChild(mtxt(st[0] + 7, st[1], shifted ? 'SRAS\u2081' : 'SRAS', '#c47a00', shifted ? 11 : 13, 'start', true));
+    }
+
+    // Draggable P marker
+    var curSvgY = clamp(dragP.sras, PAD.top, PAD.top + PH);
+    var P       = clamp(fromSvgY(curSvgY), PMN, PMX);
+    var Y       = srasYfromP(P, sh);
+    if (Y < YMN) { Y = YMN; P = srasP(Y, sh); }
+    if (Y > YMX) { Y = YMX; P = srasP(Y, sh); }
+    var dotX    = tx(Y);
+    var dotY    = ty(P);
+    dragP.sras  = dotY;
+
+    svg.appendChild(mcirc(dotX, PAD.top + PH, 3.5, '#c0392b'));
+    svg.appendChild(mtxt(dotX, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+
+    var hit = drawDragMarker(svg, dotY, dotX, 'P');
+    (function (s) {
+      hit.addEventListener('mousedown', function (ev) { startDrag('sras', s, ev); });
+      hit.addEventListener('touchstart', function (ev) { startDrag('sras', s, ev); }, { passive: false });
+    })(svg);
+
+    var pr = document.getElementById('sras-p-read');
+    var yr = document.getElementById('sras-y-read');
+    if (pr) pr.textContent = P.toFixed(1);
+    if (yr) yr.textContent = Math.round(Y);
+
+    var n = document.getElementById('sras-narr');
+    if (n) {
+      if (sh > 0)      n.textContent = 'SRAS shifts right by ' + sh + ' \u2014 a favorable supply shock. Lower production costs mean more output at every price level.';
+      else if (sh < 0) n.textContent = 'SRAS shifts left by ' + Math.abs(sh) + ' \u2014 an adverse supply shock. Prices rise while output falls: stagflation.';
+      else             n.textContent = 'SRAS slopes upward: higher prices incentivize more production in the short run. Shift to see supply shocks, or drag the dot along the curve.';
+    }
+  }
+
+  // ── LRAS TAB ──────────────────────────────────
+  function renderLRAS() {
+    var svg = document.getElementById('chart-lras');
+    if (!svg) return;
+    scaffold(svg);
+
+    var sh      = S.lras.lras;
+    var shifted = sh !== 0;
+
+    // Ghost
+    if (shifted) {
+      var gx = tx(EQY);
+      if (gx >= PAD.left && gx <= PAD.left + PW) {
+        svg.appendChild(mline(gx, PAD.top, gx, PAD.top + PH, '#3a8a2a', 1.8, '6,4', 0.35));
+        svg.appendChild(mtxt(gx, PAD.top - 14, 'LRAS\u2080', '#3a8a2a', 11, 'middle', true));
+      }
+    }
+
+    // Active LRAS
+    var lyv = lrasY(sh);
+    var lsx = tx(lyv);
+    var lok = lsx >= PAD.left && lsx <= PAD.left + PW;
+    if (lok) {
+      svg.appendChild(mline(lsx, PAD.top, lsx, PAD.top + PH, '#3a8a2a', 2.5));
+      svg.appendChild(mtxt(lsx, PAD.top - 14, shifted ? 'LRAS\u2081' : 'LRAS', '#3a8a2a', shifted ? 11 : 12, 'middle', true));
+      svg.appendChild(mcirc(lsx, PAD.top + PH, 4, '#3a8a2a'));
+      svg.appendChild(mtxt(lsx, PAD.top + PH + 26, 'Y*', '#3a8a2a', 13, 'middle', true, true));
+    }
+
+    // Draggable P marker — slides vertically along the LRAS line
+    if (lok) {
+      var curSvgY = clamp(dragP.lras, PAD.top, PAD.top + PH);
+      var P       = clamp(fromSvgY(curSvgY), PMN, PMX);
+      var dotY    = ty(P);
+      dragP.lras  = dotY;
+
+      var hit = drawDragMarker(svg, dotY, lsx, 'P');
+      (function (s) {
+        hit.addEventListener('mousedown', function (ev) { startDrag('lras', s, ev); });
+        hit.addEventListener('touchstart', function (ev) { startDrag('lras', s, ev); }, { passive: false });
+      })(svg);
+
+      var pr = document.getElementById('lras-p-read');
+      var yr = document.getElementById('lras-y-read');
+      if (pr) pr.textContent = P.toFixed(1);
+      if (yr) yr.textContent = Math.round(lyv);
+    }
+
+    var n = document.getElementById('lras-narr');
+    if (n) {
+      if (sh > 0)      n.textContent = 'LRAS shifts right by ' + sh + ': potential output Y* increases. This represents long-run economic growth.';
+      else if (sh < 0) n.textContent = 'LRAS shifts left by ' + Math.abs(sh) + ': potential output Y* falls. War, pandemic, or emigration can permanently reduce productive capacity.';
+      else             n.textContent = 'LRAS is vertical at potential output Y*. In the long run, real output depends on factors of production, not the price level. Drag the dot to explore.';
+    }
+  }
+
+  // ── FULL MODEL TAB ────────────────────────────
+  function renderFull() {
+    var svg = document.getElementById('chart-full');
+    if (!svg) return;
+    scaffold(svg);
+
+    var as = S.full.ad, ss = S.full.sras, ls = S.full.lras;
+    var shifted = as !== 0 || ss !== 0 || ls !== 0;
+
+    // Ghosts
+    if (shifted) {
+      var gx = tx(EQY);
+      if (gx >= PAD.left && gx <= PAD.left + PW)
+        svg.appendChild(mline(gx, PAD.top, gx, PAD.top + PH, '#3a8a2a', 1.8, '6,4', 0.32));
+      var gadp = curvePts(adP, 0);
+      if (gadp.length > 1) svg.appendChild(mpath(gadp, '#1a6fc4', 1.8, '6,4', 0.32));
+      var gsrp = curvePts(srasP, 0);
+      if (gsrp.length > 1) svg.appendChild(mpath(gsrp, '#c47a00', 1.8, '6,4', 0.32));
+    }
+
+    // Active LRAS
+    var lyv = lrasY(ls);
+    var lsx = tx(lyv);
+    var lok = lsx >= PAD.left && lsx <= PAD.left + PW;
+    if (lok) {
+      svg.appendChild(mline(lsx, PAD.top, lsx, PAD.top + PH, '#3a8a2a', 2.5));
+      svg.appendChild(mtxt(lsx, PAD.top - 14, 'LRAS', '#3a8a2a', 12, 'middle', true));
+    }
+
+    // Active AD
+    var ap = curvePts(adP, as);
+    if (ap.length > 1) {
+      svg.appendChild(mpath(ap, '#1a6fc4', 2.5));
+      var at = ap[ap.length - 1];
+      svg.appendChild(mtxt(at[0] + 7, at[1], 'AD', '#1a6fc4', 13, 'start', true));
+    }
+
+    // Active SRAS
+    var sp = curvePts(srasP, ss);
+    if (sp.length > 1) {
+      svg.appendChild(mpath(sp, '#c47a00', 2.5));
+      var st = sp[sp.length - 1];
+      svg.appendChild(mtxt(st[0] + 7, st[1], 'SRAS', '#c47a00', 13, 'start', true));
+    }
+
+    // Fixed equilibrium dot
+    var eq  = eqPt(as, ss);
+    var esx = tx(eq.Y), esy = ty(eq.P);
+    var ok  = eq.Y >= YMN && eq.Y <= YMX && eq.P >= PMN && eq.P <= PMX;
+    var atLR = lok && ok && Math.abs(eq.Y - lyv) < 1.5;
+
+    if (ok) {
+      drawFixedEq(svg, eq.Y, eq.P);
+      document.getElementById('eq-y').textContent     = Math.round(eq.Y);
+      document.getElementById('eq-p').textContent     = eq.P.toFixed(1);
+      document.getElementById('eq-ystar').textContent = lok ? Math.round(lyv) : '\u2014';
+      var uEl = document.getElementById('unemp-val');
+      if (lok) {
+        var diff = eq.Y - lyv;
+        if (Math.abs(diff) < 1.5) { uEl.textContent = 'U = U*'; uEl.className = 'unemp-val at'; }
+        else if (diff > 0)         { uEl.textContent = 'U < U*'; uEl.className = 'unemp-val below'; }
+        else                       { uEl.textContent = 'U > U*'; uEl.className = 'unemp-val above'; }
+      } else { uEl.textContent = '\u2014'; uEl.className = 'unemp-val at'; }
+    } else {
+      document.getElementById('eq-y').textContent = '\u2014';
+      document.getElementById('eq-p').textContent = '\u2014';
+      document.getElementById('eq-ystar').textContent = lok ? Math.round(lyv) : '\u2014';
+      var uEl2 = document.getElementById('unemp-val');
+      uEl2.textContent = '\u2014'; uEl2.className = 'unemp-val at';
+    }
+
+    // X-axis labels
+    if (lok) {
+      svg.appendChild(mcirc(lsx, PAD.top + PH, 4, '#3a8a2a'));
+      if (atLR) {
+        svg.appendChild(mtxt(lsx, PAD.top + PH + 26, 'Y = Y*', '#3a8a2a', 13, 'middle', true, true));
+      } else {
+        svg.appendChild(mtxt(lsx, PAD.top + PH + 26, 'Y*', '#3a8a2a', 13, 'middle', true, true));
+        if (ok) {
+          svg.appendChild(mcirc(esx, PAD.top + PH, 3.5, '#c0392b'));
+          var gap = esx - lsx;
+          var nudge = Math.abs(gap) < 22 ? (gap >= 0 ? 14 : -14) : 0;
+          svg.appendChild(mtxt(esx + nudge, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+        }
+      }
+    } else if (ok) {
+      svg.appendChild(mcirc(esx, PAD.top + PH, 3.5, '#c0392b'));
+      svg.appendChild(mtxt(esx, PAD.top + PH + 26, 'Y', '#c0392b', 13, 'middle', true, true));
+    }
+  }
+
+  // ── Tab switching ─────────────────────────────
+  var TABS    = ['ad', 'sras', 'lras', 'full'];
+  var RENDERS = { ad: renderAD, sras: renderSRAS, lras: renderLRAS, full: renderFull };
+
+  function switchTab(tab) {
+    for (var i = 0; i < TABS.length; i++) {
+      var t = TABS[i];
+      document.getElementById('panel-' + t).classList.remove('active');
+      var btn = document.getElementById('tab-' + t);
+      btn.classList.remove('t-ad', 't-sras', 't-lras', 't-full');
+    }
+    document.getElementById('panel-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('t-' + tab);
+    RENDERS[tab]();
+  }
+  window.switchTab = switchTab;
+
+  // ── Reset ─────────────────────────────────────
+  function fmt(v) { return v > 0 ? '+' + v : '' + v; }
+
+  function resetTab(tab) {
+    if (tab === 'ad') {
+      S.ad.ad = 0; dragP.ad = ty(EQP);
+      document.getElementById('ad-slider').value = 0;
+      document.getElementById('ad-val').textContent = '0';
+    } else if (tab === 'sras') {
+      S.sras.sras = 0; dragP.sras = ty(EQP);
+      document.getElementById('sras-slider').value = 0;
+      document.getElementById('sras-val').textContent = '0';
+    } else if (tab === 'lras') {
+      S.lras.lras = 0; dragP.lras = ty(EQP);
+      document.getElementById('lras-slider').value = 0;
+      document.getElementById('lras-val').textContent = '0';
+    } else if (tab === 'full') {
+      S.full.ad = 0; S.full.sras = 0; S.full.lras = 0;
+      document.getElementById('fad-slider').value   = 0; document.getElementById('fad-val').textContent   = '0';
+      document.getElementById('fsras-slider').value = 0; document.getElementById('fsras-val').textContent = '0';
+      document.getElementById('flras-slider').value = 0; document.getElementById('flras-val').textContent = '0';
+    }
+    RENDERS[tab]();
+  }
+  window.resetTab = resetTab;
+
+  // ── Slider wiring ─────────────────────────────
+  function wire(id, valId, key, stateObj, renderFn) {
+    document.getElementById(id).addEventListener('input', function () {
+      stateObj[key] = +this.value;
+      document.getElementById(valId).textContent = fmt(this.value);
+      renderFn();
+    });
+  }
+  wire('ad-slider',   'ad-val',   'ad',   S.ad,   renderAD);
+  wire('sras-slider', 'sras-val', 'sras', S.sras, renderSRAS);
+  wire('lras-slider', 'lras-val', 'lras', S.lras, renderLRAS);
+
+  // Full model sliders read S.full directly to avoid stale-reference issues
+  document.getElementById('fad-slider').addEventListener('input', function () {
+    S.full.ad   = +this.value;
+    document.getElementById('fad-val').textContent = fmt(this.value);
+    renderFull();
+  });
+  document.getElementById('fsras-slider').addEventListener('input', function () {
+    S.full.sras = +this.value;
+    document.getElementById('fsras-val').textContent = fmt(this.value);
+    renderFull();
+  });
+  document.getElementById('flras-slider').addEventListener('input', function () {
+    S.full.lras = +this.value;
+    document.getElementById('flras-val').textContent = fmt(this.value);
+    renderFull();
+  });
+
+  // ── Init ──────────────────────────────────────
+  function init() { switchTab('ad'); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>

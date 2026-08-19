@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply &amp; Demand: Ice Cream</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --border: #d4cdc0;
+    --text: #2a2520;
+    --muted: #7a7268;
+    --demand: #1a6fc4;
+    --supply: #c47a00;
+    --eq: #c0392b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1020px;
+  }
+
+  .chart-wrap {
+    flex: 1;
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .right-panel {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .control-group {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .control-group h3 {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.85;
+  }
+
+  .ctrl-demand h3 { color: var(--demand); }
+  .ctrl-supply h3 { color: var(--supply); }
+
+  .slider-row { display: flex; flex-direction: column; gap: 6px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .slider-label .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  #demand-slider { background: #b8d4ef; }
+  #demand-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--demand); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #demand-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--demand); border: 2px solid white; cursor: pointer;
+  }
+
+  #supply-slider { background: #f0d8a0; }
+  #supply-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--supply); border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  #supply-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--supply); border: 2px solid white; cursor: pointer;
+  }
+
+  .eq-display {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .eq-item { text-align: center; }
+
+  .eq-item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .eq-item .value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--eq);
+  }
+
+  /* Schedule table */
+  .schedule {
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .schedule h3 {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  thead tr th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    padding: 3px 4px 6px;
+  }
+
+  thead tr th:first-child { text-align: right; }
+
+  tbody tr td {
+    text-align: center;
+    padding: 3px 4px;
+    font-size: 0.83rem;
+    color: var(--text);
+    border-top: 1px solid #e8e2d8;
+  }
+
+  tbody tr td:first-child {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  tbody tr.eq-row td {
+    background: #fde8e5;
+    color: var(--eq);
+    font-weight: 700;
+  }
+
+  .reset-btn {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
+
+  @media (max-width: 760px) {
+    .container { flex-direction: column; }
+    .right-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🍦 Supply &amp; Demand: Ice Cream</h1>
+<p class="subtitle">Market for Ice Cream Cones</p>
+
+<div class="container">
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 520 460" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="right-panel">
+
+    <div class="control-group ctrl-demand">
+      <h3>Demand</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift Demand</span>
+          <span class="val" id="demand-val">0</span>
+        </div>
+        <input type="range" id="demand-slider" min="-4" max="4" value="0" step="0.5">
+      </div>
+    </div>
+
+    <div class="control-group ctrl-supply">
+      <h3>Supply</h3>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Shift Supply</span>
+          <span class="val" id="supply-val">0</span>
+        </div>
+        <input type="range" id="supply-slider" min="-4" max="4" value="0" step="0.5">
+      </div>
+    </div>
+
+    <div class="eq-display">
+      <div class="eq-item">
+        <div class="label">Q*</div>
+        <div class="value" id="eq-q">6</div>
+      </div>
+      <div class="eq-item">
+        <div class="label">P*</div>
+        <div class="value" id="eq-p">$5.00</div>
+      </div>
+    </div>
+
+    <!-- Live schedule -->
+    <div class="schedule">
+      <h3 id="schedule-title">Market Schedule</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Price</th>
+            <th style="color:#1a6fc4">Q<sub>D</sub></th>
+            <th style="color:#c47a00">Q<sub>S</sub></th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset to Equilibrium</button>
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('chart');
+const NS = 'http://www.w3.org/2000/svg';
+
+const W = 520, H = 460;
+const PAD = { top: 30, right: 40, bottom: 60, left: 68 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top - PAD.bottom;
+
+// Domain: Q 0–14, P $0–$11
+const Q_MIN = 0, Q_MAX = 14;
+const P_MIN = 0, P_MAX = 11;
+
+// Exact fit from data:
+// Supply:  P = (5/6) * Q          → passes through (0,0) and (12,10), eq at (6,5)
+// Demand:  P = 10 - (5/6) * Q     → passes through (0,10) and (12,0), eq at (6,5)
+// Shifts move curve horizontally: Q → Q - shift
+const SLOPE = 5 / 6;
+
+const DEFAULTS = { demandShift: 0, supplyShift: 0 };
+let state = { ...DEFAULTS };
+
+function toSvgX(q) { return PAD.left + (q - Q_MIN) / (Q_MAX - Q_MIN) * PLOT_W; }
+function toSvgY(p) { return PAD.top + (1 - (p - P_MIN) / (P_MAX - P_MIN)) * PLOT_H; }
+
+function supplyP(Q, s)  { return SLOPE * (Q - s); }
+function demandP(Q, s)  { return 10 - SLOPE * (Q - s); }
+
+// Intersection: SLOPE*(Q-sS) = 10 - SLOPE*(Q-dS)
+// SLOPE*Q - SLOPE*sS = 10 - SLOPE*Q + SLOPE*dS
+// 2*SLOPE*Q = 10 + SLOPE*sS + SLOPE*dS
+// Q = (10 + SLOPE*(sS+dS)) / (2*SLOPE)
+function equilibrium(dS, sS) {
+  const Q = (10 + SLOPE * (sS + dS)) / (2 * SLOPE);
+  return { Q, P: supplyP(Q, sS) };
+}
+
+function svgEl(tag) { return document.createElementNS(NS, tag); }
+
+function mkLine(x1, y1, x2, y2, stroke, sw, dash) {
+  const e = svgEl('line');
+  e.setAttribute('x1', x1); e.setAttribute('y1', y1);
+  e.setAttribute('x2', x2); e.setAttribute('y2', y2);
+  e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw || 1.5);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  return e;
+}
+
+function mkPath(pts, stroke, sw) {
+  const d = pts.map((p,i) => `${i?'L':'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+  const e = svgEl('path');
+  e.setAttribute('d', d); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw || 2.5);
+  e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
+  return e;
+}
+
+function mkCircle(cx, cy, r, fill, stroke, sw) {
+  const e = svgEl('circle');
+  e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r);
+  e.setAttribute('fill', fill);
+  if (stroke) { e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', sw||1.5); }
+  return e;
+}
+
+function mkText(x, y, str, fill, size, anchor, italic, bold) {
+  const e = svgEl('text');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  e.setAttribute('fill', fill); e.setAttribute('font-size', size || 13);
+  e.setAttribute('font-family', italic ? 'Crimson Pro, Georgia, serif' : 'JetBrains Mono, monospace');
+  e.setAttribute('font-style', italic ? 'italic' : 'normal');
+  e.setAttribute('font-weight', bold ? '700' : 'normal');
+  e.setAttribute('text-anchor', anchor || 'middle');
+  e.setAttribute('dominant-baseline', 'middle');
+  e.textContent = str;
+  return e;
+}
+
+function add(e) { svg.appendChild(e); return e; }
+
+function render() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const { demandShift, supplyShift } = state;
+
+  // Backgrounds
+  const bg = svgEl('rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#faf7f2');
+  add(bg);
+  const pb = svgEl('rect');
+  pb.setAttribute('x', PAD.left); pb.setAttribute('y', PAD.top);
+  pb.setAttribute('width', PLOT_W); pb.setAttribute('height', PLOT_H);
+  pb.setAttribute('fill', '#f5f0e8'); pb.setAttribute('rx', '2');
+  add(pb);
+
+  // Grid
+  for (let q = 0; q <= Q_MAX; q += 2)
+    add(mkLine(toSvgX(q), PAD.top, toSvgX(q), PAD.top+PLOT_H, '#ddd8ce', 1));
+  for (let p = 0; p <= P_MAX; p++)
+    add(mkLine(PAD.left, toSvgY(p), PAD.left+PLOT_W, toSvgY(p), '#ddd8ce', 1));
+
+  // Axes
+  add(mkLine(PAD.left, PAD.top+PLOT_H, PAD.left+PLOT_W, PAD.top+PLOT_H, '#6b6560', 1.5));
+  add(mkLine(PAD.left, PAD.top, PAD.left, PAD.top+PLOT_H, '#6b6560', 1.5));
+
+  // Tick labels - P axis (dollar prices)
+  for (let p = 0; p <= P_MAX; p++)
+    add(mkText(PAD.left-8, toSvgY(p), '$'+p.toFixed(2), '#7a7268', 9, 'end', false));
+
+  // Tick labels - Q axis
+  for (let q = 0; q <= Q_MAX; q += 2)
+    add(mkText(toSvgX(q), PAD.top+PLOT_H+14, q, '#7a7268', 10, 'middle', false));
+
+  // Axis labels
+  add(mkText(PAD.left+PLOT_W/2, H-10, 'Quantity (cones)', '#7a7268', 12, 'middle', true));
+  const pLbl = svgEl('text');
+  pLbl.setAttribute('x', 13); pLbl.setAttribute('y', PAD.top+PLOT_H/2);
+  pLbl.setAttribute('fill', '#7a7268'); pLbl.setAttribute('font-size', 12);
+  pLbl.setAttribute('font-family', 'Crimson Pro, Georgia, serif');
+  pLbl.setAttribute('font-style', 'italic'); pLbl.setAttribute('text-anchor', 'middle');
+  pLbl.setAttribute('transform', `rotate(-90,13,${PAD.top+PLOT_H/2})`);
+  pLbl.textContent = 'Price (per cone)';
+  add(pLbl);
+
+  // ── Supply curve ──────────────────────────
+  const sPts = [];
+  for (let Q = Q_MIN; Q <= Q_MAX; Q += 0.1) {
+    const P = supplyP(Q, supplyShift);
+    if (P >= P_MIN && P <= P_MAX) sPts.push([toSvgX(Q), toSvgY(P)]);
+  }
+  if (sPts.length > 1) {
+    add(mkPath(sPts, '#c47a00', 2.5));
+    const tip = sPts[sPts.length-1];
+    add(mkText(tip[0]+7, tip[1], 'S', '#c47a00', 14, 'start', true, true));
+  }
+
+  // ── Demand curve ──────────────────────────
+  const dPts = [];
+  for (let Q = Q_MIN; Q <= Q_MAX; Q += 0.1) {
+    const P = demandP(Q, demandShift);
+    if (P >= P_MIN && P <= P_MAX) dPts.push([toSvgX(Q), toSvgY(P)]);
+  }
+  if (dPts.length > 1) {
+    add(mkPath(dPts, '#1a6fc4', 2.5));
+    const tip = dPts[dPts.length-1];
+    add(mkText(tip[0]+7, tip[1], 'D', '#1a6fc4', 14, 'start', true, true));
+  }
+
+  // ── Equilibrium ───────────────────────────
+  const eq = equilibrium(demandShift, supplyShift);
+  const eqSx = toSvgX(eq.Q);
+  const eqSy = toSvgY(eq.P);
+  const eqOk = eq.Q >= Q_MIN && eq.Q <= Q_MAX && eq.P >= P_MIN && eq.P <= P_MAX;
+
+  if (eqOk) {
+    add(mkLine(eqSx, eqSy, eqSx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
+    add(mkLine(PAD.left, eqSy, eqSx, eqSy, '#c0392b', 1.2, '5,4'));
+
+    add(mkCircle(PAD.left, eqSy, 3.5, '#c0392b'));
+    add(mkCircle(eqSx, PAD.top+PLOT_H, 3.5, '#c0392b'));
+
+    add(mkText(PAD.left-36, eqSy, 'P*', '#c0392b', 13, 'end', true, true));
+    add(mkText(eqSx, PAD.top+PLOT_H+28, 'Q*', '#c0392b', 13, 'middle', true, true));
+
+    add(mkCircle(eqSx, eqSy, 6, '#c0392b', 'white', 1.5));
+
+    document.getElementById('eq-q').textContent = eq.Q.toFixed(1);
+    document.getElementById('eq-p').textContent = '$' + eq.P.toFixed(2);
+  } else {
+    document.getElementById('eq-q').textContent = '—';
+    document.getElementById('eq-p').textContent = '—';
+  }
+
+  updateTable(demandShift, supplyShift);
+}
+
+// Original price points from the class data
+const PRICES = [10.00, 8.75, 7.50, 6.25, 5.00, 3.75, 2.50, 1.25, 0.00];
+
+// Invert curves: given P, solve for Q
+// Supply P = SLOPE*(Q-s)  → Q = P/SLOPE + s
+// Demand P = 10-SLOPE*(Q-s) → Q = (10-P)/SLOPE + s
+function supplyQ(P, s) { return P / SLOPE + s; }
+function demandQ(P, s) { return (10 - P) / SLOPE + s; }
+
+function updateTable(dS, sS) {
+  const eq = equilibrium(dS, sS);
+  const tbody = document.getElementById('schedule-body');
+  const title = document.getElementById('schedule-title');
+  const shifted = dS !== 0 || sS !== 0;
+  title.textContent = shifted ? 'Updated Schedule' : 'Market Schedule';
+
+  tbody.innerHTML = '';
+  PRICES.forEach(p => {
+    const qd = demandQ(p, dS);
+    const qs = supplyQ(p, sS);
+    const isEq = Math.abs(p - eq.P) < 0.001;
+    const tr = document.createElement('tr');
+    if (isEq) tr.className = 'eq-row';
+
+    const tdP = document.createElement('td');
+    tdP.textContent = '$' + p.toFixed(2);
+
+    const tdD = document.createElement('td');
+    tdD.textContent = qd < 0 ? '—' : qd.toFixed(1);
+    if (!isEq) tdD.style.color = '#1a6fc4';
+
+    const tdS = document.createElement('td');
+    tdS.textContent = qs < 0 ? '—' : qs.toFixed(1);
+    if (!isEq) tdS.style.color = '#c47a00';
+
+    tr.appendChild(tdP); tr.appendChild(tdD); tr.appendChild(tdS);
+    tbody.appendChild(tr);
+  });
+}
+
+function fmt(v) { return v > 0 ? '+'+v : ''+v; }
+
+document.getElementById('demand-slider').addEventListener('input', function() {
+  state.demandShift = +this.value;
+  document.getElementById('demand-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('supply-slider').addEventListener('input', function() {
+  state.supplyShift = +this.value;
+  document.getElementById('supply-val').textContent = fmt(this.value);
+  render();
+});
+document.getElementById('reset-btn').addEventListener('click', function() {
+  state = { ...DEFAULTS };
+  ['demand','supply'].forEach(k => {
+    document.getElementById(k+'-slider').value = 0;
+    document.getElementById(k+'-val').textContent = '0';
+  });
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
