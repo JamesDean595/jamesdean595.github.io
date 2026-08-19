@@ -137,6 +137,20 @@
     background: white;
   }
 
+  .eq-readout {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--border);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--eq);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
   .input-hint {
     font-size: 0.7rem;
     color: var(--muted);
@@ -245,6 +259,20 @@
           <label>Q* ($)</label>
           <input type="number" id="input-q" value="100" min="1" step="1">
           <div class="input-hint">qty of funds</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group ctrl-eq">
+      <h3>Current Equilibrium</h3>
+      <div class="eq-inputs">
+        <div class="eq-input-group">
+          <label>r*</label>
+          <div class="eq-readout" id="current-r">5.00%</div>
+        </div>
+        <div class="eq-input-group">
+          <label>Q*</label>
+          <div class="eq-readout" id="current-q">$100</div>
         </div>
       </div>
     </div>
@@ -490,6 +518,9 @@ function render() {
   const eqSx = tx(eq.Q);
   const eqSy = ty(eq.r);
   const eqOk = eq.Q >= 0 && eq.Q <= qMax && eq.r >= 0 && eq.r <= rMax;
+
+  document.getElementById('current-r').textContent = eq.r.toFixed(2) + '%';
+  document.getElementById('current-q').textContent = '$' + eq.Q.toFixed(0);
 
   if (eqOk) {
     add(mkLine(eqSx, eqSy, eqSx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
