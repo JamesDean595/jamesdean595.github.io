@@ -141,6 +141,20 @@
     background: white;
   }
 
+  .eq-readout {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--border);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--eq);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
   /* Market name input */
   .market-input-wrap {
     display: flex;
@@ -269,12 +283,26 @@
 
       <div class="eq-inputs">
         <div class="eq-input-group">
-          <label>P*</label>
+          <label>Initial P*</label>
           <input type="number" id="input-p" value="100" min="0.01" step="any">
         </div>
         <div class="eq-input-group">
-          <label>Q*</label>
+          <label>Initial Q*</label>
           <input type="number" id="input-q" value="100" min="0.01" step="any">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group ctrl-eq">
+      <h3>Current Equilibrium</h3>
+      <div class="eq-inputs">
+        <div class="eq-input-group">
+          <label>P*</label>
+          <div class="eq-readout" id="current-p">100</div>
+        </div>
+        <div class="eq-input-group">
+          <label>Q*</label>
+          <div class="eq-readout" id="current-q">100</div>
         </div>
       </div>
     </div>
@@ -484,6 +512,33 @@ function render() {
   pLbl.textContent = 'Price';
   add(pLbl);
 
+  // ── Ghost silhouettes (original curve position when shifted) ──
+  const shifted = demandShift !== 0 || supplyShift !== 0;
+  if (shifted) {
+    if (demandShift !== 0) {
+      const ghostDPts = [];
+      for (let q = 0; q <= qMax; q += qMax/200) {
+        const p = demandP(q, eqP, eqQ, 0);
+        if (p >= 0 && p <= pMax) ghostDPts.push([tx(q), ty(p)]);
+      }
+      if (ghostDPts.length > 1) {
+        const gp = mkPath(ghostDPts, '#1a6fc4', 1.8);
+        gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+      }
+    }
+    if (supplyShift !== 0) {
+      const ghostSPts = [];
+      for (let q = 0; q <= qMax; q += qMax/200) {
+        const p = supplyP(q, eqP, eqQ, 0);
+        if (p >= 0 && p <= pMax) ghostSPts.push([tx(q), ty(p)]);
+      }
+      if (ghostSPts.length > 1) {
+        const gp = mkPath(ghostSPts, '#c47a00', 1.8);
+        gp.setAttribute('stroke-dasharray', '6,4'); gp.setAttribute('opacity', '0.32'); add(gp);
+      }
+    }
+  }
+
   // ── Demand curve ──────────────────────────
   const dPts = [];
   for (let q = 0; q <= qMax; q += qMax/200) {
@@ -513,6 +568,9 @@ function render() {
   const eqSx = tx(eq.Q);
   const eqSy = ty(eq.P);
   const eqOk = eq.Q >= 0 && eq.Q <= qMax && eq.P >= 0 && eq.P <= pMax;
+
+  document.getElementById('current-p').textContent = fmtTick(parseFloat(eq.P.toPrecision(4)));
+  document.getElementById('current-q').textContent = fmtTick(parseFloat(eq.Q.toPrecision(4)));
 
   if (eqOk) {
     add(mkLine(eqSx, eqSy, eqSx, PAD.top+PLOT_H, '#c0392b', 1.2, '5,4'));
