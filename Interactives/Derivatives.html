@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Derivatives lab: FIN/ECON 335, Chapter 10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Palette adjusted to a mostly white / light beige base with soft blue accents. */
+  --bg:#F7F2E8;--panel:#FFFFFF;--ink:#3F4347;--muted:#6E7478;--purple:#5DA3D1;--on-purple:#FFFFFF;
+  --gold:#A9D1E6;--gold-ink:#4C8DB5;--gain:#3C8B68;--loss:#B45A4F;--rule:#D5E1E7;--field:#FFFFFF;
+  --shade:rgba(93,163,209,.10);--warn-bg:#F7EDE8;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light only;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.top{max-width:1600px;margin:0 auto;padding:22px 28px 0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+h1{margin:0;font-stretch:125%;font-weight:800;font-size:clamp(1.7rem,3vw,2.6rem);line-height:1;letter-spacing:-.01em}
+.course{margin:6px 0 0;color:var(--muted)}
+.quiz{display:flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}
+.quiz input{width:18px;height:18px;accent-color:var(--purple)}
+.tabs{max-width:1600px;margin:14px auto 0;padding:0 28px;display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--rule)}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;color:var(--muted);font-weight:600;white-space:nowrap;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.tab:hover{color:var(--ink)}
+
+.app{max-width:1600px;margin:0 auto;padding:20px 28px 32px;display:grid;grid-template-columns:minmax(270px,330px) minmax(0,1fr);gap:22px;align-items:start}
+.right{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;min-width:0}
+.stage{grid-column:1/-1;min-width:0}
+@media (max-width:1060px){.app{grid-template-columns:1fr}.right{grid-template-columns:1fr}}
+
+.ticket{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:20px;box-shadow:0 1px 2px rgba(63,67,71,.04)}
+.ticket h2{margin:0 0 8px;font-stretch:112%;font-weight:750;font-size:1.45rem;line-height:1.15}
+.ticket .def{margin:0 0 8px}
+.ticket .key{margin:0 0 16px;color:var(--muted);font-size:.93rem}
+.seg{display:flex;border:1.5px solid var(--purple);border-radius:7px;overflow:hidden;margin:0 0 12px}
+.seg button{flex:1;padding:8px 6px;background:transparent;border:0;color:var(--purple);font-weight:650;font-size:.9rem;cursor:pointer;line-height:1.2}
+.seg button+button{border-left:1.5px solid var(--purple)}
+.seg button[aria-pressed="true"]{background:var(--purple);color:var(--on-purple)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px 12px;margin-top:6px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.wide{grid-column:1/-1}
+.field label{font-size:.82rem;color:var(--muted);line-height:1.25}
+.field input,.field select{width:100%;padding:7px 9px;border:1px solid var(--rule);border-radius:5px;background:var(--field)}
+.field small{color:var(--gold-ink);font-size:.8rem}
+
+.readout{display:flex;flex-wrap:wrap;gap:6px 34px;margin:0 0 6px}
+.ro .l{display:block;font-size:.82rem;color:var(--muted)}
+.ro b{display:block;font-size:clamp(1.3rem,2.1vw,1.95rem);font-stretch:110%;font-weight:720;line-height:1.15}
+figure{margin:0}
+.chart svg{width:100%;height:auto;display:block}
+figcaption,.cap{color:var(--muted);font-size:.86rem;margin:2px 0 0}
+.controls{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;margin-top:12px}
+.ctl{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.92rem}
+.ctl select{padding:6px 8px;border:1px solid var(--rule);border-radius:5px;background:var(--field)}
+.ctl input[type=range]{accent-color:var(--purple);width:120px}
+.ctl output{min-width:5.5ch;color:var(--ink);font-weight:600}
+.keys{color:var(--muted);font-size:.8rem;margin:10px 0 0}
+
+.btn{padding:9px 16px;border-radius:7px;border:1.5px solid var(--purple);background:var(--purple);color:var(--on-purple);font-weight:650;cursor:pointer;line-height:1.2}
+.btn.ghost{background:#F4F9FC;color:var(--purple)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn:not(:disabled):hover{filter:brightness(1.08)}
+
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:18px 20px;min-width:0;box-shadow:0 1px 2px rgba(63,67,71,.04)}
+.panel h3{margin:0 0 10px;font-size:1rem;font-weight:700;color:var(--muted)}
+.panel p{margin:.4em 0}
+.head{font-weight:650;font-size:1.05rem}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.muted{color:var(--muted)}
+.warn{background:var(--warn-bg);border-radius:6px;padding:10px 12px}
+.big{font-size:clamp(2.2rem,4.6vw,3.6rem);font-stretch:125%;font-weight:800;line-height:1.05;margin:.15em 0 .1em !important}
+.gain{color:var(--gain)}.loss{color:var(--loss)}
+.fb{font-weight:600}
+.math{border-top:1px solid var(--rule);margin-top:10px;padding-top:8px}
+.math p{margin:.3em 0}
+.math sub{font-size:.7em}
+.answer{margin:12px 0}
+.answer label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
+.answer .row{display:flex;gap:8px}
+.answer input{flex:1;min-width:0;max-width:220px;padding:8px 10px;border:1px solid var(--rule);border-radius:5px;background:var(--field);font-size:1.05rem}
+.verdict{min-height:1.4em;font-weight:600}
+details.hint{margin:10px 0;color:var(--muted)}
+details.hint summary{cursor:pointer;color:var(--purple);font-weight:600}
+.whatif{background:var(--panel);border-radius:6px;padding:10px 12px}
+.result{margin-top:4px}
+.period + .result{border-top:1px solid var(--rule);margin-top:14px;padding-top:10px}
+
+.wrap-x{overflow-x:auto}
+table.ledger{width:100%;border-collapse:collapse;font-size:.92rem}
+.ledger th{text-align:right;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+.ledger td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+.ledger th:first-child,.ledger td:first-child{text-align:left}
+.ledger tr.flag td{background:var(--warn-bg)}
+.ledger tr.now td{font-weight:700}
+
+svg text{fill:var(--muted);font-size:12.5px;font-family:inherit}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .zero{stroke:var(--muted);stroke-width:1.2}
+svg .shade{fill:var(--shade)}
+svg .path{stroke:var(--purple);stroke-width:2.6;fill:none;stroke-linejoin:round;stroke-linecap:round}
+svg .future{stroke:var(--muted);stroke-width:1.8;fill:none;stroke-dasharray:5 5}
+svg .ref{stroke:var(--gold);stroke-width:2;stroke-dasharray:7 5}
+svg .ref.minor{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:2 4}
+svg .reft{fill:var(--gold-ink);font-weight:650}
+svg .reft.minor{fill:var(--muted);font-weight:500}
+svg .dot{fill:var(--purple)}
+svg .dotlab{fill:var(--ink);font-weight:700;font-size:14px}
+svg .mk-call{fill:var(--loss)}
+svg .mk-ex{fill:none;stroke:var(--gold);stroke-width:3}
+svg .curve-exp{stroke:var(--purple);stroke-width:2.6;fill:none}
+svg .curve-now{stroke:var(--gold);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+@media (prefers-reduced-motion:no-preference){.big{animation:pop .35s ease-out}}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (max-width:600px){.top,.tabs,.app{padding-left:16px;padding-right:16px}.fields{grid-template-columns:1fr}.field.wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Derivatives lab</h1>
+    <p class="course">FIN/ECON 335, Chapter 10: Derivative markets</p>
+  </div>
+  <label class="quiz"><input type="checkbox" id="quiz"> Hide payoffs until revealed</label>
+</header>
+<nav class="tabs" role="tablist" aria-label="Derivative" id="tabs"></nav>
+
+<main class="app">
+  <section class="ticket" id="ticket" aria-label="Contract terms"></section>
+  <div class="right">
+    <section class="stage" aria-label="Simulation">
+      <div class="readout" id="readout" aria-live="polite"></div>
+      <figure class="chart"><div id="chart"></div><figcaption id="chartcap"></figcaption></figure>
+      <div class="controls">
+        <button class="btn" id="next">Next day</button>
+        <button class="btn ghost" id="play">Play</button>
+        <button class="btn ghost" id="restart">Restart this path</button>
+        <button class="btn ghost" id="newpath">New path</button>
+        <label class="ctl">Market <select id="mood"></select></label>
+        <label class="ctl"><span id="volLabel">Volatility</span> <input type="range" id="vol"> <output id="volOut"></output></label>
+      </div>
+      <p class="keys">Keyboard: right arrow steps forward, space plays or pauses, N draws a new path.</p>
+    </section>
+    <section class="panel" id="decide" aria-label="Your move"></section>
+    <section class="panel" id="aux" aria-label="Detail"></section>
+  </div>
+</main>
+
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const z=v=>Math.abs(v)<0.005?0:v;
+const n2=v=>{v=z(v);return(v<0?'−':'')+Math.abs(v).toFixed(2)};
+const sg2=v=>{v=z(v);return(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2)};
+const m2=v=>{v=z(v);return(v<0?'−$':'$')+Math.abs(v).toFixed(2)};
+const money=(v,d=0)=>{v=z(v);return(v<0?'−$':'$')+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})};
+const smoney=(v,d=0)=>(z(v)>0?'+':'')+money(v,d);
+const int=v=>Math.round(v).toLocaleString('en-US');
+const pc=v=>(+v).toFixed(2)+'%';
+const cls=v=>z(v)>0?'gain':z(v)<0?'loss':'';
+const mil=v=>'$'+(+v).toLocaleString('en-US')+'m';
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(R){let u=0;while(u===0)u=R();const v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function pricePath(S0,n,sig,mood,seed){
+  const R=mulberry32(seed),dt=1/252,mu=mood==='up'?1.5:mood==='down'?-1.5:0;
+  const p=[Math.round(S0*100)/100];let s=S0;
+  for(let i=1;i<=n;i++){s*=Math.exp((mu-sig*sig/2)*dt+sig*Math.sqrt(dt)*gauss(R));p.push(Math.max(0.01,Math.round(s*100)/100))}
+  return p;
+}
+function ratePath(r0,n,vbp,mood,seed){
+  const R=mulberry32(seed),dr=mood==='up'?0.2:mood==='down'?-0.2:0;
+  let r=Math.round(r0*100)/100;const p=[r];
+  for(let i=1;i<=n;i++){r=Math.max(0,Math.round((r+dr+(vbp/100)*gauss(R))*100)/100);p.push(r)}
+  return p;
+}
+/* Cox-Ross-Rubinstein binomial tree, American or European */
+function binom(S,X,T,r,sig,type,amer,M=120){
+  const pay=s=>Math.max(type==='call'?s-X:X-s,0);
+  if(T<=1e-9||sig<=0)return pay(S);
+  const dt=T/M,u=Math.exp(sig*Math.sqrt(dt)),d=1/u,a=Math.exp(r*dt),p=(a-d)/(u-d),disc=1/a;
+  const v=new Float64Array(M+1);
+  for(let i=0;i<=M;i++)v[i]=pay(S*Math.pow(u,M-i)*Math.pow(d,i));
+  for(let j=M-1;j>=0;j--){for(let i=0;i<=j;i++){let c=disc*(p*v[i]+(1-p)*v[i+1]);if(amer){const e=pay(S*Math.pow(u,j-i)*Math.pow(d,i));if(e>c)c=e}v[i]=c}}
+  return v[0];
+}
+function ticks(lo,hi,k=5){const raw=(hi-lo)/k;const mag=Math.pow(10,Math.floor(Math.log10(raw)));const f=raw/mag;const st=(f<1.5?1:f<3?2:f<7?5:10)*mag;const out=[];for(let v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+
+/* ---------- charts ---------- */
+function lineChart(o){
+  const W=760,H=300,L=58,R=124,T=18,B=34,iw=W-L-R,ih=H-T-B,n=o.n,t=o.t,vals=o.vals;
+  const shown=vals.slice(0,t+1),rest=o.all?vals.slice(t):[];
+  const rv=o.refs.map(r=>r.v);
+  let lo=Math.min(...shown,...rest,...rv),hi=Math.max(...shown,...rest,...rv);
+  if(sim.yr){lo=Math.min(lo,sim.yr[0]);hi=Math.max(hi,sim.yr[1])}
+  sim.yr=[lo,hi];
+  let pad=(hi-lo)*0.15;if(pad<1e-9)pad=Math.max(Math.abs(hi)*0.05,0.1);lo-=pad;hi+=pad;
+  const X=i=>L+iw*i/n,Y=v=>T+ih*(hi-v)/(hi-lo);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">`;
+  for(const sh of [].concat(o.shade||[])){const y=Math.min(Math.max(Y(sh.v),T),T+ih);
+    s+=sh.dir==='above'?`<rect class="shade" x="${L}" y="${T}" width="${iw}" height="${y-T}"/>`:`<rect class="shade" x="${L}" y="${y}" width="${iw}" height="${T+ih-y}"/>`}
+  for(const v of ticks(lo,hi)){const y=Y(v);s+=`<line class="grid" x1="${L}" x2="${L+iw}" y1="${y}" y2="${y}"/><text x="${L-8}" y="${y+4}" text-anchor="end">${o.fy(v)}</text>`}
+  const xs=n<=12?1:Math.ceil(n/6);
+  for(let i=0;i<=n;i+=xs){s+=`<text x="${X(i)}" y="${H-10}" text-anchor="middle">${i}</text>`}
+  if(n%xs!==0)s+=`<text x="${X(n)}" y="${H-10}" text-anchor="middle">${n}</text>`;
+  s+=`<text x="${L-8}" y="${H-10}" text-anchor="end">${o.unit}</text>`;
+  const rs=o.refs.map(r=>({...r,y:Y(r.v)})).sort((a,b)=>a.y-b.y);
+  rs.forEach((r,i)=>{r.ly=r.y;if(i>0&&r.ly-rs[i-1].ly<16)r.ly=rs[i-1].ly+16});
+  for(const r of rs){s+=`<line class="ref${r.minor?' minor':''}" x1="${L}" x2="${L+iw}" y1="${r.y}" y2="${r.y}"/><text class="reft${r.minor?' minor':''}" x="${L+iw+8}" y="${r.ly+4}">${r.label}</text>`}
+  if(rest.length>1)s+=`<polyline class="future" points="${rest.map((v,i)=>X(t+i)+','+Y(v)).join(' ')}"/>`;
+  s+=`<polyline class="path" points="${shown.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`;
+  for(const m of o.markers||[]){const x=X(m.i),y=Y(vals[m.i]);
+    if(m.kind==='call')s+=`<path class="mk-call" d="M${x-6},${y+10} L${x+6},${y+10} L${x},${y+20} Z"/>`;
+    else s+=`<circle class="mk-ex" cx="${x}" cy="${y}" r="10"/>`}
+  const cx=X(t),cy=Y(vals[t]);
+  s+=`<circle class="dot" cx="${cx}" cy="${cy}" r="5.5"/>`;
+  const anc=cx>L+iw-40?'end':cx<L+40?'start':'middle';
+  s+=`<text class="dotlab" x="${cx}" y="${cy<T+24?cy+24:cy-12}" text-anchor="${anc}">${o.fv(vals[t])}</text>`;
+  return s+'</svg>';
+}
+function payChart(o){
+  const W=460,H=330,L=72,R=14,T=34,B=34,iw=W-L-R,ih=H-T-B,K=90;
+  const xsamp=[...Array(K+1)].map((_,i)=>o.lo+(o.hi-o.lo)*i/K);
+  const cs=o.curves.map(c=>({...c,ys:xsamp.map(c.f)}));
+  let ylo=Math.min(0,...cs.flatMap(c=>c.ys)),yhi=Math.max(0,...cs.flatMap(c=>c.ys));
+  if(o.mark){ylo=Math.min(ylo,o.mark.y);yhi=Math.max(yhi,o.mark.y)}
+  let pad=(yhi-ylo)*0.1||1;ylo-=pad;yhi+=pad;
+  const X=x=>L+iw*(x-o.lo)/(o.hi-o.lo),Y=y=>T+ih*(yhi-y)/(yhi-ylo);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">`;
+  for(const v of ticks(ylo,yhi)){const y=Y(v);s+=`<line class="grid" x1="${L}" x2="${L+iw}" y1="${y}" y2="${y}"/><text x="${L-8}" y="${y+4}" text-anchor="end">${money(v)}</text>`}
+  for(const v of ticks(o.lo,o.hi,4)){s+=`<text x="${X(v)}" y="${H-10}" text-anchor="middle">${o.fx(v)}</text>`}
+  s+=`<line class="zero" x1="${L}" x2="${L+iw}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  (o.vlines||[]).forEach((vl,i)=>{const x=X(vl.v),anc=x>L+iw*0.7?'end':x<L+iw*0.3?'start':'middle';s+=`<line class="ref${vl.minor?' minor':''}" x1="${x}" x2="${x}" y1="${T}" y2="${T+ih}"/><text class="reft${vl.minor?' minor':''}" x="${x}" y="${i===0?T-18:T-4}" text-anchor="${anc}">${vl.label}</text>`});
+  for(const c of cs){s+=`<polyline class="${c.cls}" points="${c.ys.map((y,i)=>X(xsamp[i])+','+Y(y)).join(' ')}"/>`}
+  if(o.mark){s+=`<circle class="dot" cx="${X(o.mark.x)}" cy="${Y(o.mark.y)}" r="6"/>`}
+  return s+'</svg>';
+}
+function xRange(K){const p=P[cur],seen=sim.path.slice(0,sim.revealAll?sim.path.length:sim.t+1),w=K*Math.max(0.06,2.5*(p.vol/100)*Math.sqrt(p.N/252));return[Math.min(K-w,Math.min(...seen)*0.98),Math.max(K+w,Math.max(...seen)*1.02)]}
+
+/* ---------- state ---------- */
+const UI={tab:'forward',quiz:true};
+try{Object.assign(UI,JSON.parse(localStorage.getItem('derivlab-ui')||'{}'))}catch(e){}
+function saveUI(){try{localStorage.setItem('derivlab-ui',JSON.stringify(UI))}catch(e){}}
+const sim={};
+const seeds={};
+const dir=p=>(p.pos==='long'||p.pos==='buy'||p.pos==='seller')?1:-1;
+
+/* ---------- shared UI blocks ---------- */
+function answerWidget(target,key,label,dec){
+  if(!UI.quiz)return'';
+  return`<div class="answer"><label for="ans-${key}">${label}</label><div class="row"><input id="ans-${key}" inputmode="decimal" autocomplete="off" value="${esc(sim.ans[key]??'')}" placeholder="e.g. ${dec?'-12.50':'1,250'}"><button class="btn ghost" data-act="check" data-key="${key}" data-target="${target}">Check</button></div><p class="verdict" aria-live="polite">${sim.ver[key]||''}</p></div>`;
+}
+function revealBtn(key,label){return`<div class="acts"><button class="btn ghost" data-act="reveal" data-key="${key}">${label}</button></div>`}
+function resultBlock(){
+  const o=sim.outcome,key='final',shown=!UI.quiz||sim.rev[key];
+  let h=`<div class="result"><p class="head">${o.head}</p>`;
+  if(o.note)h+=`<p class="warn">${o.note}</p>`;
+  h+=answerWidget(o.pay,key,o.label||'Your total payoff ($, negative for a loss)',o.dec);
+  if(shown){h+=`<p class="big ${cls(o.pay)}">${smoney(o.pay,o.dec||0)}</p>${o.fb?`<p class="fb">${o.fb}</p>`:''}<div class="math">${o.math.map(l=>`<p>${l}</p>`).join('')}</div>`}
+  else h+=revealBtn(key,'Reveal the payoff');
+  if(o.early&&!sim.revealAll)h+=`<div class="acts"><button class="btn ghost" data-act="rest">Show the rest of the path</button></div>`;
+  if(sim.revealAll&&o.whatif)h+=`<p class="whatif">${o.whatif}</p>`;
+  return h+'</div>';
+}
+function ledgerRowVisible(t){return !UI.quiz||t<sim.t||sim.rev['p'+t]||sim.done&&sim.rev.final}
+
+/* ---------- instruments ---------- */
+const INST={};
+
+INST.forward={
+  tab:'Forward',name:'Forward contract',kind:'price',unit:'Day',
+  def:'An agreement today to exchange a set quantity of an asset at a set price F on a future delivery date. Terms are negotiated over the counter between the two parties.',
+  key:'Both sides are obligated. Whoever the price moves against still has to pay, unless they default.',
+  positions:[['long','Long: agree to buy at F'],['short','Short: agree to sell at F']],
+  defaults:{asset:'Wheat, per bushel',S0:6.00,F:6.10,Q:5000,N:30,vol:30,mood:'random',pos:'short',defp:0},
+  fields:[
+    {k:'asset',label:'Underlying',t:'text',wide:1},
+    {k:'S0',label:'Spot price today ($)',step:.01,min:.01},
+    {k:'F',label:'Forward price F ($)',step:.01,min:.01},
+    {k:'Q',label:'Quantity',step:100,min:1,int:1},
+    {k:'N',label:'Days to delivery',step:1,min:1,max:250,int:1},
+    {k:'defp',label:'Chance your counterparty defaults if it owes you (%)',step:5,min:0,max:100,wide:1}],
+  init(p){sim.path=pricePath(p.S0,p.N,p.vol/100,p.mood,sim.seed);sim.n=p.N},
+  readout(p){const s=sim.path[sim.t],g=dir(p)*(s-p.F)*p.Q;
+    const out=[['Day',`${sim.t} of ${sim.n}`],['Spot price',m2(s)],['Forward price F',m2(p.F)]];
+    if(!UI.quiz||sim.rev.final)out.push(['Gain if delivery were today',`<span class="${cls(g)}">${smoney(g)}</span>`]);
+    return out},
+  chart(p){return{refs:[{v:p.F,label:'F '+m2(p.F)}],shade:{v:p.F,dir:dir(p)>0?'above':'below'},
+    cap:`Spot price. Shaded: prices at which your ${p.pos} position gains at delivery.`}},
+  onStep(p){if(sim.t===sim.n)sim.pending='settle'},
+  decide(p){
+    if(sim.outcome)return resultBlock();
+    const s=sim.path[sim.t];
+    if(sim.t<sim.n)return`<p>No decisions until delivery on day ${sim.n}. Both sides are locked in at F = ${m2(p.F)}.</p><p class="muted">Keep an eye on the gap between spot and F: that gap is what changes hands at delivery.</p>`;
+    return`<p class="head">Delivery day. Spot is ${m2(s)}; the contract price is ${m2(p.F)}.</p>${sim.msg?`<p class="warn">${sim.msg}</p>`:''}<div class="acts"><button class="btn" data-act="settle">Settle the contract</button><button class="btn ghost" data-act="walk">Walk away</button></div>`;
+  },
+  act(a,p){
+    if(a==='walk'){sim.msg='You can’t. A forward is an obligation, not a right. Walking away is a default, and the other side can pursue you for the full amount.';return}
+    if(a!=='settle')return;
+    const s=sim.path[sim.n],d=dir(p),raw=d*(s-p.F)*p.Q;let pay=raw,def=false;
+    if(raw>0&&p.defp>0&&mulberry32(sim.seed^0x5bd1e995)()*100<p.defp){def=true;pay=0}
+    const form=d>0?'(S<sub>T</sub> − F) × Q':'(F − S<sub>T</sub>) × Q';
+    const sub=d>0?`(${n2(s)} − ${n2(p.F)}) × ${int(p.Q)}`:`(${n2(p.F)} − ${n2(s)}) × ${int(p.Q)}`;
+    const math=[`Payoff = ${form}`,`= ${sub} = ${smoney(raw)}`];
+    if(def)math.push(`Your counterparty defaulted: you collect $0 of the ${money(raw)} owed.`);
+    if(d<0)math.push(`Hedger view: sell the asset at spot for ${n2(s)} × ${int(p.Q)} = ${money(s*p.Q)}, plus the forward payoff ${smoney(pay)}, gives ${money(s*p.Q+pay)}${def?'.':` = F × Q. The price was locked in at ${m2(p.F)}.`}`);
+    else math.push(`Buyer view: pay ${n2(s)} × ${int(p.Q)} = ${money(s*p.Q)} at spot, minus the forward payoff ${smoney(pay)}, is a net cost of ${money(s*p.Q-pay)}${def?'.':` = F × Q. The price was locked in at ${m2(p.F)}.`}`);
+    let fb=def?'This is counterparty credit risk: a futures clearinghouse would have guaranteed this payment.':raw>0?'The price moved your way, so the other side pays you.':raw<0?'The price moved against you, so you pay, even though trading at spot would have done better. That is the cost of locking in a price.':'Spot ended exactly at F: nothing changes hands.';
+    sim.outcome={head:`Settled on day ${sim.n} with spot at ${m2(s)}.`,pay,math,fb,dec:0};
+    sim.done=true;sim.pending=null;
+  },
+  aux(p){
+    const d=dir(p),s=sim.path[sim.t],[lo,hi]=xRange(p.F);
+    return`<h3>Payoff at delivery</h3>`+payChart({lo,hi,fx:m2,aria:'Forward payoff diagram',curves:[{f:x=>d*(x-p.F)*p.Q,cls:'curve-exp'}],mark:{x:s,y:d*(s-p.F)*p.Q},vlines:[{v:p.F,label:'F'}]})+
+      `<p class="cap">A straight line through F: every $1 the spot price ends ${d>0?'above':'below'} F is ${money(p.Q)} to you, and every $1 on the other side costs you the same.</p>`;
+  }
+};
+
+INST.futures={
+  tab:'Futures',name:'Futures contract',kind:'price',unit:'Day',
+  def:'A standardized forward traded on an exchange. The clearinghouse stands between the two sides, and gains and losses settle in cash every day (marked to market).',
+  key:'You post only a margin deposit. If losses push the account below the maintenance margin, you get a margin call.',
+  positions:[['long','Long: buy'],['short','Short: sell']],
+  defaults:{asset:'Corn, per bushel',F0:4.50,size:5000,n:1,im:2000,mm:1500,N:10,vol:30,mood:'random',pos:'long'},
+  fields:[
+    {k:'asset',label:'Underlying',t:'text',wide:1},
+    {k:'F0',label:'Futures price at entry ($)',step:.01,min:.01},
+    {k:'size',label:'Contract size (units)',step:100,min:1,int:1},
+    {k:'n',label:'Contracts',step:1,min:1,int:1},
+    {k:'N',label:'Trading days to expiration',step:1,min:1,max:60,int:1},
+    {k:'im',label:'Initial margin per contract ($)',step:100,min:1},
+    {k:'mm',label:'Maintenance margin per contract ($)',step:100,min:0}],
+  init(p){
+    sim.path=pricePath(p.F0,p.N,p.vol/100,p.mood,sim.seed);sim.n=p.N;
+    const d=dir(p);let bal=p.im*p.n,dep=bal;
+    sim.led=[{F:sim.path[0],gain:0,pre:bal,call:0,bal,dep}];
+    for(let t=1;t<=p.N;t++){const gain=d*(sim.path[t]-sim.path[t-1])*p.size*p.n;const pre=bal+gain;let call=0;
+      if(pre<p.mm*p.n)call=p.im*p.n-pre;bal=pre+call;dep+=call;sim.led.push({F:sim.path[t],gain,pre,call,bal,dep})}
+  },
+  readout(p){const L=sim.led[sim.t],g=dir(p)*(L.F-p.F0)*p.size*p.n,b=sim.pending==='call'?L.pre:L.bal;
+    const out=[['Day',`${sim.t} of ${sim.n}`],['Settlement price',m2(L.F)],['Margin balance',`<span class="${b<p.mm*p.n?'loss':''}">${money(b)}</span>`]];
+    if(!UI.quiz||sim.rev.final)out.push(['Gain or loss so far',`<span class="${cls(g)}">${smoney(g)}</span>`]);
+    return out},
+  chart(p){const mk=[];for(let t=1;t<=sim.t;t++)if(sim.led[t].call>0)mk.push({i:t,kind:'call'});if(sim.mark)mk.push(sim.mark);
+    return{refs:[{v:p.F0,label:'Entry '+m2(p.F0)}],shade:{v:p.F0,dir:dir(p)>0?'above':'below'},markers:mk,
+    cap:'Daily settlement price. Shaded: prices where your position is ahead. Red triangles mark margin calls.'}},
+  onStep(p){const L=sim.led[sim.t];if(L.call>0)sim.pending='call';else if(sim.t===sim.n)sim.pending='settle'},
+  decide(p){
+    if(sim.outcome)return resultBlock();
+    const L=sim.led[sim.t];
+    if(sim.pending==='call')return`<p class="warn"><b>Margin call.</b> Today’s loss left your account at ${money(L.pre)}, below the maintenance level of ${money(p.mm*p.n)}. Deposit ${money(L.call)} to bring it back to the initial margin of ${money(p.im*p.n)}.</p><div class="acts"><button class="btn" data-act="deposit">Deposit ${money(L.call)}</button><button class="btn ghost" data-act="refuse">Refuse: broker closes the position</button></div>`;
+    if(sim.pending==='settle')return`<p class="head">Expiration. Final settlement price is ${m2(L.F)}.</p><div class="acts"><button class="btn" data-act="close">Settle at expiration</button></div>`;
+    if(sim.t===0)return`<p>You’re ${p.pos} ${p.n} contract${p.n>1?'s':''} at ${m2(p.F0)} with ${money(p.im*p.n)} in the margin account. Step forward to start trading.</p><p class="muted">You can close out on any day, or hold to expiration.</p>`;
+    return`<p>Day ${sim.t}: settled at ${m2(L.F)}. Hold, or close out today?</p><div class="acts"><button class="btn" data-act="close">Close out at ${m2(L.F)}</button></div><p class="muted">Or step forward to hold another day.</p>`;
+  },
+  act(a,p){
+    if(a==='deposit'){sim.pending=sim.t===sim.n?'settle':null;return}
+    if(a!=='close'&&a!=='refuse')return;
+    const liq=a==='refuse',t=sim.t,L=sim.led[t],d=dir(p),Fc=L.F,gain=d*(Fc-p.F0)*p.size*p.n;
+    const bal=liq?L.pre:L.bal,dep=liq?L.dep-L.call:L.dep,calls=dep-p.im*p.n;
+    const math=[
+      `Total gain = ${d>0?'(F<sub>close</sub> − F<sub>0</sub>)':'(F<sub>0</sub> − F<sub>close</sub>)'} × contract size × contracts`,
+      `= ${d>0?`(${n2(Fc)} − ${n2(p.F0)})`:`(${n2(p.F0)} − ${n2(Fc)})`} × ${int(p.size)} × ${p.n} = ${smoney(gain)}`,
+      `Check with the margin account: you put in ${money(dep)}${calls>0.005?` (${money(p.im*p.n)} initial + ${money(calls)} in margin calls)`:''} and the account now holds ${money(bal)}. ${money(bal)} − ${money(dep)} = ${smoney(bal-dep)}.`,
+      `Return on the initial margin: ${smoney(gain)} ÷ ${money(p.im*p.n)} = ${(gain/(p.im*p.n)*100).toFixed(1)}%, while the futures price moved ${((Fc/p.F0-1)*100).toFixed(1)}%. That gap is leverage.`];
+    const FN=sim.path[sim.n],held=d*(FN-p.F0)*p.size*p.n;
+    sim.outcome={head:liq?`The broker liquidated your position on day ${t} after you refused the margin call.`:t===sim.n?`Held to expiration and settled at ${m2(Fc)}.`:`Closed out on day ${t} at ${m2(Fc)}.`,
+      pay:gain,math,dec:0,early:t<sim.n,
+      fb:liq?'Refusing a margin call doesn’t erase the loss. It locks it in.':'Every day’s gain or loss already moved through your account in cash. Closing out just stops the clock.',
+      whatif:`Had you held to expiration (meeting every margin call), the final settlement at ${m2(FN)} would have given ${smoney(held)}.`};
+    sim.mark={i:t,kind:'ex'};sim.done=true;sim.pending=null;
+  },
+  aux(p){
+    let rows='';
+    for(let t=0;t<=sim.t;t++){const L=sim.led[t],pend=t===sim.t&&sim.pending==='call',refused=sim.outcome&&t===sim.t&&/liquidated/.test(sim.outcome.head);
+      const bal=(pend||refused)?L.pre:L.bal;
+      rows+=`<tr class="${L.call>0?'flag':''}${t===sim.t?' now':''}"><td>${t===0?'Open':t}</td><td>${m2(L.F)}</td><td class="${cls(L.gain)}">${t===0?'':smoney(L.gain)}</td><td>${L.call>0?(refused?'refused':money(L.call)):''}</td><td>${money(bal)}</td></tr>`}
+    return`<h3>Margin account (marked to market daily)</h3><div class="wrap-x"><table class="ledger"><thead><tr><th>Day</th><th>Settle</th><th>Daily gain or loss</th><th>Margin call</th><th>Balance</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="cap">Daily gain or loss = change in settlement price × ${int(p.size)} × ${p.n} contract${p.n>1?'s':''}${dir(p)<0?', with the sign flipped for a short':''}. Maintenance level: ${money(p.mm*p.n)}.</p>`;
+  }
+};
+
+function optInst(type){
+  const C=type==='call',sym=C?'C':'P';
+  const IV=(p,s)=>Math.max(C?s-p.X:p.X-s,0),EX=(p,s)=>C?s-p.X:p.X-s;
+  const VAL=(p,s,t,M=150)=>binom(s,p.X,(p.N-t)/252,p.r/100,p.vol/100,type,p.style==='american',M);
+  const exF=C?'S − X':'X − S',exSub=(p,s)=>C?`${n2(s)} − ${n2(p.X)}`:`${n2(p.X)} − ${n2(s)}`;
+  function finish(p,kind){
+    const t=sim.t,s=sim.path[t],I=IV(p,s),E=EX(p,s),v=VAL(p,s,t),q=100*p.n,pr=p.prem;
+    const tot=x=>`Total = ${sg2(x)} × 100 shares × ${p.n} contract${p.n>1?'s':''} = ${smoney(x*q,2)}`;
+    let net,head,math,fb='';
+    if(kind==='ex'){net=E-pr;head=`You exercised on day ${t} with the stock at ${m2(s)}.`;
+      math=[`Exercise payoff per share = ${exF} = ${exSub(p,s)} = ${sg2(E)}`,`Net per share = ${sg2(E)} − premium ${n2(pr)} = ${sg2(net)}`,tot(net)];
+      if(t===sim.n)fb=E>0?'Right call: in the money, so exercise.'+(net<0?` The net is still negative because the premium is sunk. Exercising cut the loss from ${money(-pr*q,2)} to ${money(net*q,2)}.`:''):`Wrong call. Exercising out of the money means ${C?'paying more than the market price for the stock':'selling the stock for less than the market price'}. Letting it expire would have lost only the premium.`;
+      else if(E<=0)fb='Exercising out of the money loses money on top of the premium.';
+      else if(I>=v-1e-4)fb='Early exercise was optimal here: the option was worth no more alive than exercised.';
+      else fb=`You threw away ${m2(v-I)} per share of time value. Selling the option would have paid ${m2(v)} per share instead of ${m2(I)}.`;
+    }else if(kind==='sell'){net=v-pr;head=`You sold the option on day ${t} for ${m2(v)} per share.`;
+      math=[`Sale price per share = ${n2(v)} (intrinsic value ${n2(I)} + time value ${n2(v-I)})`,`Net per share = ${n2(v)} − premium ${n2(pr)} = ${sg2(net)}`,tot(net)];
+      fb=`Selling captured the intrinsic value plus ${m2(v-I)} per share of time value.`;
+    }else if(kind==='exp'){net=-pr;head=`You let the option expire with the stock at ${m2(s)}.`;
+      math=[`Payoff per share = 0 − premium ${n2(pr)} = ${sg2(-pr)}`,tot(net)];
+      fb=I>0?`Wrong call. The option was in the money by ${m2(I)} per share; letting it expire threw that away.`:'Right call: out of the money, so let it expire.';
+    }else if(kind==='wex'){net=pr-I;head=`The holder exercised on day ${t} with the stock at ${m2(s)}.`;
+      math=[`You must ${C?'sell':'buy'} at X = ${n2(p.X)} while the stock trades at ${n2(s)}. Loss per share = ${exF} = ${exSub(p,s)} = ${n2(I)}`,`Net per share = premium ${n2(pr)} − ${n2(I)} = ${sg2(net)}`,tot(net)];
+      fb=t<sim.n?'An early exercise: the put was deep enough in the money that the holder did better exercising now than waiting.':'The writer’s gain is capped at the premium; the loss is not.';
+    }else{net=pr;head=`The option expired out of the money with the stock at ${m2(s)}.`;
+      math=[`The holder won’t exercise, so you keep the premium: ${n2(pr)} per share`,tot(net)];fb='Best case for a writer: keep the premium, deliver nothing.';}
+    const sN=sim.path[sim.n],IN=IV(p,sN),held=(p.pos==='buy'?IN-pr:pr-IN)*q;
+    sim.outcome={head,pay:net*q,math,fb,dec:2,early:t<sim.n,
+      whatif:`Had it run to expiration, the stock would have ended at ${m2(sN)}: ${p.pos==='buy'?(IN>0?`exercise for ${m2(IN)} per share`:'let it expire'):(IN>0?`holder exercises for ${m2(IN)} per share`:'it expires unexercised')}, net ${smoney(held,2)}.`};
+    sim.mark={i:t,kind:'ex'};sim.done=true;sim.pending=null;
+  }
+  return{
+    tab:C?'Call option':'Put option',name:C?'Call option':'Put option',kind:'price',unit:'Day',
+    def:C?'The right, but not the obligation, to buy the stock at the strike price X. The buyer pays the writer a premium C up front.':'The right, but not the obligation, to sell the stock at the strike price X. The buyer pays the writer a premium P up front.',
+    key:'American options can be exercised any day up to expiration; European options only at expiration. Option values below come from a binomial model using the volatility and rate you set.',
+    positions:[['buy','Buy (holder)'],['write','Write (seller)']],
+    segs:[{k:'style',opts:[['american','American'],['european','European']]}],
+    defaults:C?{asset:'Micron (MU)',S0:14.34,X:15,prem:0.40,n:1,N:20,vol:40,r:4,mood:'random',pos:'buy',style:'american'}
+             :{asset:'Micron (MU)',S0:14.34,X:14,prem:0.17,n:1,N:10,vol:30,r:4,mood:'random',pos:'buy',style:'american'},
+    fields:[
+      {k:'asset',label:'Stock',t:'text',wide:1},
+      {k:'S0',label:'Stock price today ($)',step:.01,min:.01},
+      {k:'X',label:'Strike price X ($)',step:.01,min:.01},
+      {k:'prem',label:`Premium ${sym} per share ($)`,step:.01,min:0,wide:1,hint:p=>`Model value today: ${m2(binom(p.S0,p.X,p.N/252,p.r/100,p.vol/100,type,p.style==='american'))} per share`},
+      {k:'n',label:'Contracts (100 shares each)',step:1,min:1,int:1},
+      {k:'N',label:'Trading days to expiration',step:1,min:1,max:250,int:1},
+      {k:'r',label:'Risk-free rate (%)',step:.25,min:0}],
+    init(p){sim.path=pricePath(p.S0,p.N,p.vol/100,p.mood,sim.seed);sim.n=p.N},
+    readout(p){const s=sim.path[sim.t],I=IV(p,s),v=VAL(p,s,sim.t);
+      return[['Day',`${sim.t} of ${sim.n}`],['Stock price',m2(s)],['Intrinsic value',m2(I)],['Option value',m2(v)],['Time value',m2(v-I)]]},
+    chart(p){const be=C?p.X+p.prem:p.X-p.prem,hold=p.pos==='buy';
+      return{refs:[{v:p.X,label:'X '+m2(p.X)},{v:be,label:'Breakeven '+m2(be),minor:1}],
+        shade:{v:p.X,dir:(C===hold)?'above':'below'},markers:sim.mark?[sim.mark]:[],
+        cap:hold?`Stock price. Shaded: in the money for your ${type}. Dotted line: breakeven after the premium.`:`Stock price. Shaded: out of the money, where you keep the full premium. Dotted line: the holder’s breakeven.`}},
+    onStep(p){
+      if(p.pos==='buy'){if(sim.t===sim.n)sim.pending='expiry';return}
+      const s=sim.path[sim.t],I=IV(p,s);
+      if(sim.t===sim.n)finish(p,I>0?'wex':'wexp');
+      else if(p.style==='american'&&I>0&&I>=VAL(p,s,sim.t)-1e-4)finish(p,'wex');
+    },
+    decide(p){
+      if(sim.outcome)return resultBlock();
+      const s=sim.path[sim.t],I=IV(p,s),E=EX(p,s),v=VAL(p,s,sim.t),amer=p.style==='american';
+      if(p.pos==='write')return`<p>You wrote the ${type} and collected ${m2(p.prem)} per share (${money(p.prem*100*p.n,2)} total). The holder decides whether to exercise; you just have to deliver.</p><p>${I>0?`Right now it’s in the money for the holder by ${m2(I)} per share.`:'Right now it’s out of the money: if it stays there, you keep the whole premium.'}</p><p class="muted">The holder in this simulation exercises only when it is optimal.</p>`;
+      if(sim.pending==='expiry')return`<p class="head">Expiration day. Stock at ${m2(s)}, strike ${m2(p.X)}.</p><div class="acts"><button class="btn" data-act="ex">Exercise</button><button class="btn ghost" data-act="exp">Let it expire</button></div>`;
+      let hint;
+      if(!amer)hint=`European: you can’t exercise before day ${sim.n}. If you want out now, selling is the only route.`;
+      else if(I>0&&I>=v-1e-4)hint='Exercise value equals the option’s value: waiting is worth nothing extra here, so early exercise is optimal.';
+      else if(I>0)hint=`Keeping the option is worth ${m2(v-I)} more per share than exercising it. If you want out, sell rather than exercise.`;
+      else hint='Out of the money: exercising would lose money. All of the option’s value is time value.';
+      return`<p>Stock at ${m2(s)}. Exercising ${amer?'now':'at expiration'} pays ${sg2(E)} per share; the option trades at ${m2(v)}.</p>
+        <div class="acts">${amer?`<button class="btn" data-act="ex">Exercise now</button>`:`<button class="btn" disabled title="European options exercise only at expiration">Exercise (expiration only)</button>`}<button class="btn ghost" data-act="sell">Sell the option at ${m2(v)}</button></div>
+        <details class="hint"><summary>Hint</summary><p>${hint}</p></details><p class="muted">Or step forward to wait.</p>`;
+    },
+    act(a,p){if(p.pos!=='buy')return;if(a==='ex')finish(p,'ex');else if(a==='sell')finish(p,'sell');else if(a==='exp')finish(p,'exp')},
+    aux(p){
+      const sgn=p.pos==='buy'?1:-1,q=100*p.n,s=sim.path[sim.t],[lo,hi]=xRange(p.X),live=!sim.done&&sim.t<sim.n;
+      const curves=[{f:x=>sgn*(IV(p,x)-p.prem)*q,cls:'curve-exp'}];
+      if(live)curves.push({f:x=>sgn*(VAL(p,x,sim.t,60)-p.prem)*q,cls:'curve-now'});
+      const my=live?sgn*(VAL(p,s,sim.t)-p.prem)*q:sgn*(IV(p,s)-p.prem)*q;
+      const be=C?p.X+p.prem:p.X-p.prem;
+      return`<h3>${p.pos==='buy'?'Buying':'Writing'} a ${type}: payoff diagram</h3>`+payChart({lo,hi,fx:m2,aria:'Option payoff diagram',curves,mark:{x:s,y:my},vlines:[{v:p.X,label:'X'},{v:be,label:'Breakeven '+m2(be),minor:1}]})+
+        `<p class="cap">Solid: net payoff at expiration, after the premium.${live?' Dashed: what the position is worth today. The vertical gap between them is time value.':''} Dot: where you are now.</p>`;
+    }
+  };
+}
+INST.call=optInst('call');
+INST.put=optInst('put');
+
+INST.swap={
+  tab:'Interest rate swap',name:'Interest rate swap',kind:'rate',unit:'Period',
+  def:'Two parties exchange interest payments on a notional principal: one pays a fixed rate, the other pays a floating rate (SOFR). Only the net difference changes hands.',
+  key:'Rates are annual and payments are semiannual, so each payment is the rate difference × notional × ½. The swap buyer pays fixed; the swap seller pays floating. The bank here holds SOFR + 2% loans funded with 6% fixed-rate debt, so falling rates squeeze its margin.',
+  positions:[['seller','Seller: pay SOFR, receive fixed'],['buyer','Buyer: pay fixed, receive SOFR']],
+  defaults:{notional:50,fixed:6.5,sofr0:4.0,spread:2,debt:6,N:8,vol:40,mood:'random',pos:'seller'},
+  fields:[
+    {k:'notional',label:'Notional ($ millions)',step:1,min:.1},
+    {k:'fixed',label:'Fixed swap rate (%)',step:.05,min:0},
+    {k:'sofr0',label:'SOFR today (%)',step:.05,min:0},
+    {k:'spread',label:'Loan spread over SOFR (%)',step:.25,min:0},
+    {k:'debt',label:'Rate on fixed debt (%)',step:.25,min:0},
+    {k:'N',label:'Semiannual payment dates',step:1,min:1,max:40,int:1}],
+  init(p){
+    sim.path=ratePath(p.sofr0,p.N,p.vol,p.mood,sim.seed);sim.n=p.N;
+    const d=dir(p),Nn=p.notional*1e6,tau=.5;sim.led=[null];let cs=0,c0=0,c1=0;
+    for(let t=1;t<=p.N;t++){const r=sim.path[t],swap=d*(p.fixed-r)/100*Nn*tau,n0=(r+p.spread-p.debt)/100*Nn*tau,n1=n0+swap;cs+=swap;c0+=n0;c1+=n1;sim.led.push({r,swap,n0,n1,cs,c0,c1})}
+  },
+  readout(p){const r=sim.path[sim.t],L=sim.led[sim.t];
+    const cur=sim.t>0&&ledgerRowVisible(sim.t)?`<span class="${cls(L.swap)}">${smoney(L.swap)}</span>`:(sim.t>0?'?':'None yet');
+    return[['Period',`${sim.t} of ${sim.n}`],['SOFR',pc(r)],['Fixed rate',pc(p.fixed)],['Net swap payment this period',cur]]},
+  chart(p){return{refs:[{v:p.fixed,label:'Fixed '+pc(p.fixed)}],shade:{v:p.fixed,dir:dir(p)>0?'below':'above'},
+    cap:`SOFR on each payment date. Shaded: rates at which you receive a net payment as the swap ${p.pos}.`}},
+  onStep(p){if(sim.t===sim.n)this.finish(p)},
+  finish(p){
+    const Ls=sim.led.slice(1),last=sim.led[sim.n],mn=k=>Math.min(...Ls.map(l=>l[k])),mx=k=>Math.max(...Ls.map(l=>l[k]));
+    sim.outcome={head:`All ${sim.n} payment dates have settled.`,pay:last.cs,dec:0,label:'Total net swap payments over the life of the swap ($)',
+      math:[`Sum of the net swap payments = ${smoney(last.cs)}`,`Bank net interest income over the whole period: ${smoney(last.c0)} without the swap, ${smoney(last.c1)} with it.`,
+        `Per period, income ranged from ${money(mn('n0'))} to ${money(mx('n0'))} without the swap; with it, ${Math.abs(mx('n1')-mn('n1'))<1?`it was ${money(mn('n1'))} every period`:`it ranged from ${money(mn('n1'))} to ${money(mx('n1'))}`}.`],
+      fb:dir(p)>0?'The point of the swap was never to make money. It was to make income predictable.':'As the buyer, this bank is betting on higher rates. The swap adds interest rate risk instead of hedging it.'};
+    sim.done=true;
+  },
+  decide(p){
+    if(sim.t===0)return`<p>Step to the first payment date. Each period the payment is set by SOFR on that date, on ${mil(p.notional)} of notional, for half a year.</p><p class="muted">No principal is exchanged. Only the net interest difference changes hands.</p>`;
+    const L=sim.led[sim.t],key='p'+sim.t,shown=!UI.quiz||sim.rev[key],sel=dir(p)>0;
+    let h=`<div class="period"><p class="head">Period ${sim.t}: SOFR is ${pc(L.r)}; the fixed rate is ${pc(p.fixed)}.</p>`;
+    h+=answerWidget(L.swap,key,'Your net swap payment this period ($, negative if you pay)');
+    if(shown){h+=`<p class="big ${cls(L.swap)}">${smoney(L.swap)}</p><div class="math">`+
+      `<p>${sel?`You receive fixed and pay SOFR: (${pc(p.fixed)} − ${pc(L.r)})`:`You receive SOFR and pay fixed: (${pc(L.r)} − ${pc(p.fixed)})`} × ${mil(p.notional)} × ½ = ${smoney(L.swap)}</p>`+
+      `<p>Bank net interest income: without the swap (${pc(L.r)} + ${pc(p.spread)} − ${pc(p.debt)}) × ${mil(p.notional)} × ½ = ${smoney(L.n0)}; with it ${smoney(L.n1)}.</p>`+
+      `<p>${sel?`With the swap the loans effectively earn SOFR + ${pc(p.spread)} − SOFR + ${pc(p.fixed)} = ${pc(p.spread+p.fixed)}, wherever SOFR goes.`:'As the buyer, the bank now receives floating on top of floating-rate loans and pays fixed on top of fixed-rate debt. Its income swings twice as hard with SOFR.'}</p></div>`}
+    else h+=revealBtn(key,'Reveal this period');
+    h+='</div>';
+    if(sim.outcome)h+=resultBlock();
+    return h;
+  },
+  act(){},
+  aux(p){
+    let rows='';
+    for(let t=1;t<=sim.t;t++){const L=sim.led[t],v=ledgerRowVisible(t);
+      rows+=`<tr class="${t===sim.t?'now':''}"><td>${t}</td><td>${pc(L.r)}</td><td class="${v?cls(L.swap):''}">${v?smoney(L.swap):'?'}</td><td class="${v?cls(L.n0):''}">${v?smoney(L.n0):'?'}</td><td class="${v?cls(L.n1):''}">${v?smoney(L.n1):'?'}</td></tr>`}
+    if(!rows)rows=`<tr><td colspan="5" class="muted">Payments appear here as each period settles.</td></tr>`;
+    return`<h3>Payment ledger</h3><div class="wrap-x"><table class="ledger"><thead><tr><th>Period</th><th>SOFR</th><th>Net swap</th><th>Bank NII, no swap</th><th>Bank NII, with swap</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="cap">Balance sheet: ${mil(p.notional)} of loans at SOFR + ${pc(p.spread)}, funded by ${mil(p.notional)} of debt at ${pc(p.debt)}. NII = net interest income for the half year.</p>`;
+  }
+};
+
+INST.cap={
+  tab:'Caps, floors, collars',name:'Caps, floors, and collars',kind:'rate',unit:'Reset',
+  def:'A cap is a call option on interest rates; a floor is a put option on interest rates. Each reset date is a separate exercise date. A collar buys a cap and sells a floor.',
+  key:'Rates are quoted per year, so a quarterly payment is the rate difference × notional × ¼ (one quarter of a year). Think of an FI paying SOFR on floating-rate funding. A cap limits how high that cost can go. Selling a floor helps pay for the cap, but gives up the savings when rates fall below it.',
+  segs:[{k:'product',opts:[['cap','Buy a cap'],['floor','Buy a floor'],['collar','Collar']]}],
+  defaults:{product:'collar',notional:10,capK:5,floorK:3,sofr0:4.25,N:8,vol:40,mood:'random',capPrem:40000,floorPrem:30000,ask:'yes'},
+  fields:[
+    {k:'notional',label:'Notional ($ millions)',step:1,min:.1},
+    {k:'sofr0',label:'SOFR today (%)',step:.05,min:0},
+    {k:'capK',label:'Cap rate (%)',step:.05,min:0,show:p=>p.product!=='floor'},
+    {k:'floorK',label:'Floor rate (%)',step:.05,min:0,show:p=>p.product!=='cap'},
+    {k:'capPrem',label:'Cap premium paid ($)',step:1000,min:0,show:p=>p.product!=='floor'},
+    {k:'floorPrem',label:'Floor premium ($)',step:1000,min:0,show:p=>p.product!=='cap',hint:p=>p.product==='collar'?'Received, since you sell the floor':'Paid'},
+    {k:'N',label:'Quarterly reset dates',step:1,min:1,max:40,int:1},
+    {k:'ask',label:'Exercise decisions',t:'sel',opts:[['yes','Ask me at each reset'],['no','Exercise automatically']]}],
+  own:p=>p.product==='floor'?'floor':'cap',
+  raw(p,r){return this.own(p)==='cap'?r-p.capK:p.floorK-r},
+  prem(p){return p.product==='cap'?p.capPrem:p.product==='floor'?p.floorPrem:p.capPrem-p.floorPrem},
+  per(p,t){const r=sim.path[t],raw=this.raw(p,r),ex=sim.dec[t]==='ex',Nn=p.notional*1e6,tau=.25;
+    const ownPay=ex?raw/100*Nn*tau:0,sfl=p.product==='collar'?Math.max(p.floorK-r,0):0,sflPay=-sfl/100*Nn*tau;
+    const eff=p.product==='floor'?r+(ex?raw:0):r-(ex?raw:0)+sfl;
+    return{r,raw,ex,ownPay,sfl,sflPay,tot:ownPay+sflPay,eff}},
+  init(p){sim.path=ratePath(p.sofr0,p.N,p.vol,p.mood,sim.seed);sim.n=p.N},
+  readout(p){const r=sim.path[sim.t];let net=0;for(let t=1;t<=sim.t;t++)if(sim.dec[t])net+=this.per(p,t).tot;
+    const out=[['Reset',`${sim.t} of ${sim.n}`],['SOFR',pc(r)]];
+    if(p.product!=='floor')out.push(['Cap rate',pc(p.capK)]);
+    if(p.product!=='cap')out.push(['Floor rate',pc(p.floorK)]);
+    const vis=sim.t===0||(sim.dec[sim.t]&&ledgerRowVisible(sim.t));
+    out.push(['Running total, after premium',vis?`<span class="${cls(net-this.prem(p))}">${smoney(net-this.prem(p))}</span>`:'?']);
+    return out},
+  chart(p){const refs=[],sh=[];
+    if(p.product!=='floor'){refs.push({v:p.capK,label:'Cap '+pc(p.capK)});sh.push({v:p.capK,dir:'above'})}
+    if(p.product!=='cap'){refs.push({v:p.floorK,label:'Floor '+pc(p.floorK),minor:p.product==='collar'?1:0});if(p.product==='floor')sh.push({v:p.floorK,dir:'below'})}
+    const mk=[];for(let t=1;t<=sim.t;t++)if(sim.dec[t]==='ex')mk.push({i:t,kind:'ex'});
+    return{refs,shade:sh,markers:mk,cap:`SOFR on each quarterly reset date. Shaded: rates where your ${this.own(p)} pays off. Rings mark the resets where you exercised.`}},
+  onStep(p){
+    if(p.ask==='yes'){sim.pending='ex';return}
+    sim.dec[sim.t]=this.raw(p,sim.path[sim.t])>0?'ex':'lapse';
+    if(sim.t===sim.n)this.finish(p);
+  },
+  act(a,p){if((a==='ex'||a==='lapse')&&sim.pending==='ex'){sim.dec[sim.t]=a;sim.pending=null;if(sim.t===sim.n)this.finish(p)}},
+  finish(p){
+    const own=this.own(p);let sum=0,sr=0,se=0;
+    for(let t=1;t<=sim.n;t++){const x=this.per(p,t);sum+=x.tot;sr+=x.r;se+=x.eff}
+    const pn=this.prem(p),pay=sum-pn;
+    const premLine=p.product==='collar'?`Net premium: cap ${money(p.capPrem)} paid − floor ${money(p.floorPrem)} received = ${money(pn)}`:`Premium paid up front: ${money(pn)}`;
+    sim.outcome={head:`All ${sim.n} resets are done.`,pay,dec:0,label:'Total payoff after the premium ($)',
+      math:[`Sum of the quarterly payoffs = ${smoney(sum)}`,premLine,`Net = ${smoney(sum)} ${pn>=0?'−':'+'} ${money(Math.abs(pn))} = ${smoney(pay)}`,
+        `Average SOFR was ${pc(sr/sim.n)}; your average effective ${own==='floor'?'asset yield':'funding cost'} was ${pc(se/sim.n)}.`],
+      fb:p.product==='collar'?'A collar keeps the funding cost inside the band from floor to cap, provided you exercise the cap whenever it’s in the money.':p.product==='cap'?'Insurance logic: the premium buys certainty that the funding cost can’t exceed the cap.':'The floor guarantees a minimum yield on floating-rate assets.'};
+    sim.done=true;
+  },
+  decide(p){
+    const own=this.own(p),K=own==='cap'?p.capK:p.floorK;
+    if(sim.t===0)return`<p>Step to the first reset date. On each one, SOFR is compared with the strike, and the option pays on ${mil(p.notional)} for one quarter. Rates are annual, so each payment is multiplied by ¼.</p>${p.product==='collar'?`<p class="muted">You own the cap at ${pc(p.capK)} and have sold the floor at ${pc(p.floorK)}.</p>`:''}`;
+    const r=sim.path[sim.t];
+    if(sim.pending==='ex')return`<p class="head">Reset ${sim.t}: SOFR is ${pc(r)}. Your ${own} rate is ${pc(K)}.</p><div class="acts"><button class="btn" data-act="ex">Exercise the ${own}let</button><button class="btn ghost" data-act="lapse">Let it lapse</button></div>${p.product==='collar'?`<p class="muted">The floor you sold is exercised against you automatically whenever SOFR is below ${pc(p.floorK)}.</p>`:''}`;
+    const x=this.per(p,sim.t),key='p'+sim.t,shown=!UI.quiz||sim.rev[key],Nn=p.notional;
+    let fb;
+    if(x.raw>0&&!x.ex)fb=`<span class="loss">Wrong call: the ${own}let was in the money.</span>`;
+    else if(x.raw<0&&x.ex)fb=`<span class="loss">Wrong call: out of the money, exercising means ${own==='cap'?'paying above the market rate':'accepting less than the market rate'}.</span>`;
+    else fb=`<span class="gain">Right call.</span>`;
+    let h=`<div class="period"><p class="head">Reset ${sim.t}: SOFR ${pc(r)}. You ${x.ex?'exercised':'let it lapse'}.</p><p class="fb">${fb}</p>`;
+    h+=answerWidget(x.tot,key,'Your net payoff this quarter ($)');
+    if(shown){
+      const lines=[];
+      if(x.ex)lines.push(own==='cap'?`Caplet payoff = (SOFR − cap rate) × notional × ¼ year = (${pc(r)} − ${pc(K)}) × ${mil(Nn)} × ¼ = ${smoney(x.ownPay)}`:`Floorlet payoff = (floor rate − SOFR) × notional × ¼ year = (${pc(K)} − ${pc(r)}) × ${mil(Nn)} × ¼ = ${smoney(x.ownPay)}`);
+      else lines.push(`You let the ${own}let lapse: $0.`);
+      if(p.product==='collar')lines.push(x.sfl>0?`Floor you sold: the buyer exercises, so you pay (${pc(p.floorK)} − ${pc(r)}) × ${mil(Nn)} × ¼ = ${smoney(x.sflPay)}`:`Floor you sold: SOFR is above ${pc(p.floorK)}, so the buyer lets it lapse: $0.`);
+      lines.push(`Net this quarter = ${smoney(x.tot)}`);
+      if(own==='cap')lines.push(`Effective funding cost = SOFR ${pc(r)}${x.ex&&x.raw!==0?` ${x.raw>0?'−':'+'} cap payoff ${pc(Math.abs(x.raw))}`:''}${x.sfl>0?` + floor payment ${pc(x.sfl)}`:''} = ${pc(x.eff)}`);
+      else lines.push(`Effective asset yield = SOFR ${pc(r)}${x.ex&&x.raw!==0?` ${x.raw>0?'+':'−'} floor payoff ${pc(Math.abs(x.raw))}`:''} = ${pc(x.eff)}`);
+      h+=`<p class="big ${cls(x.tot)}">${smoney(x.tot)}</p><div class="math">${lines.map(l=>`<p>${l}</p>`).join('')}</div>`;
+    }else h+=revealBtn(key,'Reveal this quarter');
+    h+='</div>';
+    if(sim.outcome)h+=resultBlock();
+    return h;
+  },
+  aux(p){
+    const own=this.own(p);let rows='';
+    for(let t=1;t<=sim.t;t++){if(!sim.dec[t])continue;const x=this.per(p,t),v=ledgerRowVisible(t);
+      rows+=`<tr class="${t===sim.t?'now':''}"><td>${t}</td><td>${pc(x.r)}</td><td>${x.ex?'Exercised':'Lapsed'}${p.product==='collar'&&x.sfl>0?', floor hit':''}</td><td class="${v?cls(x.tot):''}">${v?smoney(x.tot):'?'}</td><td>${v?pc(x.eff):'?'}</td></tr>`}
+    if(!rows)rows=`<tr><td colspan="5" class="muted">Resets appear here as you go.</td></tr>`;
+    return`<h3>Reset ledger</h3><div class="wrap-x"><table class="ledger"><thead><tr><th>Reset</th><th>SOFR</th><th>Your choice</th><th>Net payoff</th><th>Effective ${own==='floor'?'yield':'cost'}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="cap">Each reset pays (rate difference) × ${mil(p.notional)} × ¼, because an annual rate earns only a quarter of itself over one quarter. Premium ${p.product==='collar'?'(net)':''}: ${money(this.prem(p))}, paid up front.</p>`;
+  }
+};
+
+const ORDER=['forward','futures','call','put','swap','cap'];
+const P={};for(const k of ORDER)P[k]={...INST[k].defaults};
+let cur=ORDER.includes(UI.tab)?UI.tab:'forward';
+const inst=()=>INST[cur];
+
+function resetSim(newSeed){
+  if(newSeed||seeds[cur]==null)seeds[cur]=(Math.random()*2**31)|0;
+  for(const k in sim)delete sim[k];
+  Object.assign(sim,{seed:seeds[cur],t:0,n:0,path:[],done:false,pending:null,outcome:null,revealAll:false,rev:{},ans:{},ver:{},dec:[],yr:null,msg:'',mark:null});
+  inst().init(P[cur]);
+}
+
+/* ---------- rendering ---------- */
+function renderTabs(){
+  $('#tabs').innerHTML=ORDER.map(k=>`<button class="tab" role="tab" aria-selected="${k===cur}" data-tab="${k}">${INST[k].tab}</button>`).join('');
+}
+function segHTML(key,opts,val){return`<div class="seg" role="group">${opts.map(([v,l])=>`<button type="button" data-seg="${key}" data-val="${v}" aria-pressed="${v===val}">${l}</button>`).join('')}</div>`}
+function fieldHTML(f,p){
+  const id='f-'+f.k;let ctl;
+  if(f.t==='text')ctl=`<input id="${id}" data-k="${f.k}" type="text" value="${esc(p[f.k])}">`;
+  else if(f.t==='sel')ctl=`<select id="${id}" data-k="${f.k}">${f.opts.map(([v,l])=>`<option value="${v}"${p[f.k]===v?' selected':''}>${l}</option>`).join('')}</select>`;
+  else ctl=`<input id="${id}" data-k="${f.k}" type="number" inputmode="decimal" step="${f.step||'any'}" value="${p[f.k]}">`;
+  return`<div class="field${f.wide||f.t==='sel'?' wide':''}"><label for="${id}">${f.label}</label>${ctl}${f.hint?`<small>${f.hint(p)}</small>`:''}</div>`;
+}
+function renderTicket(){
+  const I=inst(),p=P[cur];
+  let h=`<h2>${I.name}</h2><p class="def">${I.def}</p><p class="key">${I.key}</p>`;
+  if(I.positions)h+=segHTML('pos',I.positions,p.pos);
+  for(const s of I.segs||[])h+=segHTML(s.k,s.opts,p[s.k]);
+  h+=`<div class="fields">${I.fields.filter(f=>!f.show||f.show(p)).map(f=>fieldHTML(f,p)).join('')}</div>`;
+  h+=`<div class="acts"><button class="btn ghost" data-act="defaults">Restore default terms</button></div>`;
+  $('#ticket').innerHTML=h;
+}
+function renderStage(){
+  const I=inst(),p=P[cur];
+  $('#readout').innerHTML=I.readout(p).map(([l,v])=>`<div class="ro"><span class="l">${l}</span><b>${v}</b></div>`).join('');
+  const c=I.chart(p),rate=I.kind==='rate';
+  $('#chart').innerHTML=lineChart({vals:sim.path,t:sim.t,n:sim.n,all:sim.revealAll,refs:c.refs,shade:c.shade,markers:c.markers,unit:I.unit,
+    fy:rate?(v=>v.toFixed(2)+'%'):(v=>'$'+v.toFixed(2)),fv:rate?pc:m2,aria:rate?'SOFR path':'Price path'});
+  $('#chartcap').textContent=c.cap;
+  const blocked=sim.done||sim.pending||sim.t>=sim.n;
+  $('#next').textContent=`Next ${I.unit.toLowerCase()}`;
+  $('#next').disabled=!!blocked;
+  $('#play').disabled=!!blocked&&!timer;
+  $('#play').textContent=timer?'Pause':'Play';
+  const moods=rate?[['random','Random'],['up','Rates rising'],['down','Rates falling']]:[['random','Random'],['up','Drifting up'],['down','Drifting down']];
+  $('#mood').innerHTML=moods.map(([v,l])=>`<option value="${v}"${p.mood===v?' selected':''}>${l}</option>`).join('');
+  const vol=$('#vol');
+  if(rate){vol.min=10;vol.max=100;vol.step=5;$('#volLabel').textContent='Rate volatility';$('#volOut').textContent=p.vol+' bp'}
+  else{vol.min=10;vol.max=100;vol.step=5;$('#volLabel').textContent='Volatility σ';$('#volOut').textContent=p.vol+'%'}
+  vol.value=p.vol;
+}
+function renderDecide(){$('#decide').innerHTML=`<h3>Your move</h3>`+inst().decide(P[cur])}
+function renderAux(){$('#aux').innerHTML=inst().aux(P[cur])}
+function renderSim(){renderStage();renderDecide();renderAux()}
+function renderAll(){renderTabs();renderTicket();renderSim();$('#quiz').checked=UI.quiz}
+
+/* ---------- actions ---------- */
+let timer=null;
+function stop(){if(timer){clearInterval(timer);timer=null}}
+function step(){
+  if(sim.done||sim.pending||sim.t>=sim.n){stop();renderSim();return}
+  sim.t++;const I=inst();I.onStep&&I.onStep.call(I,P[cur]);
+  if(sim.done||sim.pending||sim.t>=sim.n)stop();
+  renderSim();
+}
+function play(){if(timer){stop();renderSim();return}timer=setInterval(step,650);renderSim()}
+
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;stop();cur=b.dataset.tab;UI.tab=cur;saveUI();if(!sim.seed||sim._for!==cur){resetSim(false);sim._for=cur}renderAll()});
+$('#ticket').addEventListener('click',e=>{
+  const b=e.target.closest('[data-seg]');
+  if(b){P[cur][b.dataset.seg]=b.dataset.val;stop();resetSim(false);sim._for=cur;renderAll();return}
+  const a=e.target.closest('[data-act="defaults"]');
+  if(a){P[cur]={...inst().defaults};stop();resetSim(false);sim._for=cur;renderAll()}
+});
+$('#ticket').addEventListener('change',e=>{
+  const k=e.target.dataset.k;if(!k)return;
+  const f=inst().fields.find(x=>x.k===k),p=P[cur];
+  if(f.t==='text'||f.t==='sel')p[k]=e.target.value;
+  else{let v=parseFloat(e.target.value);if(isFinite(v)){if(f.int)v=Math.round(v);if(f.min!=null)v=Math.max(f.min,v);if(f.max!=null)v=Math.min(f.max,v);p[k]=v}}
+  stop();resetSim(false);sim._for=cur;
+  requestAnimationFrame(()=>{const id=document.activeElement&&document.activeElement.id;renderTicket();renderSim();if(id){const el=document.getElementById(id);if(el)el.focus()}});
+});
+$('#decide').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  const a=b.dataset.act,key=b.dataset.key;
+  if(a==='reveal'){sim.rev[key]=true}
+  else if(a==='rest'){sim.revealAll=true}
+  else if(a==='check'){
+    const inp=document.getElementById('ans-'+key),raw=(inp.value||'').replace(/[,$\s]/g,'').replace(/[−–]/g,'-'),v=parseFloat(raw),tgt=parseFloat(b.dataset.target);
+    sim.ans[key]=inp.value;
+    if(!isFinite(v))sim.ver[key]='<span class="loss">Enter a number, like 1250 or -37.50.</span>';
+    else if(Math.abs(v-tgt)<=Math.max(0.5,Math.abs(tgt)*0.005))sim.ver[key]='<span class="gain">Correct.</span>';
+    else sim.ver[key]='<span class="loss">Not quite. Check the sign and the units, or reveal the math.</span>';
+  }else{stop();inst().act(a,P[cur])}
+  renderSim();
+  if(a==='check'){const el=document.getElementById('ans-'+key);if(el)el.focus()}
+});
+$('#decide').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('ans-')){const btn=e.target.parentElement.querySelector('[data-act="check"]');if(btn)btn.click()}});
+$('#next').addEventListener('click',()=>{stop();step()});
+$('#play').addEventListener('click',play);
+$('#restart').addEventListener('click',()=>{stop();resetSim(false);sim._for=cur;renderSim()});
+$('#newpath').addEventListener('click',()=>{stop();resetSim(true);sim._for=cur;renderSim()});
+$('#mood').addEventListener('change',e=>{P[cur].mood=e.target.value;stop();resetSim(false);sim._for=cur;renderSim()});
+$('#vol').addEventListener('input',e=>{P[cur].vol=+e.target.value;stop();resetSim(false);sim._for=cur;renderTicket();renderSim()});
+$('#quiz').addEventListener('change',e=>{UI.quiz=e.target.checked;saveUI();renderSim()});
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,select,textarea'))return;
+  if(e.key==='ArrowRight'){e.preventDefault();stop();step()}
+  else if(e.key===' '&&!e.target.closest('button')){e.preventDefault();play()}
+  else if(e.key==='n'||e.key==='N'){stop();resetSim(true);sim._for=cur;renderSim()}
+});
+
+resetSim(false);sim._for=cur;renderAll();
+</script>
+</body>
+</html>
