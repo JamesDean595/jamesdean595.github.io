@@ -9,17 +9,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Palette adjusted to a mostly white / light beige base with soft blue accents. */
-  --bg:#F7F2E8;--panel:#FFFFFF;--ink:#3F4347;--muted:#6E7478;--purple:#5DA3D1;--on-purple:#FFFFFF;
-  --gold:#A9D1E6;--gold-ink:#4C8DB5;--gain:#3C8B68;--loss:#B45A4F;--rule:#D5E1E7;--field:#FFFFFF;
-  --shade:rgba(93,163,209,.10);--warn-bg:#F7EDE8;
-  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light only;
+  --bg:#FAFAFA;--panel:#EAF4FB;--ink:#263238;--muted:#5B6870;--purple:#217BAC;--on-purple:#FFFFFF;
+  --gold:#434343;--gold-ink:#434343;--gain:#1E7A4F;--loss:#B3261E;--rule:#DCE4EA;--field:#FFFFFF;
+  --shade:rgba(83,167,213,.14);--warn-bg:#FBEDEC;--accent2:#53A7D5;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101820;--panel:#18242E;--ink:#E6EEF2;--muted:#A3B3BD;--purple:#71B8DF;--on-purple:#0E1A22;
+    --gold:#C9D3D9;--gold-ink:#C9D3D9;--gain:#5CC68F;--loss:#F07B72;--rule:#2A3843;--field:#131E27;
+    --shade:rgba(113,184,223,.13);--warn-bg:#3A1F24;--accent2:#A4D8F4;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101820;--panel:#18242E;--ink:#E6EEF2;--muted:#A3B3BD;--purple:#71B8DF;--on-purple:#0E1A22;
+    --gold:#C9D3D9;--gold-ink:#C9D3D9;--gain:#5CC68F;--loss:#F07B72;--rule:#2A3843;--field:#131E27;
+    --shade:rgba(113,184,223,.13);--warn-bg:#3A1F24;--accent2:#A4D8F4;color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.45;font-variant-numeric:tabular-nums}
 button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
 
 .top{max-width:1600px;margin:0 auto;padding:22px 28px 0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
 h1{margin:0;font-stretch:125%;font-weight:800;font-size:clamp(1.7rem,3vw,2.6rem);line-height:1;letter-spacing:-.01em}
@@ -28,7 +39,7 @@ h1{margin:0;font-stretch:125%;font-weight:800;font-size:clamp(1.7rem,3vw,2.6rem)
 .quiz input{width:18px;height:18px;accent-color:var(--purple)}
 .tabs{max-width:1600px;margin:14px auto 0;padding:0 28px;display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--rule)}
 .tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;color:var(--muted);font-weight:600;white-space:nowrap;cursor:pointer}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--purple)}
 .tab:hover{color:var(--ink)}
 
 .app{max-width:1600px;margin:0 auto;padding:20px 28px 32px;display:grid;grid-template-columns:minmax(270px,330px) minmax(0,1fr);gap:22px;align-items:start}
@@ -36,7 +47,7 @@ h1{margin:0;font-stretch:125%;font-weight:800;font-size:clamp(1.7rem,3vw,2.6rem)
 .stage{grid-column:1/-1;min-width:0}
 @media (max-width:1060px){.app{grid-template-columns:1fr}.right{grid-template-columns:1fr}}
 
-.ticket{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:20px;box-shadow:0 1px 2px rgba(63,67,71,.04)}
+.ticket{background:var(--panel);border-radius:8px;padding:20px}
 .ticket h2{margin:0 0 8px;font-stretch:112%;font-weight:750;font-size:1.45rem;line-height:1.15}
 .ticket .def{margin:0 0 8px}
 .ticket .key{margin:0 0 16px;color:var(--muted);font-size:.93rem}
@@ -49,7 +60,7 @@ h1{margin:0;font-stretch:125%;font-weight:800;font-size:clamp(1.7rem,3vw,2.6rem)
 .field.wide{grid-column:1/-1}
 .field label{font-size:.82rem;color:var(--muted);line-height:1.25}
 .field input,.field select{width:100%;padding:7px 9px;border:1px solid var(--rule);border-radius:5px;background:var(--field)}
-.field small{color:var(--gold-ink);font-size:.8rem}
+.field small{color:var(--purple);font-size:.8rem}
 
 .readout{display:flex;flex-wrap:wrap;gap:6px 34px;margin:0 0 6px}
 .ro .l{display:block;font-size:.82rem;color:var(--muted)}
@@ -62,14 +73,15 @@ figcaption,.cap{color:var(--muted);font-size:.86rem;margin:2px 0 0}
 .ctl select{padding:6px 8px;border:1px solid var(--rule);border-radius:5px;background:var(--field)}
 .ctl input[type=range]{accent-color:var(--purple);width:120px}
 .ctl output{min-width:5.5ch;color:var(--ink);font-weight:600}
+.ctl input[type=number]{width:7.5em;padding:6px 8px;border:1px solid var(--rule);border-radius:5px;background:var(--field)}
 .keys{color:var(--muted);font-size:.8rem;margin:10px 0 0}
 
 .btn{padding:9px 16px;border-radius:7px;border:1.5px solid var(--purple);background:var(--purple);color:var(--on-purple);font-weight:650;cursor:pointer;line-height:1.2}
-.btn.ghost{background:#F4F9FC;color:var(--purple)}
+.btn.ghost{background:transparent;color:var(--purple)}
 .btn:disabled{opacity:.38;cursor:not-allowed}
 .btn:not(:disabled):hover{filter:brightness(1.08)}
 
-.panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:18px 20px;min-width:0;box-shadow:0 1px 2px rgba(63,67,71,.04)}
+.panel{border:1px solid var(--rule);border-radius:8px;padding:18px 20px;min-width:0}
 .panel h3{margin:0 0 10px;font-size:1rem;font-weight:700;color:var(--muted)}
 .panel p{margin:.4em 0}
 .head{font-weight:650;font-size:1.05rem}
@@ -114,9 +126,9 @@ svg .reft.minor{fill:var(--muted);font-weight:500}
 svg .dot{fill:var(--purple)}
 svg .dotlab{fill:var(--ink);font-weight:700;font-size:14px}
 svg .mk-call{fill:var(--loss)}
-svg .mk-ex{fill:none;stroke:var(--gold);stroke-width:3}
+svg .mk-ex{fill:none;stroke:var(--accent2);stroke-width:3}
 svg .curve-exp{stroke:var(--purple);stroke-width:2.6;fill:none}
-svg .curve-now{stroke:var(--gold);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .curve-now{stroke:var(--accent2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
 @media (prefers-reduced-motion:no-preference){.big{animation:pop .35s ease-out}}
 @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media (max-width:600px){.top,.tabs,.app{padding-left:16px;padding-right:16px}.fields{grid-template-columns:1fr}.field.wide{grid-column:auto}}
@@ -145,8 +157,9 @@ svg .curve-now{stroke:var(--gold);stroke-width:2.2;fill:none;stroke-dasharray:7 
         <button class="btn ghost" id="newpath">New path</button>
         <label class="ctl">Market <select id="mood"></select></label>
         <label class="ctl"><span id="volLabel">Volatility</span> <input type="range" id="vol"> <output id="volOut"></output></label>
+        <label class="ctl">Seed <input type="number" id="seed" min="0" step="1" inputmode="numeric"></label>
       </div>
-      <p class="keys">Keyboard: right arrow steps forward, space plays or pauses, N draws a new path.</p>
+      <p class="keys">Same seed and same contract settings give the same path on every computer. New path moves to the next seed (seed + 1). Keyboard: right arrow steps forward, space plays or pauses, N draws a new path.</p>
     </section>
     <section class="panel" id="decide" aria-label="Your move"></section>
     <section class="panel" id="aux" aria-label="Detail"></section>
@@ -251,6 +264,7 @@ const UI={tab:'forward',quiz:true};
 try{Object.assign(UI,JSON.parse(localStorage.getItem('derivlab-ui')||'{}'))}catch(e){}
 function saveUI(){try{localStorage.setItem('derivlab-ui',JSON.stringify(UI))}catch(e){}}
 const sim={};
+const DEFAULT_SEED=335;
 const seeds={};
 const dir=p=>(p.pos==='long'||p.pos==='buy'||p.pos==='seller')?1:-1;
 
@@ -481,44 +495,46 @@ INST.put=optInst('put');
 INST.swap={
   tab:'Interest rate swap',name:'Interest rate swap',kind:'rate',unit:'Period',
   def:'Two parties exchange interest payments on a notional principal: one pays a fixed rate, the other pays a floating rate (SOFR). Only the net difference changes hands.',
-  key:'Rates are annual and payments are semiannual, so each payment is the rate difference × notional × ½. The swap buyer pays fixed; the swap seller pays floating. The bank here holds SOFR + 2% loans funded with 6% fixed-rate debt, so falling rates squeeze its margin.',
+  key:'Rates are annual and payments are semiannual, so each payment is the rate difference × notional × ½. The swap buyer pays fixed; the swap seller pays floating (SOFR).',
   positions:[['seller','Seller: pay SOFR, receive fixed'],['buyer','Buyer: pay fixed, receive SOFR']],
-  defaults:{notional:50,fixed:6.5,sofr0:4.0,spread:2,debt:6,N:8,vol:40,mood:'random',pos:'seller'},
+  defaults:{notional:50,fixed:4.0,sofr0:4.0,N:8,vol:40,mood:'random',pos:'seller'},
   fields:[
     {k:'notional',label:'Notional ($ millions)',step:1,min:.1},
     {k:'fixed',label:'Fixed swap rate (%)',step:.05,min:0},
     {k:'sofr0',label:'SOFR today (%)',step:.05,min:0},
-    {k:'spread',label:'Loan spread over SOFR (%)',step:.25,min:0},
-    {k:'debt',label:'Rate on fixed debt (%)',step:.25,min:0},
     {k:'N',label:'Semiannual payment dates',step:1,min:1,max:40,int:1}],
   init(p){
     sim.path=ratePath(p.sofr0,p.N,p.vol,p.mood,sim.seed);sim.n=p.N;
-    const d=dir(p),Nn=p.notional*1e6,tau=.5;sim.led=[null];let cs=0,c0=0,c1=0;
-    for(let t=1;t<=p.N;t++){const r=sim.path[t],swap=d*(p.fixed-r)/100*Nn*tau,n0=(r+p.spread-p.debt)/100*Nn*tau,n1=n0+swap;cs+=swap;c0+=n0;c1+=n1;sim.led.push({r,swap,n0,n1,cs,c0,c1})}
+    const seller=p.pos==='seller',Nn=p.notional*1e6,tau=.5;sim.led=[null];let totalRecv=0,totalPay=0,totalNet=0;
+    for(let t=1;t<=p.N;t++){
+      const r=sim.path[t],fixedLeg=p.fixed/100*Nn*tau,floatLeg=r/100*Nn*tau;
+      const recv=seller?fixedLeg:floatLeg,pay=seller?floatLeg:fixedLeg,net=recv-pay;
+      totalRecv+=recv;totalPay+=pay;totalNet+=net;
+      sim.led.push({r,recv,pay,net,totalRecv,totalPay,totalNet});
+    }
   },
   readout(p){const r=sim.path[sim.t],L=sim.led[sim.t];
-    const cur=sim.t>0&&ledgerRowVisible(sim.t)?`<span class="${cls(L.swap)}">${smoney(L.swap)}</span>`:(sim.t>0?'?':'None yet');
+    const cur=sim.t>0&&ledgerRowVisible(sim.t)?`<span class="${cls(L.net)}">${smoney(L.net)}</span>`:(sim.t>0?'?':'None yet');
     return[['Period',`${sim.t} of ${sim.n}`],['SOFR',pc(r)],['Fixed rate',pc(p.fixed)],['Net swap payment this period',cur]]},
   chart(p){return{refs:[{v:p.fixed,label:'Fixed '+pc(p.fixed)}],shade:{v:p.fixed,dir:dir(p)>0?'below':'above'},
     cap:`SOFR on each payment date. Shaded: rates at which you receive a net payment as the swap ${p.pos}.`}},
   onStep(p){if(sim.t===sim.n)this.finish(p)},
   finish(p){
-    const Ls=sim.led.slice(1),last=sim.led[sim.n],mn=k=>Math.min(...Ls.map(l=>l[k])),mx=k=>Math.max(...Ls.map(l=>l[k]));
-    sim.outcome={head:`All ${sim.n} payment dates have settled.`,pay:last.cs,dec:0,label:'Total net swap payments over the life of the swap ($)',
-      math:[`Sum of the net swap payments = ${smoney(last.cs)}`,`Bank net interest income over the whole period: ${smoney(last.c0)} without the swap, ${smoney(last.c1)} with it.`,
-        `Per period, income ranged from ${money(mn('n0'))} to ${money(mx('n0'))} without the swap; with it, ${Math.abs(mx('n1')-mn('n1'))<1?`it was ${money(mn('n1'))} every period`:`it ranged from ${money(mn('n1'))} to ${money(mx('n1'))}`}.`],
-      fb:dir(p)>0?'The point of the swap was never to make money. It was to make income predictable.':'As the buyer, this bank is betting on higher rates. The swap adds interest rate risk instead of hedging it.'};
+    const last=sim.led[sim.n];
+    sim.outcome={head:`All ${sim.n} payment dates have settled.`,pay:last.totalNet,dec:0,label:'Total net swap payments over the life of the swap ($)',
+      math:[`Total received = ${money(last.totalRecv)}`,`Total paid = ${money(last.totalPay)}`,`Net total = ${money(last.totalRecv)} − ${money(last.totalPay)} = ${smoney(last.totalNet)}`],
+      fb:'The swap started at zero value because the fixed rate equaled SOFR. The result depends entirely on where SOFR went relative to the fixed rate.'};
     sim.done=true;
   },
   decide(p){
     if(sim.t===0)return`<p>Step to the first payment date. Each period the payment is set by SOFR on that date, on ${mil(p.notional)} of notional, for half a year.</p><p class="muted">No principal is exchanged. Only the net interest difference changes hands.</p>`;
     const L=sim.led[sim.t],key='p'+sim.t,shown=!UI.quiz||sim.rev[key],sel=dir(p)>0;
     let h=`<div class="period"><p class="head">Period ${sim.t}: SOFR is ${pc(L.r)}; the fixed rate is ${pc(p.fixed)}.</p>`;
-    h+=answerWidget(L.swap,key,'Your net swap payment this period ($, negative if you pay)');
-    if(shown){h+=`<p class="big ${cls(L.swap)}">${smoney(L.swap)}</p><div class="math">`+
-      `<p>${sel?`You receive fixed and pay SOFR: (${pc(p.fixed)} − ${pc(L.r)})`:`You receive SOFR and pay fixed: (${pc(L.r)} − ${pc(p.fixed)})`} × ${mil(p.notional)} × ½ = ${smoney(L.swap)}</p>`+
-      `<p>Bank net interest income: without the swap (${pc(L.r)} + ${pc(p.spread)} − ${pc(p.debt)}) × ${mil(p.notional)} × ½ = ${smoney(L.n0)}; with it ${smoney(L.n1)}.</p>`+
-      `<p>${sel?`With the swap the loans effectively earn SOFR + ${pc(p.spread)} − SOFR + ${pc(p.fixed)} = ${pc(p.spread+p.fixed)}, wherever SOFR goes.`:'As the buyer, the bank now receives floating on top of floating-rate loans and pays fixed on top of fixed-rate debt. Its income swings twice as hard with SOFR.'}</p></div>`}
+    h+=answerWidget(L.net,key,'Your net swap payment this period ($, negative if you pay)');
+    if(shown){h+=`<div class="math">`+
+      `<p>You receive ${sel?'fixed':'SOFR'}: ${pc(sel?p.fixed:L.r)} × ${mil(p.notional)} × ½ = ${money(L.recv)}</p>`+
+      `<p>You pay ${sel?'SOFR':'fixed'}: ${pc(sel?L.r:p.fixed)} × ${mil(p.notional)} × ½ = ${money(L.pay)}</p></div>`+
+      `<p class="big ${cls(L.net)}">Net = ${smoney(L.net)}</p><p>${z(L.net)>0?`You receive ${money(L.net)} this period.`:z(L.net)<0?`You pay ${money(-L.net)} this period.`:'No net payment this period.'}</p>`}
     else h+=revealBtn(key,'Reveal this period');
     h+='</div>';
     if(sim.outcome)h+=resultBlock();
@@ -528,10 +544,10 @@ INST.swap={
   aux(p){
     let rows='';
     for(let t=1;t<=sim.t;t++){const L=sim.led[t],v=ledgerRowVisible(t);
-      rows+=`<tr class="${t===sim.t?'now':''}"><td>${t}</td><td>${pc(L.r)}</td><td class="${v?cls(L.swap):''}">${v?smoney(L.swap):'?'}</td><td class="${v?cls(L.n0):''}">${v?smoney(L.n0):'?'}</td><td class="${v?cls(L.n1):''}">${v?smoney(L.n1):'?'}</td></tr>`}
+      rows+=`<tr class="${t===sim.t?'now':''}"><td>${t}</td><td>${pc(L.r)}</td><td>${v?money(L.recv):'?'}</td><td>${v?money(L.pay):'?'}</td><td class="${v?cls(L.net):''}">${v?smoney(L.net):'?'}</td></tr>`}
     if(!rows)rows=`<tr><td colspan="5" class="muted">Payments appear here as each period settles.</td></tr>`;
-    return`<h3>Payment ledger</h3><div class="wrap-x"><table class="ledger"><thead><tr><th>Period</th><th>SOFR</th><th>Net swap</th><th>Bank NII, no swap</th><th>Bank NII, with swap</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="cap">Balance sheet: ${mil(p.notional)} of loans at SOFR + ${pc(p.spread)}, funded by ${mil(p.notional)} of debt at ${pc(p.debt)}. NII = net interest income for the half year.</p>`;
+    return`<h3>Payment ledger</h3><div class="wrap-x"><table class="ledger"><thead><tr><th>Period</th><th>SOFR</th><th>You receive</th><th>You pay</th><th>Net</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="cap">Each leg = annual rate × notional × ½. Only the net changes hands; the notional is never exchanged.</p>`;
   }
 };
 
@@ -629,7 +645,8 @@ let cur=ORDER.includes(UI.tab)?UI.tab:'forward';
 const inst=()=>INST[cur];
 
 function resetSim(newSeed){
-  if(newSeed||seeds[cur]==null)seeds[cur]=(Math.random()*2**31)|0;
+  if(seeds[cur]==null)seeds[cur]=DEFAULT_SEED;
+  if(newSeed)seeds[cur]=(seeds[cur]+1)>>>0;
   for(const k in sim)delete sim[k];
   Object.assign(sim,{seed:seeds[cur],t:0,n:0,path:[],done:false,pending:null,outcome:null,revealAll:false,rev:{},ans:{},ver:{},dec:[],yr:null,msg:'',mark:null});
   inst().init(P[cur]);
@@ -674,6 +691,7 @@ function renderStage(){
   if(rate){vol.min=10;vol.max=100;vol.step=5;$('#volLabel').textContent='Rate volatility';$('#volOut').textContent=p.vol+' bp'}
   else{vol.min=10;vol.max=100;vol.step=5;$('#volLabel').textContent='Volatility σ';$('#volOut').textContent=p.vol+'%'}
   vol.value=p.vol;
+  if(document.activeElement!==$('#seed'))$('#seed').value=sim.seed;
 }
 function renderDecide(){$('#decide').innerHTML=`<h3>Your move</h3>`+inst().decide(P[cur])}
 function renderAux(){$('#aux').innerHTML=inst().aux(P[cur])}
@@ -728,6 +746,7 @@ $('#restart').addEventListener('click',()=>{stop();resetSim(false);sim._for=cur;
 $('#newpath').addEventListener('click',()=>{stop();resetSim(true);sim._for=cur;renderSim()});
 $('#mood').addEventListener('change',e=>{P[cur].mood=e.target.value;stop();resetSim(false);sim._for=cur;renderSim()});
 $('#vol').addEventListener('input',e=>{P[cur].vol=+e.target.value;stop();resetSim(false);sim._for=cur;renderTicket();renderSim()});
+$('#seed').addEventListener('change',e=>{const v=parseInt(e.target.value,10);if(Number.isFinite(v)&&v>=0){seeds[cur]=v>>>0}stop();resetSim(false);sim._for=cur;renderSim()});
 $('#quiz').addEventListener('change',e=>{UI.quiz=e.target.checked;saveUI();renderSim()});
 document.addEventListener('keydown',e=>{
   if(e.target.closest('input,select,textarea'))return;
