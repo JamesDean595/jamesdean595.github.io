@@ -1,0 +1,28 @@
+name: Check website
+on:
+  push:
+    branches: [master, website-cleanup]
+  pull_request:
+    branches: [master]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: docs
+      - name: Build with GitHub Pages dependencies
+        working-directory: docs
+        run: bundle exec jekyll build --safe --destination ../_site
+      - name: Check main pages and local links
+        run: python3 scripts/check_site.py _site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-preview
+          path: _site/
+          retention-days: 14

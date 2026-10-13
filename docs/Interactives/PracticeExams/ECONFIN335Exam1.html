@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECON/FIN 335 Exam 1 Practice</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #475569;
+      --soft: #f1f5f9;
+      --accent: #0f172a;
+      --correct-bg: #dcfce7;
+      --correct-border: #22c55e;
+      --incorrect-bg: #ffe4e6;
+      --incorrect-border: #f43f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 280px 1fr;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .sidebar {
+      padding: 20px;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      line-height: 1.2;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .progress {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat {
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+    }
+    .btn {
+      width: 100%;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .navigator {
+      margin-top: 18px;
+    }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .nav-btn {
+      height: 40px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .nav-btn.current {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #cbd5e1;
+    }
+    .nav-btn.correct {
+      background: var(--correct-bg);
+    }
+    .nav-btn.incorrect {
+      background: var(--incorrect-bg);
+    }
+    .nav-btn.short-answered {
+      background: var(--soft);
+    }
+    .main {
+      padding: 28px;
+    }
+    .question-number {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    .question-text {
+      font-size: 1.8rem;
+      line-height: 1.3;
+      margin: 8px 0 0 0;
+    }
+    .choices {
+      margin-top: 24px;
+      display: grid;
+      gap: 12px;
+    }
+    .choice {
+      width: 100%;
+      text-align: left;
+      border-radius: 18px;
+      padding: 16px;
+      line-height: 1.45;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .choice:hover {
+      background: #f8fafc;
+    }
+    .choice.selected {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+    .choice.correct {
+      border-color: var(--correct-border);
+      background: var(--correct-bg);
+    }
+    .choice.incorrect {
+      border-color: var(--incorrect-border);
+      background: var(--incorrect-bg);
+    }
+    .feedback {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: #14532d;
+    }
+    .feedback.incorrect {
+      background: var(--incorrect-bg);
+      color: #881337;
+    }
+    .short-answer {
+      margin-top: 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .answer-box {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      line-height: 1.5;
+    }
+    .answer-box.visible {
+      display: block;
+    }
+    .controls {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .controls .btn {
+      width: auto;
+      margin-top: 0;
+      padding: 12px 18px;
+    }
+    .footer-nav {
+      margin-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .footer-nav .btn {
+      width: auto;
+      margin-top: 0;
+      padding: 12px 18px;
+    }
+    @media (max-width: 900px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+      }
+      .question-text {
+        font-size: 1.45rem;
+      }
+    }
+    textarea { width:100%; resize:vertical; min-height:140px; padding:14px; border:1px solid var(--border); border-radius:14px; color:var(--text); background:white; font:inherit; line-height:1.5; }
+    button:focus-visible,textarea:focus-visible { outline:3px solid #2563eb; outline-offset:3px; }
+    .answer-box { white-space:pre-wrap; }
+    [hidden] { display:none !important; }
+    @media (max-width:600px) { .wrap { padding:12px; gap:12px; } .main { padding:20px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <aside class="panel sidebar">
+      <div>
+        <h1>ECON/FIN 335<br>Exam 1 Practice</h1>
+        <p class="muted">15 multiple-choice questions and 5 short-answer questions. Check each choice or reveal a short-answer solution when ready.</p>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div class="progress-row">
+          <span>Progress</span>
+          <span id="progressText">0 / 20</span>
+        </div>
+        <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+      </div>
+
+      <div class="stats" style="margin-top:18px;">
+        <div class="stat">
+          <div class="stat-label">MC Score</div>
+          <div class="stat-value" id="scoreValue">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">MC Accuracy</div>
+          <div class="stat-value" id="percentValue">0%</div>
+        </div>
+      </div>
+
+      <button class="btn primary" id="restartBtn">Restart exam</button>
+
+      <div class="navigator">
+        <div style="font-weight:600; font-size:0.95rem;">Question navigator</div>
+        <div class="nav-grid" id="navGrid"></div>
+      </div>
+    </aside>
+
+    <main class="panel main">
+      <div class="question-number" id="questionNumber"></div>
+      <h2 class="question-text" id="questionText"></h2>
+
+      <div class="choices" id="choices"></div>
+      <div class="short-answer" id="shortAnswer"></div>
+
+      <div class="controls" id="controls">
+        <button class="btn primary" id="checkBtn">Check answer</button>
+      </div>
+
+      <div id="feedback" role="status" aria-live="polite"></div>
+
+      <div class="footer-nav">
+        <button class="btn" id="prevBtn">Previous</button>
+        <button class="btn" id="nextBtn">Next</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const questions = [{"type": "mc", "prompt": "You purchase 100 shares of Apple stock from another investor on the New York Stock Exchange. This transaction is an example of a(n):", "choices": ["A) primary market transaction.", "B) secondary market transaction.", "C) money market transaction.", "D) asset transformation."], "correct": 1, "feedback": "Secondary market — existing securities trading between investors."}, {"type": "mc", "prompt": "Default risk at a financial intermediary (FI) is the risk:", "choices": ["A) that a sudden surge in liability withdrawals may require an FI to liquidate assets quickly at fire sale prices.", "B) incurred by an FI when the maturities of its assets and liabilities do not match.", "C) that promised cash flows from loans and securities held by FIs may not be paid in full.", "D) that an FI may not have enough capital to offset a sudden decline in the value of its assets."], "correct": 2, "feedback": "Default/credit risk — promised cash flows may not be paid in full."}, {"type": "mc", "prompt": "You observe that yields on both corporate and Treasury bonds have risen significantly across the board. Which of the following best explains this?", "choices": ["A) A decrease in the U.S. government budget deficit.", "B) An increase in U.S. inflationary expectations.", "C) Increased foreign purchases of U.S. Treasury securities.", "D) A general decline in perceived default risk."], "correct": 1, "feedback": "Rising inflationary expectations push yields up across the board."}, {"type": "mc", "prompt": "According to the Fisher Effect, if expected inflation rises from 2% to 5% and the real interest rate remains constant at 3%, the nominal interest rate should:", "choices": ["A) remain at 3% because inflation does not affect nominal rates.", "B) fall to 0% to offset the higher inflation.", "C) rise to approximately 8%.", "D) rise to approximately 5% because the real rate is absorbed by inflation."], "correct": 2, "feedback": "Fisher Effect: nominal ≈ real + expected inflation = 3% + 5% = 8%."}, {"type": "mc", "prompt": "You calculate that the present value of a bond’s future cash flows is $950, but the bond is currently trading at $980. You should:", "choices": ["A) buy the bond, because the market price reflects additional value not captured by your calculation.", "B) sell (or not buy) the bond, because the market price exceeds your estimate of its value.", "C) buy the bond, because the expected return must exceed the required return when prices are high.", "D) hold the bond, because the difference between price and present value is irrelevant to investment decisions."], "correct": 1, "feedback": "Price ($980) > PV ($950), so the bond is overvalued; sell or don’t buy."}, {"type": "mc", "prompt": "In a Treasury bill auction, a competitive bidder submits a bid specifying:", "choices": ["A) only the quantity of T-bills desired, accepting whatever price is determined.", "B) the price (or yield) they are willing to pay, but risks being outbid and receiving no allocation.", "C) a guaranteed quantity at a guaranteed price set by the Treasury.", "D) a maximum price, with the Treasury filling all bids at the lowest submitted price."], "correct": 1, "feedback": "Competitive bidders specify price/yield but risk no allocation."}, {"type": "mc", "prompt": "A Treasury security whose principal value adjusts periodically based on changes in the Consumer Price Index, providing investors with protection against inflation, is called a:", "choices": ["A) STRIP.", "B) T-note.", "C) TIPS.", "D) GO bond."], "correct": 2, "feedback": "TIPS — principal adjusts with CPI."}, {"type": "mc", "prompt": "Two corporate bonds have identical maturities, coupon rates, and liquidity. Bond A is rated AA and Bond B is rated B. Which of the following is most likely true?", "choices": ["A) Both bonds will have the same required rate of return since their cash flows are identical.", "B) Bond A will have a higher required return because higher-rated bonds compensate investors more.", "C) Bond B will have a higher required return because investors demand compensation for greater default risk.", "D) Bond B will have a lower required return because riskier bonds attract fewer investors, driving prices up."], "correct": 2, "feedback": "Lower credit rating = more default risk = higher required return."}, {"type": "mc", "prompt": "The development of secondary mortgage markets and mortgage-backed securities primarily benefits lenders by:", "choices": ["A) eliminating all default risk associated with the underlying mortgages.", "B) allowing them to remove mortgages from their balance sheets, freeing up capital to make new loans.", "C) guaranteeing that borrowers will never default on their mortgage payments.", "D) converting adjustable-rate mortgages into fixed-rate mortgages."], "correct": 1, "feedback": "Securitization frees up lender capital for new lending."}, {"type": "mc", "prompt": "You are taking out a mortgage and expect that market interest rates will decline significantly over the next several years. Which mortgage type would likely be most advantageous to you as the borrower?", "choices": ["A) A fixed-rate mortgage, because your rate will decline along with the market.", "B) An adjustable-rate mortgage, because your rate will decrease as market rates fall.", "C) A fixed-rate mortgage, because it eliminates all risk of rate changes.", "D) It does not matter; both mortgage types produce identical costs over time."], "correct": 1, "feedback": "ARM — rate adjusts downward as market rates fall."}, {"type": "mc", "prompt": "Which of the following best describes a price-weighted stock index?", "choices": ["A) It assigns more influence to companies with larger market capitalizations.", "B) It weights each stock equally regardless of price or size.", "C) Higher-priced stocks have more influence on the index value regardless of company size.", "D) It adjusts weights based on trading volume."], "correct": 2, "feedback": "Price-weighted: higher-priced stocks have more influence."}, {"type": "mc", "prompt": "If a firm has more foreign currency liabilities than foreign currency assets, and no other foreign currency transactions, it has:", "choices": ["A) zero net exposure.", "B) negative net exposure.", "C) positive net exposure.", "D) a fully balanced position."], "correct": 1, "feedback": "More FX liabilities than assets = negative net exposure."}, {"type": "mc", "prompt": "A U.S. importer buys goods from the EU. Last month, the importer paid $1.10 per euro; this month, the importer must pay $1.18 per euro. From the perspective of the U.S. importer, the cost of European goods in dollar terms has:", "choices": ["A) decreased, because the dollar has appreciated.", "B) increased, because the dollar has depreciated against the euro.", "C) stayed the same, because exchange rates do not affect import costs.", "D) decreased, because the euro has depreciated."], "correct": 1, "feedback": "More dollars per euro = dollar depreciation = higher import costs."}, {"type": "mc", "prompt": "You take an option position where, if the stock price increases, your gain increases, but if the stock price decreases, you lose only a fixed small amount. You must have:", "choices": ["A) written a call option.", "B) written a put option.", "C) bought a call option.", "D) bought a put option."], "correct": 2, "feedback": "Bought a call — gain if price rises, lose only the premium if it falls."}, {"type": "mc", "prompt": "In an interest rate swap, two parties typically:", "choices": ["A) exchange ownership of the underlying bonds that generate their interest payments.", "B) agree to exchange interest payments, where one pays a fixed rate and the other pays a floating rate, on a notional principal amount.", "C) both agree to pay fixed rates to each other to eliminate all interest rate risk.", "D) exchange principal amounts at the beginning and end of the contract."], "correct": 1, "feedback": "Interest rate swap: exchange fixed for floating payments on notional principal."}, {"type": "sa", "prompt": "Corporate bonds typically offer higher interest rates than Treasury bonds of similar maturity, while municipal bonds often offer lower yields than Treasuries. (a) Why do corporate bonds carry higher yields than Treasuries? (b) Why would investors accept a lower yield on a municipal bond than on a Treasury?", "answer": "(a) Corporate bonds carry default risk — the issuer may fail to make promised payments. Treasuries are considered essentially risk-free (backed by the U.S. government). Investors demand a higher yield on corporates to compensate for this additional risk (the default risk premium). (b) Municipal bond interest is typically exempt from federal (and sometimes state) income taxes. On an after-tax basis, the effective return may be comparable to or higher than a Treasury. Investors accept lower pre-tax yields because the tax advantage compensates them."}, {"type": "sa", "prompt": "Your financial institution holds two corporate bonds that are largely identical — same issuer, same coupon rate, same credit rating. The only difference is that Bond A matures in 3 years and Bond B matures in 10 years. If market interest rates suddenly rise by 1%, which bond’s price will change more? Why?", "answer": "Bond B (10-year maturity) will experience a larger price decline. Longer-maturity bonds have higher duration, all else equal, meaning their prices are more sensitive to interest rate changes. The 10-year bond has more future cash flows being discounted at the new, higher rate, so the present value impact is larger."}, {"type": "sa", "prompt": "Explain how a repurchase agreement works. Why would a repo typically carry a lower interest rate than an equivalent unsecured loan (e.g., commercial paper)?", "answer": "In a repo, the borrower sells securities to the lender with an agreement to repurchase them at a specified price in the future. The securities serve as collateral. Because the lender has recourse to the securities if the borrower defaults, the transaction carries less risk than an unsecured loan, which translates to a lower interest rate."}, {"type": "sa", "prompt": "A startup's CFO is nervous that investor demand for the company's IPO will be weak. Should the CFO prefer firm commitment or best efforts underwriting, and why? What is the tradeoff for the company in making that choice?", "answer": "A nervous CFO should prefer firm commitment, because the bank buys the shares and absorbs the risk of weak demand, guaranteeing proceeds. The tradeoff is that the company pays higher underwriting fees for that protection, whereas best efforts is cheaper but leaves the company exposed to weak demand."}, {"type": "sa", "prompt": "Detail a strategy for a U.S.-based company looking to expand into Brazil, considering the volatile nature of the USD/BRL (Brazilian Real) exchange rate.", "answer": "The company faces foreign exchange risk because its revenues in Brazil would be in reais, but its home currency is dollars. If the real depreciates against the dollar, the company’s Brazilian earnings lose value when converted back. To manage this, the company could purchase currency futures or forward contracts on the BRL, locking in a known exchange rate for future cash flows. Alternatively, it could buy put options on the real (or call options on the dollar), giving it the right to exchange at a favorable rate while preserving upside if the real strengthens. The company should also consider natural hedging — for example, sourcing inputs locally in Brazil so that both costs and revenues are denominated in reais, reducing net exposure."}];
+
+    let current = 0;
+    let selected = Array(questions.length).fill(null);
+    let submitted = Array(questions.length).fill(false);
+    let revealed = Array(questions.length).fill(false);
+    let drafts = Array(questions.length).fill('');
+
+    const questionNumber = document.getElementById('questionNumber');
+    const questionText = document.getElementById('questionText');
+    const choicesEl = document.getElementById('choices');
+    const shortAnswerEl = document.getElementById('shortAnswer');
+    const controlsEl = document.getElementById('controls');
+    const feedbackEl = document.getElementById('feedback');
+    const progressText = document.getElementById('progressText');
+    const progressBar = document.getElementById('progressBar');
+    const scoreValue = document.getElementById('scoreValue');
+    const percentValue = document.getElementById('percentValue');
+    const navGrid = document.getElementById('navGrid');
+    const checkBtn = document.getElementById('checkBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function answeredCount() {
+      return submitted.filter(Boolean).length;
+    }
+
+    function scoreCount() {
+      let score = 0;
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].type === 'mc' && submitted[i] && selected[i] === questions[i].correct) score++;
+      }
+      return score;
+    }
+
+    function mcAnsweredCount() {
+      let count = 0;
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].type === 'mc' && submitted[i]) count++;
+      }
+      return count;
+    }
+
+    function renderNavigator() {
+      navGrid.innerHTML = '';
+      questions.forEach((q, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        btn.textContent = i + 1;
+        btn.setAttribute('aria-label', `Question ${i + 1}, ${q.type === 'mc' ? 'multiple choice' : 'short answer'}`);
+        if (i === current) btn.setAttribute('aria-current', 'true');
+        if (i === current) btn.classList.add('current');
+        if (submitted[i]) {
+          if (q.type === 'mc') {
+            btn.classList.add(selected[i] === q.correct ? 'correct' : 'incorrect');
+          } else {
+            btn.classList.add('short-answered');
+          }
+        }
+        btn.addEventListener('click', () => {
+          current = i;
+          render();
+        });
+        navGrid.appendChild(btn);
+      });
+    }
+
+    function renderChoices() {
+      choicesEl.innerHTML = '';
+      const q = questions[current];
+      if (q.type !== 'mc') return;
+      q.choices.forEach((choice, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.textContent = choice;
+        btn.setAttribute('aria-pressed', String(selected[current] === index));
+        btn.disabled = submitted[current];
+
+        if (!submitted[current] && selected[current] === index) {
+          btn.classList.add('selected');
+        }
+
+        if (submitted[current]) {
+          if (index === q.correct) btn.classList.add('correct');
+          if (selected[current] === index && index !== q.correct) btn.classList.add('incorrect');
+        }
+
+        btn.addEventListener('click', () => {
+          if (submitted[current]) return;
+          selected[current] = index;
+          render();
+        });
+
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function renderShortAnswer() {
+      shortAnswerEl.innerHTML = '';
+      const q = questions[current];
+      if (q.type !== 'sa') return;
+      const label = document.createElement('label');
+      label.htmlFor = 'draftAnswer';
+      label.textContent = 'Your response (optional; not automatically graded)';
+      const draft = document.createElement('textarea');
+      draft.id = 'draftAnswer';
+      draft.rows = 7;
+      draft.placeholder = 'Write your answer here before viewing the solution…';
+      draft.value = drafts[current];
+      draft.addEventListener('input', () => { drafts[current] = draft.value; });
+      const showBtn = document.createElement('button');
+      showBtn.className = 'btn primary';
+      showBtn.textContent = revealed[current] ? 'Hide answer' : 'Show answer';
+      showBtn.setAttribute('aria-expanded', String(revealed[current]));
+      showBtn.setAttribute('aria-controls', 'modelAnswer');
+      const answerBox = document.createElement('div');
+      answerBox.id = 'modelAnswer';
+      answerBox.className = 'answer-box' + (revealed[current] ? ' visible' : '');
+      answerBox.hidden = !revealed[current];
+      const heading = document.createElement('strong');
+      heading.textContent = 'Model answer: ';
+      answerBox.append(heading, document.createTextNode(q.answer));
+      showBtn.addEventListener('click', () => {
+        revealed[current] = !revealed[current];
+        if (revealed[current]) submitted[current] = true;
+        render();
+      });
+      shortAnswerEl.append(label, draft, showBtn, answerBox);
+    }
+
+    function renderFeedback() {
+      feedbackEl.innerHTML = '';
+      if (!submitted[current]) return;
+
+      const q = questions[current];
+      if (q.type !== 'mc') return;
+
+      const box = document.createElement('div');
+      const correct = selected[current] === q.correct;
+      box.className = 'feedback ' + (correct ? 'correct' : 'incorrect');
+      box.innerHTML = '<strong>' +
+        (correct ? 'Correct.' : 'Incorrect. Correct answer: ' + q.choices[q.correct] + '.') +
+        '</strong> ' + q.feedback;
+
+      feedbackEl.appendChild(box);
+    }
+
+    function renderStats() {
+      const answered = answeredCount();
+      const score = scoreCount();
+      const mcAnswered = mcAnsweredCount();
+      progressText.textContent = `${answered} / ${questions.length}`;
+      progressBar.style.width = `${(answered / questions.length) * 100}%`;
+      scoreValue.textContent = `${score} / 15`;
+      percentValue.textContent = (mcAnswered ? Math.round((score / mcAnswered) * 100) : 0) + '%';
+    }
+
+    function render() {
+      const q = questions[current];
+      questionNumber.textContent = q.type === 'mc' ? `Multiple choice · Question ${current + 1} of 15` : `Short answer · Question ${current - 14} of 5`;
+      questionText.textContent = q.prompt;
+      renderChoices();
+      renderShortAnswer();
+      renderFeedback();
+      renderStats();
+      renderNavigator();
+
+      if (q.type === 'mc') {
+        controlsEl.style.display = 'flex';
+        checkBtn.disabled = selected[current] === null || submitted[current];
+        checkBtn.style.opacity = checkBtn.disabled ? '0.4' : '1';
+      } else {
+        controlsEl.style.display = 'none';
+      }
+
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === questions.length - 1;
+      prevBtn.style.opacity = prevBtn.disabled ? '0.4' : '1';
+      nextBtn.style.opacity = nextBtn.disabled ? '0.4' : '1';
+    }
+
+    checkBtn.addEventListener('click', () => {
+      if (selected[current] === null) return;
+      submitted[current] = true;
+      render();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (current > 0) {
+        current--;
+        render();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (current < questions.length - 1) {
+        current++;
+        render();
+      }
+    });
+
+    restartBtn.addEventListener('click', () => {
+      current = 0;
+      selected = Array(questions.length).fill(null);
+      submitted = Array(questions.length).fill(false);
+      revealed = Array(questions.length).fill(false);
+      drafts = Array(questions.length).fill('');
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

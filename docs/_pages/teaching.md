@@ -5,6 +5,10 @@ permalink: /teaching/
 author_profile: true
 ---
 
+## Interactive materials
+
+[Open the teaching interactives and practice exams](/Interactives/).
+
 ## Instructor of Record
 
 ### Western Carolina University 
