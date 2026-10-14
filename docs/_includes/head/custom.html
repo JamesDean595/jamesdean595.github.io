@@ -1,0 +1,25 @@
+{% include base_path %}
+
+<!-- start custom head snippets -->
+
+<link rel="icon" type="image/png" href="{{ base_path }}/images/favicon.png" sizes="16x16">
+<link rel="manifest" href="{{ base_path }}/images/manifest.json">
+<link rel="mask-icon" href="{{ base_path }}/images/safari-pinned-tab.svg" color="#000000">
+<meta name="msapplication-TileColor" content="#000000">
+<meta name="msapplication-TileImage" content="{{ base_path }}/images/mstile-144x144.png">
+<meta name="msapplication-config" content="{{ base_path }}/images/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="{{ base_path }}/assets/css/academicons.css"/>
+
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+<!-- end custom head snippets -->
