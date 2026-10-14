@@ -42,3 +42,6 @@ See `archive/README.md` for the precise list. Some template examples were techni
 - Parsed all 13 interactive inline scripts with Node: no JavaScript syntax errors.
 - Compared original and proposed output inventories: removed outputs are archived template examples/tools. The homepage HTML differs only by removal of nonexistent icon links, and main theme CSS is unchanged.
 - Added a GitHub build/link-check workflow and pinned the local build dependencies in Gemfile.lock. The workflow checks the site but does not publish it.
+
+- GitHub's branch and pull-request builds both passed with the standard configuration (runs 38476021430 and 38476091331), including the full build, link checks, and preview artifact upload.
+- Browser checks at 1440px and 390px confirmed no horizontal overflow or broken images on Personal, Research, and Teaching. The gallery contains all nine original displayed photos. The new HTML exam opens with its expected title.

@@ -16,11 +16,12 @@ GitHub is your account; this repository is one project within it. You can create
 **This change is staged on a branch. Do not merge it without also changing the Pages folder.**
 
 1. Confirm the cleanup build and link checks pass and review the changes.
-2. Merge the cleanup pull request into `master`.
-3. Immediately open **Settings → Pages → Build and deployment**. Keep **Deploy from a branch**, choose **master** and **/docs**, then Save.
-4. Under **Actions**, wait for **pages build and deployment** to finish successfully. Check the homepage, Research, Personal, CV, Teaching, and a practice exam.
+2. Before merging, open **Settings → Pages → Build and deployment**. Keep **Deploy from a branch**, choose **website-cleanup** and **/docs**, then Save.
+3. Under **Actions**, wait for **pages build and deployment** to finish successfully. Check the homepage, Research, Personal, CV, Teaching, and a practice exam. The old `master` branch still contains the original website, so rollback at this stage is simply restoring **master / (root)** in Pages settings.
+4. After the cleaned version is confirmed live, merge the cleanup pull request into `master`.
+5. Change the Pages source to **master /docs**, then wait for its successful deployment and verify the site again. This restores the ordinary editing workflow on `master`.
 
-The source folder is a repository setting, not something Markdown or this pull request can change. Until the folder is changed, Pages will build from the wrong location. Coordinate steps 2–3; do not treat merging alone as completion.
+The source folder is a repository setting, not something Markdown or this pull request can change. Do not merge while Pages still points to `master /(root)`: it would build from the wrong location. The staged sequence above avoids that mismatch and preserves the old source until the cleaned site is confirmed working.
 
 Website URLs remain the same: for example, `docs/Interactives/Derivatives.html` is published at `/Interactives/Derivatives.html`, **not** `/docs/Interactives/Derivatives.html`.
 
