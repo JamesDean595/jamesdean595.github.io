@@ -7,7 +7,7 @@ author_profile: true
 
 ## Interactive materials
 
-[Open the teaching interactives and practice exams](/Interactives/).
+[Open the teaching interactives](/Interactives/).
 
 ## Instructor of Record
 
