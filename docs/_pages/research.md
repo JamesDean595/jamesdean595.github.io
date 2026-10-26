@@ -10,7 +10,7 @@ author_profile: true
 - Dean, J., and *M. Roy*. (2026). [“The Spillover of United States Monetary Policy on Six European Agricultural Commodity Prices.”](https://doi.org/10.1016/j.inteco.2026.100732) *International Economics*, 187, 100732.
 - Dean, J. (2026). [“Estimating the Federal Reserve’s Inflation Target Through the Average Inflation Targeting Era.”](https://doi.org/10.1080/13504851.2026.2654788) *Applied Economics Letters*. Published online.
 - Dean, J. (2026). [“Unconventional U.S. Monetary Policy and International Financial Market Stability.”](https://www.accessecon.com/Pubs/EB/2026/Volume46/EB-26-V46-I1-P22.pdf) *Economics Bulletin*, 46(1), 250–259.
-- Dean, J. (2026). [“Better on Average? Average Inflation Targeting with an Unclear Averaging Window.”](https://doi.org/10.1002/soej.70020) *Southern Economic Journal*. Published online.
+- Dean, J. (2026). [“Better on Average? Average Inflation Targeting with an Unclear Averaging Window.”](https://doi.org/10.1002/soej.70020) *Southern Economic Journal*. 93(2), 503–519.
   - [WCU Ideas with Impact](https://www.wcu.edu/stories/posts/impact-of-fed-inflation-strategies.aspx)
 - Dean, J., and S. Schuh. (2026). [“From Conventional to Unconventional Monetary Policy: Is the Taylor Rule an Adequate Representation in Macro Models?”](https://doi.org/10.1007/s00181-025-02868-0) *Empirical Economics*, 70, Article 35.
 - Dean, J., and V. Geloso. (2024). [“Poverty Spells and Economic Freedom: Canadian Evidence.”](https://www.sciencedirect.com/science/article/pii/S0167268124002117) *Journal of Economic Behavior & Organization*, 224, 282–296.
