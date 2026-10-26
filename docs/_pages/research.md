@@ -33,4 +33,4 @@ author_profile: true
 
 - “Does the Minimum Wage Improve Upward Mobility? Evidence from Canada” (with V. Geloso).
 - “COVID Inflation Whodunit? Potential Output, with Money, in the United States” (with S. Schuh).
-- “Does Fiscal Stress Shape Monetary Policy?”
+- “Do Central Banks Respond Less to Inflation When Governments Run Larger Deficits?”
