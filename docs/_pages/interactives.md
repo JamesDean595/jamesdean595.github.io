@@ -17,6 +17,7 @@ Interactive models used my class.
 
 ### Financial Institutions
 - [Derivatives lab](/Interactives/Derivatives.html)
+- [Bank financial statement analysis](/Interactives/Bank_Analysis.html)
   
 <!-- ## Practice exams
 
