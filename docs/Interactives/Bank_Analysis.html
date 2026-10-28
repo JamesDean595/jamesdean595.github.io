@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Financial Statement Analysis — M&T Bank vs. JP Morgan Chase</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #eef0f4;
+    --border: #dde1ea;
+    --accent-mt: #1a6fc4;
+    --accent-jpm: #c94a1a;
+    --accent-gold: #8a6200;
+    --text: #1a1f2e;
+    --text-muted: #4a5568;
+    --text-dim: #9aa3b2;
+    --green: #16803c;
+    --red: #c0392b;
+    --tooltip-bg: #ffffff;
+    --tooltip-border: #c8cdd8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #e8edf7 0%, #f0f3fa 50%, #e8edf7 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(26,111,196,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,74,26,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+  }
+  .bank-badges {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+  }
+  .badge-mt { background: rgba(26,111,196,0.08); border: 1px solid rgba(26,111,196,0.3); color: var(--accent-mt); }
+  .badge-jpm { background: rgba(201,74,26,0.08); border: 1px solid rgba(201,74,26,0.3); color: var(--accent-jpm); }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .badge-mt .badge-dot { background: var(--accent-mt); }
+  .badge-jpm .badge-dot { background: var(--accent-jpm); }
+
+  /* TABS */
+  .tabs-bar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 16px 22px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent-gold);
+    border-bottom-color: var(--accent-gold);
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    padding: 32px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+  }
+  .section-note {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* TOOLTIP HINT */
+  .hover-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(138,98,0,0.06);
+    border: 1px solid rgba(138,98,0,0.2);
+    color: var(--accent-gold);
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  /* FINANCIAL TABLE */
+  .fin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .fin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .fin-card-header {
+    padding: 14px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fin-card-header.mt {
+    background: rgba(26,111,196,0.06);
+    border-bottom: 1px solid rgba(26,111,196,0.2);
+    color: var(--accent-mt);
+  }
+  .fin-card-header.jpm {
+    background: rgba(201,74,26,0.06);
+    border-bottom: 1px solid rgba(201,74,26,0.2);
+    color: var(--accent-jpm);
+  }
+  .fin-card-header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .mt .fin-card-header-dot { background: var(--accent-mt); }
+  .jpm .fin-card-header-dot { background: var(--accent-jpm); }
+
+  /* TABLE */
+  table.fin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .fin-table th {
+    padding: 9px 16px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.018);
+  }
+  .fin-table th:first-child { text-align: left; }
+  .fin-table td {
+    padding: 8px 16px;
+    text-align: right;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(42,51,71,0.5);
+    transition: background 0.15s;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .fin-table td:first-child {
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text);
+    padding-left: 20px;
+  }
+  .fin-table tr.section-row td {
+    font-weight: 600;
+    color: var(--text);
+    background: rgba(0,0,0,0.025);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+  }
+  .fin-table tr.sub-row td:first-child {
+    padding-left: 36px;
+    color: var(--text-muted);
+  }
+  .fin-table tr.total-row td {
+    font-weight: 700;
+    color: var(--text);
+    background: rgba(0,0,0,0.03);
+    border-top: 2px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .fin-table tr:hover td {
+    background: rgba(0,0,0,0.03);
+    cursor: help;
+  }
+  .fin-table tr.section-row:hover td,
+  .fin-table tr.total-row:hover td {
+    background: rgba(0,0,0,0.05);
+  }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: fixed;
+    z-index: 1000;
+    max-width: 340px;
+    background: var(--tooltip-bg);
+    border: 1px solid var(--tooltip-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tooltip-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .tooltip-def {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .tooltip-source {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 7px;
+    margin-top: 4px;
+  }
+  .tooltip-calc {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-mt);
+    background: rgba(26,111,196,0.07);
+    border: 1px solid rgba(26,111,196,0.2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* RATIOS PAGE */
+  .ratios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .ratio-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: help;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .ratio-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-gold), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .ratio-card:hover {
+    border-color: rgba(138,98,0,0.25);
+    background: var(--surface2);
+  }
+  .ratio-card:hover::before { opacity: 1; }
+  .ratio-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .ratio-values {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .ratio-val {
+    flex: 1;
+    background: rgba(0,0,0,0.025);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .ratio-val-bank {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .ratio-val-bank.mt { color: var(--accent-mt); }
+  .ratio-val-bank.jpm { color: var(--accent-jpm); }
+  .ratio-val-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--text);
+  }
+  .ratio-bar-wrap {
+    margin-top: 8px;
+  }
+  .ratio-bar-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .ratio-bar-track {
+    height: 5px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 3px;
+    margin-bottom: 4px;
+    overflow: hidden;
+  }
+  .ratio-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .ratio-bar-fill.mt { background: linear-gradient(90deg, var(--accent-mt), #5a9fe8); }
+  .ratio-bar-fill.jpm { background: linear-gradient(90deg, var(--accent-jpm), #e87a50); }
+  .ratio-formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.025);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    line-height: 1.6;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .ratio-formula span { color: var(--accent-gold); }
+
+  /* OBS PAGE */
+  .obs-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* OVERVIEW PAGE */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .overview-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+  .overview-card.mt::after { background: rgba(26,111,196,0.4); }
+  .overview-card.jpm::after { background: rgba(201,74,26,0.4); }
+  .overview-bank {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .overview-bank.mt { color: var(--accent-mt); }
+  .overview-bank.jpm { color: var(--accent-jpm); }
+  .overview-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .overview-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .overview-stat {
+    background: rgba(0,0,0,0.025);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .overview-stat-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .overview-stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .overview-desc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .overview-desc h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .overview-desc p {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .camels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .camels-item {
+    background: rgba(0,0,0,0.025);
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: help;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .camels-item:hover {
+    border-color: var(--accent-gold);
+    background: rgba(138,98,0,0.04);
+  }
+  .camels-letter {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent-gold);
+    line-height: 1;
+  }
+  .camels-word {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .content { padding: 20px; }
+    .header { padding: 20px; }
+    .tabs-bar { padding: 0 20px; }
+    .fin-grid, .obs-layout, .overview-grid, .bs-split { grid-template-columns: 1fr; }
+    .ratios-grid { grid-template-columns: 1fr; }
+    .camels-grid { grid-template-columns: repeat(2,1fr); }
+  }
+
+  .pct-badge {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* SUB-TABS */
+  .sub-tabs { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; width:fit-content; margin-bottom:20px; }
+  .stab { padding:7px 22px; font-size:.8rem; font-weight:600; cursor:pointer; user-select:none; transition:all .18s; color:var(--text-muted); background:var(--surface); white-space:nowrap; }
+  .stab:not(:last-child) { border-right:1px solid var(--border); }
+  .stab.st-mt  { background:rgba(26,111,196,.1); color:var(--accent-mt); }
+  .stab.st-jpm { background:rgba(201,74,26,.1);  color:var(--accent-jpm); }
+  .stab.st-both { background:rgba(138,98,0,.1); color:var(--accent-gold); }
+  .stab:hover:not(.st-mt):not(.st-jpm):not(.st-both) { background:var(--surface2); }
+  .bank-panel { display:none; }
+  .bank-panel.active { display:block; }
+  /* BALANCE SHEET SPLIT */
+  .bs-split { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+  .bs-col-label { font-size:.71rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text-dim); padding:0 0 7px 4px; border-bottom:2px solid var(--border); margin-bottom:10px; }
+
+
+  /* Ratio sub-tab single-bank views */
+  #ratios-mt  .ratio-val.jpm { display:none; }
+  #ratios-mt  .ratio-bar-wrap .ratio-bar-track:last-of-type:not(:first-of-type) { display:none; }
+  #ratios-jpm .ratio-val.mt  { display:none; }
+  #ratios-jpm .ratio-bar-wrap .ratio-bar-track:first-of-type:not(:last-of-type) { display:none; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">Bank Financial Statement Analysis</div>
+  <div class="header-sub">FIN/ECON 335 — Chapter 12 · Hover over any line item for definitions and details</div>
+  <div class="bank-badges">
+    <div class="badge badge-mt"><div class="badge-dot"></div>M&amp;T Bank (Regional)</div>
+    <div class="badge badge-jpm"><div class="badge-dot"></div>JP Morgan Chase (Money Center)</div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tab active" onclick="showPage('overview')">Overview</div>
+  <div class="tab" onclick="showPage('balance')">Balance Sheet</div>
+  <div class="tab" onclick="showPage('income')">Income Statement</div>
+  <div class="tab" onclick="showPage('obs')">Off-Balance-Sheet</div>
+  <div class="tab" onclick="showPage('ratios')">Financial Ratios</div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-label" id="tt-label"></div>
+  <div class="tooltip-def" id="tt-def"></div>
+  <div class="tooltip-calc" id="tt-calc" style="display:none"></div>
+  <div class="tooltip-source" id="tt-source"></div>
+</div>
+
+<!-- ===== OVERVIEW PAGE ===== -->
+<div class="content">
+<div class="page active" id="page-overview">
+  <div class="section-header">
+    <div class="section-title">Bank Comparison Overview</div>
+    <div class="section-note">Retail/Community vs. Money Center Bank</div>
+  </div>
+
+  <div class="overview-grid">
+    <div class="overview-card mt">
+      <div class="overview-bank mt">Regional Bank</div>
+      <div class="overview-name">M&amp;T Bank</div>
+      <div class="overview-stats">
+        <div class="overview-stat"><div class="overview-stat-label">Total Assets</div><div class="overview-stat-val">$212.4B</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Net Income</div><div class="overview-stat-val">$2.157B</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">ROE</div><div class="overview-stat-val">12.93%</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">ROA</div><div class="overview-stat-val">1.02%</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Equity Capital</div><div class="overview-stat-val">$16.68B</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Equity/Assets</div><div class="overview-stat-val">7.85%</div></div>
+      </div>
+    </div>
+    <div class="overview-card jpm">
+      <div class="overview-bank jpm">Money Center Bank</div>
+      <div class="overview-name">JP Morgan Chase</div>
+      <div class="overview-stats">
+        <div class="overview-stat"><div class="overview-stat-label">Total Assets</div><div class="overview-stat-val">$3.028T</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Net Income</div><div class="overview-stat-val">$34.002B</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">ROE</div><div class="overview-stat-val">19.08%</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">ROA</div><div class="overview-stat-val">1.12%</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Equity Capital</div><div class="overview-stat-val">$178.2B</div></div>
+        <div class="overview-stat"><div class="overview-stat-label">Equity/Assets</div><div class="overview-stat-val">5.88%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overview-desc">
+    <h3>Why Compare These Two Banks?</h3>
+    <p>Commercial banks are unique in the special services they perform and the level of regulatory attention they receive. As a result, financial statement analysis must account for the very different market niches that banks occupy.</p>
+    <p><strong style="color:var(--accent-mt)">M&amp;T Bank</strong> is a large regional bank headquartered in Buffalo, NY. It relies more heavily on core deposits, traditional lending, and maintains higher equity ratios — typical of community/regional banks. It operates with lower purchased funds and less diversification into noninterest income sources.</p>
+    <p><strong style="color:var(--accent-jpm)">JP Morgan Chase</strong> is the largest U.S. money center bank. It has greater access to purchased funds and capital markets, operates with lower equity ratios, generates significant noninterest income from trading and fees, and is far more active in off-balance-sheet activities including derivatives.</p>
+    <p style="font-size:0.76rem; color:var(--text-dim); font-style:italic; margin-top:4px">The Uniform Bank Performance Report (UBPR) provides peer group benchmarks for this type of cross-sectional analysis.</p>
+  </div>
+
+  <div class="overview-desc">
+    <h3>CAMELS Rating Framework</h3>
+    <p style="margin-bottom: 14px">Regulators use CAMELS ratings (1–5 scale) to evaluate bank safety and soundness. Ratings rely heavily on financial statement data. A "1" is the strongest; "5" indicates near-term failure risk. Hover each component below.</p>
+    <div class="camels-grid">
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;C — Capital Adequacy&quot;,&quot;def&quot;:&quot;Evaluated in relation to the volume of risk assets; the volume of marginal and inferior quality assets; the bank's growth experience, plans, and prospects; and the strength of management. Key metrics: Tier 1 capital ratio, total capital ratio.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">C</div>
+        <div class="camels-word">Capital Adequacy</div>
+      </div>
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;A — Asset Quality&quot;,&quot;def&quot;:&quot;Evaluated by the level, distribution, and severity of adversely classified assets; the level and distribution of nonaccrual and reduced-rate assets; the adequacy of the allowance for loan losses; and management's demonstrated ability to administer and collect problem credits.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">A</div>
+        <div class="camels-word">Asset Quality</div>
+      </div>
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;M — Management&quot;,&quot;def&quot;:&quot;Evaluated against virtually all factors considered necessary to operate the bank within accepted banking practices and in a safe and sound manner. Qualitative assessment of leadership, controls, risk management, and compliance culture.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">M</div>
+        <div class="camels-word">Management</div>
+      </div>
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;E — Earnings&quot;,&quot;def&quot;:&quot;Evaluated with respect to ability to cover losses and provide adequate capital protection; trends; peer group comparisons; the quality and composition of net income; and the degree of reliance on interest-sensitive funds.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">E</div>
+        <div class="camels-word">Earnings</div>
+      </div>
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;L — Liquidity&quot;,&quot;def&quot;:&quot;Evaluated in relation to the volatility of deposits; the frequency and level of borrowings; the use of brokered deposits; technical competence relative to liquidity management; availability of assets readily convertible into cash; and access to money markets or other ready sources of funds.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">L</div>
+        <div class="camels-word">Liquidity</div>
+      </div>
+      <div class="camels-item" data-tt="{&quot;label&quot;:&quot;S — Sensitivity to Market Risk&quot;,&quot;def&quot;:&quot;Reflects the degree to which changes in interest rates, foreign exchange rates, commodity prices, or equity prices can adversely affect an FI's earnings or economic capital. Particularly important for banks with large trading portfolios or variable-rate loan books.&quot;,&quot;source&quot;:&quot;CAMELS Rating System — Chapter 12&quot;}">
+        <div class="camels-letter">S</div>
+        <div class="camels-word">Market Risk Sensitivity</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BALANCE SHEET PAGE ===== -->
+<div class="page" id="page-balance">
+  <div class="section-header">
+    <div class="section-title">Balance Sheet</div>
+    <div class="section-note">All figures in $millions · % = share of total assets</div>
+  </div>
+
+  <div class="sub-tabs" id="stabs-balance">
+    <div class="stab st-mt" onclick="showBank('balance','mt',this)">M&amp;T Bank</div>
+    <div class="stab" onclick="showBank('balance','jpm',this)">JP Morgan Chase</div>
+  </div>
+
+  <div class="hover-hint">💡 Hover any row for the definition from lecture slides</div>
+
+  <div class="bank-panel active" id="balance-mt">
+    <div class="bs-split">
+      <div>
+        <div class="bs-col-label" style="color:var(--accent-mt)">Assets</div>
+        <div class="fin-card">
+      <div class="fin-card-header mt"><div class="fin-card-header-dot"></div>M&amp;T Bank — Assets ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Assets&quot;,&quot;def&quot;:&quot;The balance sheet presents financial information on a bank's assets, liabilities, and equity capital. Assets are resources owned or controlled by the bank that generate income.&quot;,&quot;source&quot;:&quot;Chapter 12 — Financial Statements&quot;}">
+          <td colspan="3">ASSETS</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Cash and Due from Depository Institutions&quot;,&quot;def&quot;:&quot;Consists of vault cash, deposits at the Federal Reserve, deposits at other financial institutions, and cash items in the process of collection. None of these generates much income for the bank but are required for operations and regulatory reserve requirements.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Cash &amp; Due from Depositories</td><td>34,837</td><td class="pct-badge">16.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Vault Cash&quot;,&quot;def&quot;:&quot;Physical currency held in the bank's vaults and ATMs. Required to meet daily cash withdrawal demands of customers. Earns no interest income.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Vault cash</td><td>892</td><td class="pct-badge">0.42%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits at the Federal Reserve&quot;,&quot;def&quot;:&quot;Balances held at the Federal Reserve Bank. These fulfill reserve requirements and are used to settle interbank payments through Fedwire. Since 2008, the Fed pays interest on excess reserves (IOER/IORB).&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Deposits at Federal Reserve</td><td>32,987</td><td class="pct-badge">15.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits at Other Financial Institutions&quot;,&quot;def&quot;:&quot;Correspondent banking balances held at other banks. Used to facilitate services (e.g., check clearing, wire transfers, foreign exchange) that the bank itself may not provide directly.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Deposits at other FIs</td><td>687</td><td class="pct-badge">0.32%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Cash Items in Process of Collection&quot;,&quot;def&quot;:&quot;Checks and other payment instruments that have been deposited but whose funds have not yet been collected from the paying bank. A float item — temporary asset that disappears once settlement clears.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Cash items in process of collection</td><td>270</td><td class="pct-badge">0.13%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Investment Securities&quot;,&quot;def&quot;:&quot;Consists of federal funds sold, repurchase agreements (RPs/repos), U.S. Treasury and agency securities, municipal bonds, mortgage-backed securities, and other debt and equity securities. Highly liquid, low default risk, and tradeable in secondary markets. Generate some income but less than loans.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Investment Securities</td><td>28,464</td><td class="pct-badge">13.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Federal Funds Sold and Repurchase Agreements&quot;,&quot;def&quot;:&quot;Federal funds sold are overnight loans to other banks using excess reserves. Repurchase agreements (repos) are short-term collateralized borrowings where the bank sells securities and agrees to buy them back. Both are highly liquid short-term investments.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Fed funds sold &amp; RPs</td><td>1,235</td><td class="pct-badge">0.58%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;U.S. Treasury and Agency Securities&quot;,&quot;def&quot;:&quot;Direct obligations of the U.S. government (Treasuries) and debt issued by government-sponsored enterprises like Fannie Mae, Freddie Mac, and FHLB. Zero default risk (backed by full faith and credit of U.S.), highly liquid, and actively traded. Primary source of interest income from investments.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>U.S. Treasury &amp; agency securities</td><td>15,679</td><td class="pct-badge">7.38%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Municipal Securities&quot;,&quot;def&quot;:&quot;Debt issued by state and local governments. Key tax advantage: interest income is typically exempt from federal income tax, making them attractive for banks in high tax brackets. Slightly higher default risk than Treasuries.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Municipal securities</td><td>4,568</td><td class="pct-badge">2.15%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Mortgage-Backed Securities (MBS)&quot;,&quot;def&quot;:&quot;Pools of mortgage loans packaged into securities. Agency MBS (issued by Fannie/Freddie/Ginnie) carry implicit or explicit government guarantees. Banks hold MBS to earn higher yields than Treasuries while maintaining reasonable liquidity. Subject to prepayment risk.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Mortgage-backed securities</td><td>5,679</td><td class="pct-badge">2.67%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Debt and Equity Securities&quot;,&quot;def&quot;:&quot;Remaining investment portfolio: corporate bonds, asset-backed securities, equity holdings in FHLBs or other entities required for membership, and other tradeable securities not classified above.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other debt &amp; equity securities</td><td>1,304</td><td class="pct-badge">0.61%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Net Loans and Leases&quot;,&quot;def&quot;:&quot;The primary asset and revenue driver for most commercial banks. Categorized as C&amp;I loans, real estate loans, consumer loans, and other loans. The least liquid asset items and a major source of credit and liquidity risk. Shown NET of the reserve for loan and lease losses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Net Loans &amp; Leases</td><td>136,892</td><td class="pct-badge">64.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Commercial and Industrial (C&amp;I) Loans&quot;,&quot;def&quot;:&quot;Business loans for working capital, equipment, inventory, and general corporate purposes. Typically floating rate, tied to prime or SOFR. A key relationship-building product for commercial banks. M&amp;T's primary commercial lending book.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Commercial &amp; industrial loans</td><td>24,568</td><td class="pct-badge">11.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loans Secured by Real Estate&quot;,&quot;def&quot;:&quot;Mortgage loans on residential and commercial properties. The largest single loan category for most banks. Subject to interest rate risk (if fixed rate) and credit risk tied to real estate market conditions. Includes first mortgages, home equity lines, and commercial real estate loans.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Loans secured by real estate</td><td>64,457</td><td class="pct-badge">30.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Consumer Loans&quot;,&quot;def&quot;:&quot;Personal loans to individuals: auto loans, personal installment loans, student loans, and unsecured lines of credit. Generally higher yield than commercial loans but also higher default rates. Important for retail banking relationships.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Consumer loans</td><td>2,346</td><td class="pct-badge">1.10%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Loans&quot;,&quot;def&quot;:&quot;Loans not classified elsewhere: agricultural loans, loans to financial institutions, foreign loans, and other specialty lending. Generally a small residual category.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other loans</td><td>1,235</td><td class="pct-badge">0.58%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Leases&quot;,&quot;def&quot;:&quot;Financing leases where the bank effectively lends by purchasing and leasing equipment to customers. Treated similarly to loans for accounting and regulatory purposes.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Leases</td><td>987</td><td class="pct-badge">0.46%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Reserve for Loan and Lease Losses (ALLL)&quot;,&quot;def&quot;:&quot;A contra-asset account representing the bank's estimate of uncollectible loans. Built up through the provision for loan losses (income statement charge). Reduces the gross loan balance to arrive at net loans. Also called the Allowance for Credit Losses (ACL) under CECL accounting.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets / Income Statement slides&quot;}">
+          <td>Reserve for loan &amp; lease losses</td><td>-725</td><td class="pct-badge">-0.34%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Other Assets&quot;,&quot;def&quot;:&quot;Generally a small part of the bank's overall assets. Includes trading assets, premises and fixed assets, other real estate owned (OREO), intangible assets (goodwill, core deposit intangibles), and other miscellaneous items.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other Assets</td><td>12,968</td><td class="pct-badge">6.10%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Premises and Fixed Assets&quot;,&quot;def&quot;:&quot;Bank buildings, branch offices, ATMs, furniture, computers, and other long-lived physical assets. Depreciated over their useful lives. A measure of the bank's physical infrastructure footprint.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Premises &amp; fixed assets</td><td>2,346</td><td class="pct-badge">1.10%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Real Estate Owned (OREO)&quot;,&quot;def&quot;:&quot;Real estate acquired through foreclosure on defaulted mortgage loans. Banks are required to sell OREO — they are not in the real estate business. OREO levels are a signal of asset quality problems.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other real estate owned</td><td>457</td><td class="pct-badge">0.22%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Intangible Assets&quot;,&quot;def&quot;:&quot;Goodwill from acquisitions, core deposit intangibles (CDIs), and other non-physical value. Goodwill is the premium paid above book value in bank mergers. CDIs represent the value of a stable, low-cost deposit base acquired in a merger.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Intangible assets</td><td>3,568</td><td class="pct-badge">1.68%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Assets (Miscellaneous)&quot;,&quot;def&quot;:&quot;Deferred tax assets, accrued interest receivable, accounts receivable, prepaid expenses, and other items not classified above.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other (misc.)</td><td>6,598</td><td class="pct-badge">3.11%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Assets&quot;,&quot;def&quot;:&quot;The sum of all asset categories. This is the denominator for ROA and many other performance ratios. Reflects the bank's total resource base funded by deposits, borrowings, and equity capital.&quot;,&quot;source&quot;:&quot;Chapter 12 — Balance Sheet&quot;}">
+          <td>TOTAL ASSETS</td><td>212,436</td><td class="pct-badge">100%</td></tr>
+
+        
+      </table>
+    </div>
+      </div>
+      <div>
+        <div class="bs-col-label" style="color:var(--accent-mt)">Liabilities &amp; Capital</div>
+        <div class="fin-card">
+      <div class="fin-card-header mt"><div class="fin-card-header-dot"></div>M&amp;T Bank — Liabilities &amp; Capital ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Liabilities&quot;,&quot;def&quot;:&quot;The bank's funding sources other than equity. Includes deposits (the primary liability), borrowed funds, and other obligations. For most banks, deposits account for the majority of total funding.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slides&quot;}">
+          <td colspan="3">LIABILITIES</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Total Deposits&quot;,&quot;def&quot;:&quot;The primary liability of commercial banks. Includes demand deposits (non-interest bearing), NOW accounts, MMDAs, other savings, foreign office deposits, and certificates of deposit (retail and wholesale). Deposits are the main source of funding for loans.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Total Deposits</td><td>176,438</td><td class="pct-badge">83.1%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Demand Deposits&quot;,&quot;def&quot;:&quot;Transaction accounts that generally pay no explicit interest. Held by individuals and businesses for day-to-day payments. Subject to immediate withdrawal, so they represent a liquidity risk. A core (sticky) deposit that provides low-cost funding.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Demand deposits</td><td>28,193</td><td class="pct-badge">13.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;NOW Accounts&quot;,&quot;def&quot;:&quot;Negotiable Order of Withdrawal accounts pay interest when a minimum balance is maintained. Introduced in the 1970s as a way to offer interest on transaction accounts. Hybrid between checking and savings.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>NOW accounts</td><td>4,568</td><td class="pct-badge">2.15%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Money Market Deposit Accounts (MMDAs)&quot;,&quot;def&quot;:&quot;Have retail savings account features and some limited checking account features. Competitive with money market mutual funds. Pay market-related interest rates and offer limited check-writing privileges. Subject to Regulation D withdrawal limits (historically 6/month, though this rule was suspended in 2020).&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>MMDAs</td><td>56,789</td><td class="pct-badge">26.7%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Savings Deposits&quot;,&quot;def&quot;:&quot;All savings accounts other than MMDAs. Traditional passbook savings accounts. Generally low interest rate, sticky deposits used primarily by retail customers.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other savings deposits</td><td>45,679</td><td class="pct-badge">21.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits in Foreign Offices&quot;,&quot;def&quot;:&quot;Generally large deposits held by corporations with high levels of international transactions and activities. Denominated in foreign currencies or as Eurodollar deposits. More volatile than domestic core deposits — a purchased funds source.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Deposits in foreign offices</td><td>2,346</td><td class="pct-badge">1.10%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Certificates of Deposit (CDs) — Retail and Wholesale&quot;,&quot;def&quot;:&quot;Retail CDs have face values below $100,000; wholesale CDs are $100,000 or more. Wholesale CDs are negotiable instruments — they can be resold by title assignment. If obtained through a broker, they are brokered deposits. CDs are a managed/purchased funding source with fixed maturity.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Total CDs</td><td>38,863</td><td class="pct-badge">18.3%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Borrowed Funds&quot;,&quot;def&quot;:&quot;Non-deposit funding sources. Includes federal funds purchased, repurchase agreements, and other borrowed funds. More volatile and expensive than core deposits. Large banks use these more heavily than small banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Borrowed Funds</td><td>17,773</td><td class="pct-badge">8.37%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Federal Funds Purchased and Repurchase Agreements&quot;,&quot;def&quot;:&quot;Federal funds purchased are overnight borrowings of excess reserves from other banks (the opposite side of federal funds sold). Repos are short-term collateralized borrowings. Both are volatile, market-rate funding sources used for short-term liquidity management.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Fed funds purchased &amp; RPs</td><td>8,568</td><td class="pct-badge">4.03%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Borrowed Funds&quot;,&quot;def&quot;:&quot;Includes banker's acceptances (BAs), commercial paper, medium-term notes, and discount window loans from the Federal Reserve. Also includes FHLB advances — a major source of mortgage funding for banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other borrowed funds</td><td>6,859</td><td class="pct-badge">3.23%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Subordinated Debentures&quot;,&quot;def&quot;:&quot;Long-term debt that is subordinate (junior) to deposits and senior debt in the event of bankruptcy. Counts as Tier 2 regulatory capital. Subordinated note holders bear more risk than depositors, so they demand higher interest rates.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Subordinated debentures</td><td>2,346</td><td class="pct-badge">1.10%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Other Liabilities&quot;,&quot;def&quot;:&quot;Do not require interest to be paid. Includes accrued interest payable, deferred taxes, dividends payable, minority interests in consolidated subsidiaries, and other miscellaneous claims against the bank.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other Liabilities</td><td>1,546</td><td class="pct-badge">0.73%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Liabilities&quot;,&quot;def&quot;:&quot;Sum of all non-equity claims on the bank's assets. The financial leverage ratio (Equity Multiplier = Assets/Equity) reflects how much of total assets are funded by liabilities vs. equity.&quot;,&quot;source&quot;:&quot;Chapter 12 — Balance Sheet&quot;}">
+          <td>TOTAL LIABILITIES</td><td>195,757</td><td class="pct-badge">92.2%</td></tr>
+
+        <!-- EQUITY -->
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Equity Capital&quot;,&quot;def&quot;:&quot;The residual ownership claim of shareholders. Consists of preferred and common stock, surplus and additional paid-in capital, and retained earnings. A key measure of a bank's ability to absorb losses and remain solvent.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td colspan="3">EQUITY CAPITAL</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Preferred Stock&quot;,&quot;def&quot;:&quot;Stock that has priority over common stock in dividend payments and liquidation. Does not typically carry voting rights. May count as regulatory capital (Additional Tier 1 under Basel III). M&amp;T Bank carries no preferred stock.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Preferred stock</td><td>0</td><td class="pct-badge">0.00%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Common Stock&quot;,&quot;def&quot;:&quot;Par value of shares issued and outstanding. Typically a very small accounting number (e.g., $1 par value per share). The actual market value of equity is far higher for healthy banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Common stock</td><td>235</td><td class="pct-badge">0.11%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Surplus and Additional Paid-In Capital&quot;,&quot;def&quot;:&quot;The amount received from stockholders above the par value of shares issued. Represents the premium investors paid when stock was originally issued or when new shares were sold in secondary offerings.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Surplus &amp; paid-in capital</td><td>10,444</td><td class="pct-badge">4.92%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Retained Earnings&quot;,&quot;def&quot;:&quot;Cumulative net income that has been kept in the bank rather than paid out as dividends. The primary organic source of equity capital growth. A bank that consistently retains earnings and grows its equity base can support more assets and higher loan growth.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Retained earnings</td><td>6,000</td><td class="pct-badge">2.82%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Equity Capital&quot;,&quot;def&quot;:&quot;The book value of shareholders' equity. Key input for ROE = Net Income / Equity. Higher equity ratios mean more capital cushion but lower leverage — regulatory capital requirements set minimum ratios. Regional banks like M&amp;T tend to have higher equity ratios than money center banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Balance Sheet&quot;}">
+          <td>TOTAL EQUITY CAPITAL</td><td>16,679</td><td class="pct-badge">7.85%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Liabilities and Equity Capital&quot;,&quot;def&quot;:&quot;Must equal Total Assets — the fundamental accounting identity: Assets = Liabilities + Equity. This equality holds at all times.&quot;,&quot;source&quot;:&quot;Chapter 12 — Balance Sheet&quot;}">
+          <td>TOTAL LIABILITIES &amp; EQUITY</td><td>212,436</td><td class="pct-badge">100%</td></tr>
+      
+      </table>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bank-panel" id="balance-jpm">
+    <div class="bs-split">
+      <div>
+        <div class="bs-col-label" style="color:var(--accent-jpm)">Assets</div>
+        <div class="fin-card">
+      <div class="fin-card-header jpm"><div class="fin-card-header-dot"></div>JP Morgan Chase — Assets ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Assets&quot;,&quot;def&quot;:&quot;The balance sheet presents financial information on a bank's assets, liabilities, and equity capital. Assets are resources owned or controlled by the bank that generate income.&quot;,&quot;source&quot;:&quot;Chapter 12 — Financial Statements&quot;}">
+          <td colspan="3">ASSETS</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Cash and Due from Depository Institutions&quot;,&quot;def&quot;:&quot;Consists of vault cash, deposits at the Federal Reserve, deposits at other financial institutions, and cash items in the process of collection. None of these generates much income for the bank but are required for operations and regulatory reserve requirements.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Cash &amp; Due from Depositories</td><td>646,339</td><td class="pct-badge">21.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Vault Cash&quot;,&quot;def&quot;:&quot;Physical currency held in the bank's vaults and ATMs. Required to meet daily cash withdrawal demands of customers. Earns no interest income.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Vault cash</td><td>14,567</td><td class="pct-badge">0.48%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits at the Federal Reserve&quot;,&quot;def&quot;:&quot;Balances held at the Federal Reserve Bank. These fulfill reserve requirements and are used to settle interbank payments. JPM holds a massive share here due to its size and importance as a clearing/settlement bank. Since 2008, the Fed pays IORB on these balances.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Deposits at Federal Reserve</td><td>498,235</td><td class="pct-badge">16.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits at Other Financial Institutions&quot;,&quot;def&quot;:&quot;Correspondent banking balances held at other banks. Used to facilitate services (e.g., check clearing, wire transfers, foreign exchange) that the bank itself may not provide directly.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Deposits at other FIs</td><td>89,457</td><td class="pct-badge">2.95%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Cash Items in Process of Collection&quot;,&quot;def&quot;:&quot;Checks and other payment instruments deposited but not yet settled. A float item that disappears once settlement clears.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Cash items in process of collection</td><td>44,080</td><td class="pct-badge">1.46%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Investment Securities&quot;,&quot;def&quot;:&quot;Highly liquid, low default risk securities. JPM holds a much larger and more diverse investment portfolio than M&amp;T, including significant trading assets and foreign securities. The larger share of investment securities relative to M&amp;T reflects JPM's greater capital markets activity.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Investment Securities</td><td>746,339</td><td class="pct-badge">24.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Federal Funds Sold and Repurchase Agreements&quot;,&quot;def&quot;:&quot;Fed funds sold are overnight loans to other banks. Repos are collateralized lending. JPM is a major repo market participant, both as a dealer and as a lender, given its role as one of the largest primary dealers in U.S. Treasuries.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Fed funds sold &amp; RPs</td><td>156,789</td><td class="pct-badge">5.18%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;U.S. Treasury and Agency Securities&quot;,&quot;def&quot;:&quot;The largest component of JPM's investment portfolio. As a primary dealer, JPM holds large amounts of Treasuries for market-making. The 9.6% share is lower than M&amp;T's 7.4% in absolute terms but reflects JPM's much larger overall portfolio size.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>U.S. Treasury &amp; agency securities</td><td>289,457</td><td class="pct-badge">9.56%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Municipal Securities&quot;,&quot;def&quot;:&quot;Debt issued by state and local governments. Tax-exempt interest income. JPM holds a smaller proportion of municipals than M&amp;T as a share of assets, reflecting its greater focus on capital markets instruments.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Municipal securities</td><td>34,568</td><td class="pct-badge">1.14%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Mortgage-Backed Securities (MBS)&quot;,&quot;def&quot;:&quot;Agency and non-agency MBS. JPM as a large mortgage originator retains significant MBS on its balance sheet. Also holds private-label MBS in its trading portfolio.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Mortgage-backed securities</td><td>178,946</td><td class="pct-badge">5.91%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Debt and Equity Securities&quot;,&quot;def&quot;:&quot;Large and diverse portfolio including corporate bonds, ABS, CLOs, equity investments, and trading securities. JPM's scale as a dealer bank means this category is enormous compared to regional banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other debt &amp; equity securities</td><td>86,579</td><td class="pct-badge">2.86%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Net Loans and Leases&quot;,&quot;def&quot;:&quot;JPM's loan book is massive but represents a smaller share of assets (37.3%) than M&amp;T's (64.4%). This reflects JPM's greater diversification into trading, capital markets, and other non-lending activities. The large loan book is diversified across C&amp;I, mortgage, consumer, and international lending.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Net Loans &amp; Leases</td><td>1,128,216</td><td class="pct-badge">37.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Commercial and Industrial (C&amp;I) Loans&quot;,&quot;def&quot;:&quot;Business loans to large corporations, middle-market companies, and small businesses. JPM's C&amp;I book is diversified across industries and geographies, including significant international corporate lending through its investment banking client base.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Commercial &amp; industrial loans</td><td>298,457</td><td class="pct-badge">9.86%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loans Secured by Real Estate&quot;,&quot;def&quot;:&quot;Residential and commercial mortgages. JPM is one of the largest mortgage originators in the U.S. The 18.8% share of assets reflects both originate-to-hold and originate-to-distribute strategies.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Loans secured by real estate</td><td>567,890</td><td class="pct-badge">18.8%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Consumer Loans&quot;,&quot;def&quot;:&quot;Credit cards, auto loans, personal loans. JPM Chase is the largest credit card issuer in the U.S. Consumer loans carry higher interest rates but also higher charge-off rates than commercial loans.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Consumer loans</td><td>245,679</td><td class="pct-badge">8.11%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Loans — JPM&quot;,&quot;def&quot;:&quot;Agricultural loans, loans to financial institutions, foreign loans, and other specialty lending. JPM&#39;s international operations contribute foreign loans that are a larger share of this category than at regional banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other loans</td><td>52,687</td><td class="pct-badge">1.74%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Leases — JPM&quot;,&quot;def&quot;:&quot;Financing leases where JPM effectively lends by purchasing and leasing equipment to large corporate clients. Treated similarly to loans for accounting and regulatory capital purposes.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Leases</td><td>28,006</td><td class="pct-badge">0.92%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Reserve for Loan and Lease Losses (ALLL) — JPM&quot;,&quot;def&quot;:&quot;JPM's reserve for credit losses is a higher absolute number but similar ratio to M&amp;T. Under CECL (Current Expected Credit Loss), reserves must cover expected lifetime losses on all loans at origination, not just incurred losses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets / Income Statement slides&quot;}">
+          <td>Reserve for loan &amp; lease losses</td><td>-18,578</td><td class="pct-badge">-0.61%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Other Assets&quot;,&quot;def&quot;:&quot;JPM's other assets (7%) include large trading asset positions, goodwill from dozens of acquisitions (Bear Stearns, WaMu, BankOne, etc.), deferred tax assets, and other miscellaneous items. Much larger in absolute terms than M&amp;T.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other Assets</td><td>211,678</td><td class="pct-badge">6.99%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Intangible Assets&quot;,&quot;def&quot;:&quot;JPM's $57.6B in intangibles reflects decades of acquisitions. Includes goodwill from Bear Stearns, WaMu, Bank One, and others. Goodwill is tested annually for impairment rather than amortized.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Intangible assets</td><td>57,632</td><td class="pct-badge">1.90%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Premises &amp; Fixed Assets — JPM&quot;,&quot;def&quot;:&quot;Bank buildings, global offices, data centers, ATMs, and other long-lived physical assets. JPM&#39;s massive technology infrastructure investment (over $14B/year in tech spending) means its premises and equipment base is substantial.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Premises &amp; fixed assets</td><td>24,567</td><td class="pct-badge">0.81%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Real Estate Owned (OREO) — JPM&quot;,&quot;def&quot;:&quot;Real estate acquired through foreclosure. JPM&#39;s OREO levels reflect its large mortgage portfolio. Banks are required to actively sell OREO — they are not in the real estate business.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other real estate owned</td><td>3,456</td><td class="pct-badge">0.11%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Assets (Misc.) — JPM&quot;,&quot;def&quot;:&quot;Deferred tax assets, accrued interest receivable, trading assets, accounts receivable, prepaid expenses, and other miscellaneous items across JPM&#39;s global operations.&quot;,&quot;source&quot;:&quot;Chapter 12 — Assets slide&quot;}">
+          <td>Other (misc.)</td><td>126,023</td><td class="pct-badge">4.16%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Assets — JP Morgan Chase&quot;,&quot;def&quot;:&quot;At $3.03 trillion, JPM is the largest U.S. bank by assets and one of the largest banks in the world. JPM's assets are ~14x larger than M&amp;T's. This scale creates different dynamics: greater capital markets access, more purchased funds, more noninterest income, but also more systemic importance (G-SIB designation).&quot;,&quot;source&quot;:&quot;Chapter 12 — Bank Sizes slide&quot;}">
+          <td>TOTAL ASSETS</td><td>3,028,379</td><td class="pct-badge">100%</td></tr>
+
+        
+      </table>
+    </div>
+      </div>
+      <div>
+        <div class="bs-col-label" style="color:var(--accent-jpm)">Liabilities &amp; Capital</div>
+        <div class="fin-card">
+      <div class="fin-card-header jpm"><div class="fin-card-header-dot"></div>JP Morgan Chase — Liabilities &amp; Capital ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Liabilities&quot;,&quot;def&quot;:&quot;The bank's funding sources other than equity. Includes deposits, borrowed funds, and other obligations. For most banks, deposits account for the majority of total funding.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slides&quot;}">
+          <td colspan="3">LIABILITIES</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Total Deposits — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's deposit base is one of the largest in the world. Notably, demand deposits are a much larger share of JPM's total deposits (29.6%) than M&amp;T's (16.0%), reflecting JPM's vast retail and commercial checking account franchise. Large banks generally have more diverse deposit types and more purchased/volatile deposits.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide / Bank Sizes slide&quot;}">
+          <td>Total Deposits</td><td>2,101,417</td><td class="pct-badge">69.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Demand Deposits&quot;,&quot;def&quot;:&quot;Non-interest bearing transaction accounts. JPM's very large demand deposit base (20.5% of assets) is a key competitive advantage — these are the cheapest possible deposits. Sticky business checking relationships with corporations and institutions drive this.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Demand deposits</td><td>621,961</td><td class="pct-badge">20.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;NOW Accounts — JPM&quot;,&quot;def&quot;:&quot;Negotiable Order of Withdrawal accounts paying interest on minimum balances. JPM&#39;s massive Chase retail network holds substantial NOW balances across consumer and small business accounts.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>NOW accounts</td><td>98,457</td><td class="pct-badge">3.25%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Money Market Deposit Accounts (MMDAs) — JPM&quot;,&quot;def&quot;:&quot;JPM&#39;s MMDA balances are substantial, reflecting its large retail branch network and Chase brand. MMDAs compete with money market mutual funds for customer balances.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>MMDAs</td><td>456,789</td><td class="pct-badge">15.1%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Savings Deposits — JPM&quot;,&quot;def&quot;:&quot;Traditional passbook savings accounts. Generally low interest rate, sticky deposits used primarily by retail customers across JPM&#39;s extensive Chase branch network.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other savings deposits</td><td>387,654</td><td class="pct-badge">12.8%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Deposits in Foreign Offices&quot;,&quot;def&quot;:&quot;JPM's foreign office deposits (7.7% of assets vs. M&amp;T's 1.1%) reflect its extensive international operations. JPM operates in 60+ countries, and multinational corporations hold large foreign currency and Eurodollar deposits with the bank.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide / Bank Sizes slide&quot;}">
+          <td>Deposits in foreign offices</td><td>234,568</td><td class="pct-badge">7.75%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Certificates of Deposit (CDs)&quot;,&quot;def&quot;:&quot;JPM's CD portfolio is smaller as a share of assets than M&amp;T's, reflecting JPM's ability to fund itself through capital markets and its large demand/MMDA deposit base.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Total CDs</td><td>301,989</td><td class="pct-badge">9.97%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Borrowed Funds — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's borrowed funds (17.8% of assets vs. M&amp;T's 8.4%) confirm the textbook distinction: large banks use more purchased funds and capital markets borrowings than small banks. This includes massive repo activity and long-term debt issuance.&quot;,&quot;source&quot;:&quot;Chapter 12 — Bank Sizes slide&quot;}">
+          <td>Borrowed Funds</td><td>539,249</td><td class="pct-badge">17.8%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Federal Funds Purchased and Repurchase Agreements&quot;,&quot;def&quot;:&quot;JPM is one of the largest participants in the repo market, both as a borrower (repo) and lender (reverse repo). The $198B in fed funds/RPs reflects JPM's role as a primary dealer and major clearing bank.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Fed funds purchased &amp; RPs</td><td>198,137</td><td class="pct-badge">6.54%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Borrowed Funds — JP Morgan Chase&quot;,&quot;def&quot;:&quot;Includes long-term debt issuance in capital markets, commercial paper, FHLB advances, and other wholesale funding. JPM regularly issues investment-grade senior notes and covered bonds in global markets.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other borrowed funds</td><td>284,323</td><td class="pct-badge">9.39%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Subordinated Debentures&quot;,&quot;def&quot;:&quot;Long-term subordinated debt. Counts as Tier 2 regulatory capital. JPM issues this in capital markets as part of its TLAC (Total Loss-Absorbing Capacity) requirements under the global systemically important bank (G-SIB) framework.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Subordinated debentures</td><td>56,789</td><td class="pct-badge">1.88%</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Other Liabilities — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's other liabilities (6.9% of assets vs. M&amp;T's 0.7%) are much larger, reflecting its derivatives payables, trading liabilities, and complex tax positions. Accrued interest on its enormous debt portfolio is also substantial.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Other Liabilities</td><td>209,498</td><td class="pct-badge">6.92%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Liabilities&quot;,&quot;def&quot;:&quot;JPM's 94.1% liability ratio (vs. M&amp;T's 92.2%) confirms the textbook observation that large banks generally operate with lower amounts of equity capital relative to total assets. This higher leverage amplifies both returns and risks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Bank Sizes slide&quot;}">
+          <td>TOTAL LIABILITIES</td><td>2,850,165</td><td class="pct-badge">94.1%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Equity Capital — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's equity (5.88% of assets) is lower than M&amp;T's (7.85%) — consistent with the textbook: large banks operate with lower equity ratios. However, JPM's absolute equity ($178B) is more than 10x M&amp;T's, reflecting its much larger asset base.&quot;,&quot;source&quot;:&quot;Chapter 12 — Bank Sizes slide&quot;}">
+          <td colspan="3">EQUITY CAPITAL</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Preferred Stock — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM issues preferred stock as Additional Tier 1 (AT1) capital under Basel III. Unlike M&amp;T, JPM uses preferred equity to optimize its capital structure.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Preferred stock</td><td>4,568</td><td class="pct-badge">0.15%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Common Stock — JPM&quot;,&quot;def&quot;:&quot;Par value of shares issued and outstanding. A very small accounting number relative to JPM&#39;s total equity. The actual market capitalization of JPM is several times its book equity value.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Common stock</td><td>3,679</td><td class="pct-badge">0.12%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Surplus &amp; Paid-In Capital — JPM&quot;,&quot;def&quot;:&quot;The amount received from stockholders above the par value of shares issued in primary and secondary offerings, plus stock-based compensation and other equity contributions over JPM&#39;s long history.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Surplus &amp; paid-in capital</td><td>81,077</td><td class="pct-badge">2.68%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Retained Earnings — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's large retained earnings ($88.9B) reflect decades of profitability. Banks balance retention against dividend payments and share buybacks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Liabilities slide&quot;}">
+          <td>Retained earnings</td><td>88,890</td><td class="pct-badge">2.94%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Equity Capital — JP Morgan Chase&quot;,&quot;def&quot;:&quot;At $178B, JPM's equity is enormous in absolute terms but smaller as a share of assets (5.88%) than M&amp;T's (7.85%). This is a deliberate capital structure choice consistent with large bank operations and regulatory capital minimums under Basel III.&quot;,&quot;source&quot;:&quot;Chapter 12 — Bank Sizes slide&quot;}">
+          <td>TOTAL EQUITY CAPITAL</td><td>178,214</td><td class="pct-badge">5.88%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Liabilities and Equity Capital&quot;,&quot;def&quot;:&quot;Must equal Total Assets — the fundamental accounting identity: Assets = Liabilities + Equity.&quot;,&quot;source&quot;:&quot;Chapter 12 — Balance Sheet&quot;}">
+          <td>TOTAL LIABILITIES &amp; EQUITY</td><td>3,028,379</td><td class="pct-badge">100%</td></tr>
+      
+      </table>
+    </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== INCOME STATEMENT PAGE ===== -->
+<div class="page" id="page-income">
+  <div class="section-header">
+    <div class="section-title">Income Statement</div>
+    <div class="section-note">All figures in $millions · % = share of relevant subtotal</div>
+  </div>
+
+  <div class="sub-tabs" id="stabs-income">
+    <div class="stab st-mt" onclick="showBank('income','mt',this)">M&amp;T Bank</div>
+    <div class="stab" onclick="showBank('income','jpm',this)">JP Morgan Chase</div>
+  </div>
+
+  <div class="hover-hint">💡 Hover any row for the definition from lecture slides</div>
+
+  <div class="bank-panel active" id="income-mt">
+    <div class="fin-card">
+      <div class="fin-card-header mt"><div class="fin-card-header-dot"></div>M&amp;T Bank — Income Statement ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Income&quot;,&quot;def&quot;:&quot;Income earned from interest-bearing assets: loans, leases, and investment securities. The primary revenue source for most banks. Net interest income = Interest income - Interest expense, and is the core of a traditional banking business model.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td colspan="3">INTEREST INCOME</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest and Fees on Loans and Leases&quot;,&quot;def&quot;:&quot;The dominant source of bank income. Includes interest payments from all loan categories plus origination fees (especially points on mortgage loans). This is why loans are the bank's most valuable asset despite being the least liquid.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest &amp; fees on loans &amp; leases</td><td>6,039</td><td class="pct-badge">69.1%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on C&amp;I Loans&quot;,&quot;def&quot;:&quot;Interest income from commercial and industrial loans. Typically floating rate (SOFR + spread), so income rises with interest rates. A key relationship banking revenue line for M&amp;T.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on C&I loans</td><td>1,235</td><td class="pct-badge">14.1%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on Real Estate Loans&quot;,&quot;def&quot;:&quot;The single largest income line for M&amp;T (52.4% of interest income). Reflects M&amp;T's heavy concentration in real estate lending — consistent with its regional bank profile in the Mid-Atlantic market.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on real estate loans</td><td>4,568</td><td class="pct-badge">52.2%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on Consumer Loans&quot;,&quot;def&quot;:&quot;Interest income from personal loans, auto loans, and consumer credit lines. Small for M&amp;T relative to its real estate book.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on consumer loans</td><td>123</td><td class="pct-badge">1.41%</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Income on Investment Securities&quot;,&quot;def&quot;:&quot;Income from the bank's investment portfolio: Treasuries, agency bonds, MBS, and municipals. Tax-equivalent yield adjustments are sometimes made for municipal bond income since that interest is tax-exempt.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest income on investments</td><td>2,705</td><td class="pct-badge">30.9%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Interest Income&quot;,&quot;def&quot;:&quot;Sum of all interest-earning asset income. The gross revenue from the bank's lending and investment activities before subtracting interest expense. Asset Utilization = Total Operating Income / Total Assets.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Ratios slides&quot;}">
+          <td>TOTAL INTEREST INCOME</td><td>8,744</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Expense&quot;,&quot;def&quot;:&quot;The cost of funding the bank's assets through deposits and borrowed funds. Interest expense on deposits and borrowings is the bank's primary operating cost. Net interest income = Interest income - Interest expense.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td colspan="3">INTEREST EXPENSE</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest on Deposit Accounts&quot;,&quot;def&quot;:&quot;Interest paid to depositors. Includes NOW accounts, MMDAs, savings accounts, foreign deposits, and CDs. Core deposit funding is generally cheaper than market-rate borrowing. The cost of deposits is a key competitive factor.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on deposit accounts</td><td>1,583</td><td class="pct-badge">67.0%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest on MMDA and Other Savings&quot;,&quot;def&quot;:&quot;The largest single deposit cost for M&amp;T (33.4% of interest expense). MMDAs pay market-related rates that fluctuate with Fed policy, making them a variable-rate liability.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on MMDA &amp; other savings</td><td>789</td><td class="pct-badge">33.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest on Retail CDs&quot;,&quot;def&quot;:&quot;Fixed-rate time deposits. When a CD matures, the bank must renew at current market rates. In a rising rate environment, CD costs reprice upward on renewal — a key aspect of liability-side interest rate risk.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on retail CDs</td><td>568</td><td class="pct-badge">24.0%</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest on Borrowed Funds&quot;,&quot;def&quot;:&quot;Cost of non-deposit funding: federal funds, repos, and other wholesale borrowings. More volatile than deposit costs because borrowed funds are typically short-term and reprice frequently.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on borrowed funds</td><td>780</td><td class="pct-badge">33.0%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Interest Expense&quot;,&quot;def&quot;:&quot;The total cost of funding. Subtracting from total interest income gives net interest income, the key profitability driver. M&amp;T's spread = (Total Interest Income / Earning Assets) - (Total Interest Expense / Interest-Bearing Liabilities).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>TOTAL INTEREST EXPENSE</td><td>2,363</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Net Interest Income (NII)&quot;,&quot;def&quot;:&quot;NII = Total Interest Income − Total Interest Expense. This is the core earnings driver for traditional commercial banking. It equals the interest rate spread earned on the bank's portfolio. Reflects the bank's success at: (1) charging rates on loans above cost of funds, and (2) investing in assets with yields above funding costs.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>NET INTEREST INCOME</td><td>6,381</td><td></td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Provision for Loan Losses&quot;,&quot;def&quot;:&quot;A noncash, tax-deductible expense. It is the current period's allocation to the allowance for loan losses (reserve) on the balance sheet. When the bank expects loans to go bad, it charges the provision, which reduces income. Actual write-offs reduce the reserve but don't hit the income statement directly.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Provision for loan losses</td><td>235</td><td></td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Noninterest Income&quot;,&quot;def&quot;:&quot;All other income received by the bank as a result of its on- and off-balance-sheet activities. Includes service fees, trust income, trading gains, and OBS activity fees. Large banks tend to generate more noninterest income (diversification) than small banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide / Bank Sizes slide&quot;}">
+          <td colspan="3">NONINTEREST INCOME</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income from Fiduciary Activities&quot;,&quot;def&quot;:&quot;Fees from trust and wealth management services: managing estates, pension funds, and personal trusts. A stable, fee-based revenue stream that is not sensitive to interest rates. Banks with strong trust departments have a competitive advantage in this area.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Fiduciary activities income</td><td>123</td><td class="pct-badge">10.0%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Service Charges on Deposit Accounts&quot;,&quot;def&quot;:&quot;Fees charged for account maintenance, overdrafts, ATM usage, wire transfers, and other deposit-related services. A significant noninterest revenue source for retail banks. Subject to regulatory scrutiny (especially overdraft fees).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Service charges on deposits</td><td>457</td><td class="pct-badge">37.0%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Trading Revenue&quot;,&quot;def&quot;:&quot;Gains from buying and selling securities and other financial instruments. Much more important for large money center banks with active trading desks. M&amp;T's small trading revenue (6.4%) reflects its regional bank model.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide / Bank Sizes slide&quot;}">
+          <td>Trading revenue</td><td>79</td><td class="pct-badge">6.39%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Noninterest Income&quot;,&quot;def&quot;:&quot;Includes mortgage banking income (origination fees, servicing), investment banking fees, credit card income, insurance commissions, and other miscellaneous fee income. For JPM, this category is enormous due to investment banking and card services.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Other noninterest income</td><td>575</td><td class="pct-badge">46.6%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Noninterest Income&quot;,&quot;def&quot;:&quot;All fee-based and trading income. Total Operating Income = Interest Income + Noninterest Income. M&amp;T's noninterest income ($1.23B) is small relative to its net interest income ($6.38B) — about 16:84 split. This is typical for regional banks that focus on traditional lending.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>TOTAL NONINTEREST INCOME</td><td>1,235</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Noninterest Expense&quot;,&quot;def&quot;:&quot;Items consist mainly of personnel expenses and are generally large relative to noninterest income. Includes salaries, benefits, premises costs, and other overhead. For almost all banks, noninterest expense is greater than noninterest income — the bank depends on the interest spread to cover the gap.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td colspan="3">NONINTEREST EXPENSE</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Salaries and Employee Benefits&quot;,&quot;def&quot;:&quot;The largest operating cost for most banks (53.7% of noninterest expense for M&amp;T). Includes base salaries, bonuses, health insurance, retirement benefits, and payroll taxes. Banks are labor-intensive service businesses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Salaries &amp; employee benefits</td><td>2,346</td><td class="pct-badge">53.7%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Expenses of Premises and Fixed Assets&quot;,&quot;def&quot;:&quot;Rent, depreciation, maintenance of branches and offices, and equipment costs. A significant overhead cost especially for banks with large branch networks. Banks have been reducing branch counts to manage these costs.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Premises &amp; fixed assets expense</td><td>789</td><td class="pct-badge">18.1%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Noninterest Expense&quot;,&quot;def&quot;:&quot;Includes technology costs, legal expenses, marketing, FDIC insurance premiums, audit fees, and other miscellaneous overhead. Technology investment has become a major expense driver for banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Other noninterest expense</td><td>1,235</td><td class="pct-badge">28.3%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Noninterest Expense&quot;,&quot;def&quot;:&quot;Total overhead costs. The Overhead Efficiency Ratio = (Noninterest Expense - Amortization of Intangibles) / Net Interest Income. Lower is better. M&amp;T's ratio = Other Noninterest Expense / Total Noninterest Expense = 28.3% (just the 'other' portion — see Ratios tab for the full efficiency ratio calculation).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Ratios slides&quot;}">
+          <td>TOTAL NONINTEREST EXPENSE</td><td>4,369</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Income Before Taxes (Operating Profit)&quot;,&quot;def&quot;:&quot;= Net Interest Income − Provision for Loan Losses + Noninterest Income − Noninterest Expense. This is the operating profitability of the bank before tax. Also called pre-tax income.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>INCOME BEFORE TAXES</td><td>3,012</td><td></td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Applicable Income Taxes&quot;,&quot;def&quot;:&quot;Federal, state, local, and foreign income taxes. Banks can reduce their tax burden through tax-exempt municipal bond income and other tax management strategies. The effective tax rate differs from the statutory rate.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Applicable income taxes</td><td>855</td><td></td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Net Income&quot;,&quot;def&quot;:&quot;Net income = Income before taxes ± Extraordinary items − Income taxes. The bottom line of the income statement. Key input for ROE = Net Income / Equity and ROA = Net Income / Total Assets. M&amp;T's $2.157B reflects solid regional bank profitability.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>NET INCOME</td><td>2,157</td><td></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="bank-panel" id="income-jpm">
+    <div class="fin-card">
+      <div class="fin-card-header jpm"><div class="fin-card-header-dot"></div>JP Morgan Chase — Income Statement ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's interest income ($102.5B) dwarfs M&amp;T's ($8.7B) due to its 14x larger asset base. However, the composition is interesting: JPM earns proportionally less from real estate (33.7%) and more from consumer (22.9%) and investment securities (21.3%) than M&amp;T. This reflects JPM's diversified lending and large credit card portfolio.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Bank Sizes slides&quot;}">
+          <td colspan="3">INTEREST INCOME</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest and Fees on Loans and Leases — JPM&quot;,&quot;def&quot;:&quot;At 78.7% of interest income, loans are proportionally more important to JPM's income than M&amp;T's (69.1%). JPM's consumer lending (credit cards especially) generates high-yield income that boosts this percentage.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest &amp; fees on loans &amp; leases</td><td>80,617</td><td class="pct-badge">78.7%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on C&amp;I Loans — JPM&quot;,&quot;def&quot;:&quot;Interest income from commercial and industrial loans to large corporations, middle-market companies, and small businesses across JPM&#39;s global footprint. Typically floating rate (SOFR + spread), so income rises with interest rates.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on C&amp;I loans</td><td>15,679</td><td class="pct-badge">15.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on Real Estate Loans — JPM&quot;,&quot;def&quot;:&quot;JPM is the nation's largest mortgage lender. At 33.7% of interest income, real estate lending is important but less dominant than at M&amp;T (52.2%), reflecting JPM's greater diversification.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on real estate loans</td><td>34,568</td><td class="pct-badge">33.7%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income on Consumer Loans — JPM&quot;,&quot;def&quot;:&quot;22.9% of interest income reflects JPM Chase's dominant credit card franchise. Credit card interest rates are typically 15-25%+, generating high yields even on relatively small loan balances.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Income on consumer loans</td><td>23,457</td><td class="pct-badge">22.9%</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Income on Investment Securities — JPM&quot;,&quot;def&quot;:&quot;21.3% of interest income. JPM holds a large and diverse investment portfolio. As a primary dealer, it earns significant income from its Treasury and agency holdings, plus MBS income from its mortgage operations.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest income on investments</td><td>21,839</td><td class="pct-badge">21.3%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Interest Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$102.5B in interest income reflects JPM's massive scale. Asset Utilization = Total Operating Income / Total Assets. JPM's higher asset utilization ratio reflects greater income-generating efficiency per dollar of assets.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Ratios slides&quot;}">
+          <td>TOTAL INTEREST INCOME</td><td>102,456</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest Expense — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's interest expense ($35.7B) is large but is 34.8% of interest income — similar to M&amp;T's 27.0%. JPM pays more for deposits due to its larger share of wholesale/foreign deposits and market-rate borrowings. The deposit mix matters for funding costs.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td colspan="3">INTEREST EXPENSE</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest on Deposit Accounts — JPM&quot;,&quot;def&quot;:&quot;88.6% of JPM's interest expense is on deposits — higher than M&amp;T's 66.9%. This reflects JPM's massive retail deposit base. The interest on retail and MMDA deposits dominates.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on deposit accounts</td><td>31,617</td><td class="pct-badge">88.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest on MMDA &amp; Other Savings — JPM&quot;,&quot;def&quot;:&quot;The single largest deposit cost category for JPM. Its massive MMDA and savings deposit base across the Chase retail network means this is an enormous absolute number even at relatively low rates per account.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on MMDA &amp; other savings</td><td>12,346</td><td class="pct-badge">34.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest on Retail CDs — JPM&quot;,&quot;def&quot;:&quot;Fixed-rate time deposits under $100,000. JPM&#39;s retail CD balances are substantial given the Chase branch network. When CDs mature, the bank must renew at current market rates — a key source of liability-side interest rate risk.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on retail CDs</td><td>8,901</td><td class="pct-badge">24.9%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest on Foreign Deposits — JPM&quot;,&quot;def&quot;:&quot;12.8% of interest expense reflects the high rate paid on JPM's large foreign office deposit balances. These are typically larger corporate deposits that command competitive rates.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on foreign deposits</td><td>4,568</td><td class="pct-badge">12.8%</td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Interest on Borrowed Funds — JPM&quot;,&quot;def&quot;:&quot;Only 11.4% of JPM's interest expense comes from borrowed funds, reflecting the relative cheapness of its deposit base despite the large repo/wholesale position. The low borrowing cost relative to the scale of borrowings reflects short-term, near-risk-free funding rates.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Interest on borrowed funds</td><td>4,061</td><td class="pct-badge">11.4%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Interest Expense — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$35.7B in interest expense. Net Interest Income = $102.5B - $35.7B = $66.8B. JPM's NIM (1.1% vs M&amp;T's 1.4% - wait, see Ratios tab for the accurate NIM calculation) reflects its larger securities portfolio and more expensive deposit mix.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>TOTAL INTEREST EXPENSE</td><td>35,678</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Net Interest Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;NII = $102.5B − $35.7B = $66.8B. Despite JPM's lower NIM (3.56% vs M&amp;T's 3.86%), the absolute NII is 10.5x M&amp;T's due to scale. JPM's NII is the largest of any U.S. bank.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>NET INTEREST INCOME</td><td>66,778</td><td></td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Provision for Loan Losses — JPM&quot;,&quot;def&quot;:&quot;JPM's $5.4B provision reflects its much larger and more diverse loan book. As a percentage of net loans (0.48%), it's similar to M&amp;T's 0.17%. JPM's credit card portfolio typically generates higher provisions due to higher charge-off rates on unsecured consumer debt.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Provision for loan losses</td><td>5,387</td><td></td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Noninterest Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's noninterest income ($52.3B) is enormous — nearly as large as its net interest income ($66.8B). This 44:56 split (noninterest:interest income) is very different from M&amp;T's 16:84 split. Large banks generate far more noninterest income through investment banking, trading, and asset management.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide / Bank Sizes slide&quot;}">
+          <td colspan="3">NONINTEREST INCOME</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Income from Fiduciary Activities — JPM&quot;,&quot;def&quot;:&quot;23.6% of noninterest income. JPM Asset Management is one of the world's largest asset managers. Trust and fiduciary fees from managing pension funds, foundations, and wealth management accounts are a major revenue stream.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Fiduciary activities income</td><td>12,346</td><td class="pct-badge">23.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Service Charges on Deposits — JPM&quot;,&quot;def&quot;:&quot;29.9% of noninterest income from service charges. JPM's massive Chase consumer banking franchise (50M+ customers) generates significant fee income from its deposit accounts.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Service charges on deposits</td><td>15,679</td><td class="pct-badge">29.9%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Trading Revenue — JPM&quot;,&quot;def&quot;:&quot;18.9% of noninterest income ($9.9B). JPM's trading desk is one of the most profitable on Wall Street. Trading revenue is volatile — it can be exceptional in volatile markets but can also be negative in extreme stress periods (see London Whale, 2012).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide / Bank Sizes slide&quot;}">
+          <td>Trading revenue</td><td>9,877</td><td class="pct-badge">18.9%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Noninterest Income — JPM&quot;,&quot;def&quot;:&quot;Includes investment banking fees (underwriting, M&amp;A advisory), mortgage banking income, credit card interchange fees, and other miscellaneous fee income. JPM&#39;s investment bank is consistently one of the top global fee earners.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Other noninterest income</td><td>14,444</td><td class="pct-badge">27.6%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Noninterest Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$52.3B in fee and trading income. This is 43% of JPM's total operating income — far higher than M&amp;T's 14%. This diversification is the key structural difference between money center and regional banks: JPM is less dependent on the interest rate spread.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Bank Sizes slides&quot;}">
+          <td>TOTAL NONINTEREST INCOME</td><td>52,345</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Noninterest Expense — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's noninterest expenses are enormous ($71.2B), but its noninterest income ($52.3B) is large enough to cover a much higher portion than M&amp;T. JPM tends to put more into salaries, premises, and technology than regional banks, reflecting its complex global operations and heavy tech investment ($14B+ annually in technology).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Bank Sizes slides&quot;}">
+          <td colspan="3">NONINTEREST EXPENSE</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Salaries and Employee Benefits — JPM&quot;,&quot;def&quot;:&quot;48.5% of noninterest expense. JPM employs ~290,000 people. Investment bankers, traders, and technology engineers command high compensation. Average comp is much higher at JPM than at regional banks like M&amp;T.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Salaries &amp; employee benefits</td><td>34,568</td><td class="pct-badge">48.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Premises &amp; Fixed Assets Expense — JPM&quot;,&quot;def&quot;:&quot;Rent, depreciation, and maintenance of JPM&#39;s global branch network, offices, and data centers. JPM maintains one of the largest branch networks in the U.S. alongside significant global real estate holdings.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Premises &amp; fixed assets expense</td><td>12,346</td><td class="pct-badge">17.3%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Other Noninterest Expense — JPM&quot;,&quot;def&quot;:&quot;34.1% of noninterest expense. JPM's technology budget (~$14B/year), legal expenses, and global operational costs make this a large line item. Technology is both an expense and an investment in future competitive position.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Other noninterest expense</td><td>24,320</td><td class="pct-badge">34.1%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total Noninterest Expense — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$71.2B in operating costs. Despite this large number, JPM's overhead efficiency ratio is strong because of its enormous noninterest income. See Ratios tab for the full calculation.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / Ratios slides&quot;}">
+          <td>TOTAL NONINTEREST EXPENSE</td><td>71,234</td><td class="pct-badge">100%</td></tr>
+
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Income Before Taxes — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$42.5B pre-tax income. JPM's massive scale and diversification generate pre-tax income 14x larger than M&amp;T's. Pre-tax return on assets is also higher for JPM, reflecting its more efficient use of assets.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>INCOME BEFORE TAXES</td><td>42,502</td><td></td></tr>
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Applicable Income Taxes — JPM&quot;,&quot;def&quot;:&quot;JPM's effective tax rate ($8.5B on $42.5B = 20.0%) reflects its aggressive tax management strategies, including significant municipal bond income, tax credits, and international tax planning.&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement slide&quot;}">
+          <td>Applicable income taxes</td><td>8,500</td><td></td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Net Income — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$34.0B net income — one of the largest ever reported by a U.S. bank. ROE = $34.0B / $178.2B = 19.1%. ROA = $34.0B / $3,028.4B = 1.12%. JPM's superior ROE over M&amp;T (despite similar ROA) is driven primarily by its higher equity multiplier (higher leverage).&quot;,&quot;source&quot;:&quot;Chapter 12 — Income Statement / ROE Framework slides&quot;}">
+          <td>NET INCOME</td><td>34,002</td><td></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-obs">
+  <div class="section-header">
+    <div class="section-title">Off-Balance-Sheet Activities</div>
+    <div class="section-note">All figures in $millions · % = share of total OBS notional</div>
+  </div>
+
+  <div class="sub-tabs" id="stabs-obs">
+    <div class="stab st-mt" onclick="showBank('obs','mt',this)">M&amp;T Bank</div>
+    <div class="stab" onclick="showBank('obs','jpm',this)">JP Morgan Chase</div>
+  </div>
+
+  <div class="hover-hint">💡 Hover any row for the definition from lecture slides</div>
+
+  <div class="bank-panel active" id="obs-mt">
+    <div class="fin-card">
+      <div class="fin-card-header mt"><div class="fin-card-header-dot"></div>M&amp;T Bank — OBS Activities ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Off-Balance-Sheet Activities Overview&quot;,&quot;def&quot;:&quot;Off-balance-sheet items are contingent assets and liabilities that may affect the future status of a bank's balance sheet. They do not appear as assets or liabilities today but represent potential future obligations or claims. OBS activities have grown dramatically and now represent a significant source of bank risk.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td colspan="3">COMMITMENTS &amp; CONTINGENCIES</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loan Commitments / Lines of Credit&quot;,&quot;def&quot;:&quot;Contractual commitments to lend to a firm a certain maximum amount at given interest rate terms. The bank may charge an up-front fee and/or a commitment fee on the unused portion. ONLY when the borrower draws on the commitment do the loans made under the commitment appear on the balance sheet. This creates credit risk (the borrower may draw at the worst time) and liquidity risk (the bank must be ready to fund).&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Loan commitments / LOC</td><td>24,567</td><td class="pct-badge">19.6%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Standby Letters of Credit (SLCs)&quot;,&quot;def&quot;:&quot;Standby LCs cover contingencies that are potentially more severe than trade LCs. They guarantee the financial performance of the bank's customer — if the customer defaults on a debt obligation, the bank pays. SLCs are essentially insurance policies where the bank is the insurer. They generate fee income without initially appearing on the balance sheet.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Standby letters of credit</td><td>3,456</td><td class="pct-badge">2.76%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Commercial Letters of Credit&quot;,&quot;def&quot;:&quot;Commercial (trade) LCs are contingent guarantees sold by the bank to underwrite the trade or commercial performance of buyers. Primarily used in international trade: the bank guarantees payment to an exporter once shipping documents are presented. Lower risk than standby LCs as they typically cover specific commercial transactions.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Commercial letters of credit</td><td>1,234</td><td class="pct-badge">0.99%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loans Sold (with Recourse)&quot;,&quot;def&quot;:&quot;Loans originated by the bank and then sold to other investors that CAN be returned (sold with recourse) to the originating institution if the credit quality deteriorates. Recourse is the ability to put a loan back to the seller. Loans sold with recourse remain a contingent liability — they're off the balance sheet but can come back. Loans sold without recourse are fully removed.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Loans sold</td><td>5,678</td><td class="pct-badge">4.54%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Notional Amounts for Derivatives&quot;,&quot;def&quot;:&quot;Derivative securities include futures, forward, swap, and option positions taken by the bank for hedging or other purposes. Banks can be either users or dealers of derivatives. IMPORTANT: Notional value is NOT the amount at risk — it is the reference amount used to calculate payments. The actual credit exposure is a small fraction of notional (replacement cost). Counterparty (contingent credit) risk is present when the bank has a positive mark-to-market position.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td colspan="3">NOTIONAL AMOUNTS FOR DERIVATIVES</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Forwards and Futures&quot;,&quot;def&quot;:&quot;Forwards are private contracts to buy/sell an asset at a future date at a price agreed today. Futures are exchange-traded standardized versions. Banks use these to hedge interest rate risk, foreign exchange risk, and commodity price exposure. Futures have daily mark-to-market (margin calls); forwards settle at maturity.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Forwards &amp; futures</td><td>19,641</td><td class="pct-badge">15.7%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Options&quot;,&quot;def&quot;:&quot;Options give the holder the right (but not obligation) to buy (call) or sell (put) an asset at a specified price before a specified date. Banks use options to hedge interest rate caps/floors on loans and to serve as option dealers. The bank earns premium income from writing (selling) options.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Options</td><td>16,912</td><td class="pct-badge">13.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest Rate Swaps&quot;,&quot;def&quot;:&quot;The largest derivative category for most banks. A swap is an agreement to exchange cash flows — typically fixed interest payments for floating (or vice versa). Banks use interest rate swaps extensively to manage the duration mismatch between their fixed-rate assets and variable-rate liabilities. Also used by clients for liability management.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Interest rate swaps</td><td>45,678</td><td class="pct-badge">36.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Credit Derivatives&quot;,&quot;def&quot;:&quot;Financial contracts that transfer credit risk. Credit Default Swaps (CDS) are the most common: the protection buyer pays a periodic fee; the protection seller pays if a reference entity defaults. Banks use these to hedge loan credit risk or to express credit views. The AIG collapse in 2008 illustrated the systemic risks from unhedged CDS dealer positions.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Credit derivatives</td><td>8,023</td><td class="pct-badge">6.41%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total OBS — M&amp;T Bank&quot;,&quot;def&quot;:&quot;M&amp;T's total OBS notional ($125.2B) is about 59% of its total assets. This is relatively modest compared to JPM. M&amp;T's OBS is dominated by loan commitments and interest rate swaps — consistent with a regional bank that uses derivatives mainly for hedging rather than trading.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>TOTAL OBS NOTIONAL</td><td>125,189</td><td class="pct-badge">100%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="bank-panel" id="obs-jpm">
+    <div class="fin-card">
+      <div class="fin-card-header jpm"><div class="fin-card-header-dot"></div>JP Morgan Chase — OBS Activities ($M)</div>
+      <table class="fin-table">
+        <tr><th>Line Item</th><th>$M</th><th>%</th></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Off-Balance-Sheet Activities — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's total OBS ($16.2 TRILLION) is 5.4x its total assets of $3.03T. This enormous scale reflects JPM's role as a major derivatives dealer. The largest U.S. bank is also the largest or second-largest derivatives dealer globally in interest rate swaps, FX derivatives, and credit derivatives. This is the defining difference between a money center bank and a regional bank in terms of OBS exposure.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide / Bank Sizes slide&quot;}">
+          <td colspan="3">COMMITMENTS &amp; CONTINGENCIES</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loan Commitments / Lines of Credit — JPM&quot;,&quot;def&quot;:&quot;At $458.8B, JPM's unfunded commitments are enormous but only 2.8% of total OBS notional. These commitments to corporate clients, credit card lines, and revolving credit facilities represent a massive contingent lending obligation. If all were drawn simultaneously (a stress scenario), JPM would need to fund $458.8B.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Loan commitments / LOC</td><td>458,762</td><td class="pct-badge">2.83%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Standby Letters of Credit — JPM&quot;,&quot;def&quot;:&quot;$78.5B in standby LCs. JPM issues SLCs on behalf of its large corporate and municipal clients. These guarantee financial performance — if a city bond issuer defaults, JPM may be obligated to pay. This is a significant contingent liability for JPM.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Standby letters of credit</td><td>78,456</td><td class="pct-badge">0.48%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Commercial Letters of Credit — JPM&quot;,&quot;def&quot;:&quot;Commercial (trade) LCs guarantee payment to exporters once shipping documents are presented. JPM is one of the largest trade finance banks globally, facilitating international commerce for multinational clients. Lower risk than standby LCs but still a contingent obligation.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Commercial letters of credit</td><td>34,567</td><td class="pct-badge">0.21%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Loans Sold — JPM&quot;,&quot;def&quot;:&quot;$187.2B in loans sold (primarily with recourse or representations and warranties). JPM is the largest mortgage originator-to-distributor in the U.S. It securitizes and sells mortgages to Fannie/Freddie but retains servicing rights and potential repurchase obligations. This was a major source of losses in 2007-2010 ($13B+ in mortgage settlements).&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Loans sold</td><td>187,234</td><td class="pct-badge">1.16%</td></tr>
+
+        <tr class="section-row" data-tt="{&quot;label&quot;:&quot;Notional Amounts for Derivatives — JP Morgan Chase&quot;,&quot;def&quot;:&quot;JPM's derivative notionals total ~$15.5 TRILLION — making it one of the largest derivatives dealers in the world. As a dealer, JPM takes both sides of transactions, earning bid-ask spreads. Notional values are NOT the amount at risk. The actual credit exposure (mark-to-market positive value) is a fraction of this. Interest rate swaps dominate at 55.4% of notional.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td colspan="3">NOTIONAL AMOUNTS FOR DERIVATIVES</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Forwards and Futures — JPM&quot;,&quot;def&quot;:&quot;$3.25T in forwards/futures notional. JPM is one of the largest FX forward dealers globally. It executes forwards for corporate clients hedging currency exposure, and for its own portfolio management. Exchange-traded futures are used for Treasury and Eurodollar rate hedging.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Forwards &amp; futures</td><td>3,245,678</td><td class="pct-badge">20.0%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Options — JPM&quot;,&quot;def&quot;:&quot;$2.35T in option notionals. JPM's options book includes interest rate caps and floors (sold to bank clients with floating rate loans), FX options, and equity options. As a dealer, JPM both buys and sells options, maintaining a delta-hedged book.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Options</td><td>2,345,678</td><td class="pct-badge">14.5%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Interest Rate Swaps — JPM&quot;,&quot;def&quot;:&quot;$8.98T in interest rate swap notionals — by far the largest category (55.4%). JPM is one of the two or three largest interest rate swap dealers globally. It intermediates between fixed-rate payers (e.g., corporations, municipalities) and floating-rate payers (e.g., investors). As a dealer, it holds both sides and earns a bid-ask spread.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Interest rate swaps</td><td>8,976,543</td><td class="pct-badge">55.4%</td></tr>
+        <tr class="sub-row" data-tt="{&quot;label&quot;:&quot;Credit Derivatives — JPM&quot;,&quot;def&quot;:&quot;$894.6B in credit derivative notionals (CDS, CDOs, CLOs). JPM is a major CDS dealer. After the 2012 London Whale incident (a $6B+ trading loss in credit derivatives), JPM significantly reduced its credit derivative positions. Counterparty risk in credit derivatives is a key concern for systemic risk regulators.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide&quot;}">
+          <td>Credit derivatives</td><td>894,567</td><td class="pct-badge">5.52%</td></tr>
+        <tr class="total-row" data-tt="{&quot;label&quot;:&quot;Total OBS — JP Morgan Chase&quot;,&quot;def&quot;:&quot;$16.2 TRILLION in total OBS notional — 5.4x JPM's $3.03T in total assets. Compare to M&amp;T's $125B in OBS which is 59% of its assets. This is the starkest illustration of why large money center banks are so much more systemically complex and interconnected than regional banks. OBS activities generate fee income, create contingent liabilities, and concentrate systemic risk.&quot;,&quot;source&quot;:&quot;Chapter 12 — Off-Balance-Sheet Activities slide / Bank Sizes slide&quot;}">
+          <td>TOTAL OBS NOTIONAL</td><td>16,206,918</td><td class="pct-badge">100%</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-ratios">
+  <div class="section-header">
+    <div class="section-title">Financial Ratio Analysis</div>
+    <div class="section-note">ROE Framework + Performance Ratios · Hover any card for full definition</div>
+  </div>
+
+  <div class="sub-tabs" id="stabs-ratios">
+    <div class="stab st-mt" onclick="showBank('ratios','mt',this)">M&amp;T Bank</div>
+    <div class="stab" onclick="showBank('ratios','jpm',this)">JP Morgan Chase</div>
+    <div class="stab" onclick="showBank('ratios','both',this)">Side-by-Side</div>
+  </div>
+
+  <div class="hover-hint">💡 Hover any card for full definition and formula derivation</div>
+
+  <div class="bank-panel active" id="ratios-mt" style="--hide-jpm:none; --hide-mt:flex;">
+    <div class="ratios-grid">
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Equity (ROE)&quot;,&quot;def&quot;:&quot;The ultimate measure of bank performance for shareholders. ROE = Net Income / Total Equity Capital. It reflects how efficiently management uses shareholders' funds to generate profit. ROE can be decomposed using the DuPont framework: ROE = Profit Margin × Asset Utilization × Equity Multiplier = ROA × Equity Multiplier. JPM's higher ROE (19.1% vs 12.9%) is driven primarily by its higher leverage (equity multiplier) despite similar ROA.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework / Return on Equity slides&quot;}">
+      <div class="ratio-name">Return on Equity (ROE)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.93%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">19.08%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label"><span style="color:var(--accent-mt)">M&T</span><span style="color:var(--accent-jpm)">JPM</span></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:67.7%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROE = Net Income / Total Equity Capital<br>
+        <span>M&T:</span> $2,157 / $16,679 = <span>12.93%</span><br>
+        <span>JPM:</span> $34,002 / $178,214 = <span>19.08%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Assets (ROA)&quot;,&quot;def&quot;:&quot;ROA = Net Income / Total Assets. Measures how efficiently the bank uses its assets to generate profit. Industry benchmark: ROA above 1% is generally considered good performance. Both banks exceed 1%, indicating healthy profitability. JPM's marginally higher ROA (1.12% vs 1.02%) reflects its more efficient use of assets — driven by higher noninterest income from capital markets. The DuPont decomposition: ROA = Profit Margin × Asset Utilization.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Return on Assets (ROA)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">1.02%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">1.12%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:91%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROA = Net Income / Total Assets<br>
+        <span>M&T:</span> $2,157 / $212,436 = <span>1.015%</span><br>
+        <span>JPM:</span> $34,002 / $3,028,379 = <span>1.123%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Equity Multiplier (EM)&quot;,&quot;def&quot;:&quot;EM = Total Assets / Total Equity Capital. This is the leverage component of the DuPont ROE framework. A higher multiplier means the bank is using more debt relative to equity to fund its assets — amplifying both returns and risks. JPM's EM of 17.0x vs M&amp;T's 12.7x explains why JPM has higher ROE despite similar ROA: ROE = ROA × EM. This is consistent with the textbook: large banks operate with lower equity ratios (higher leverage) than small banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework slide / Bank Sizes slide&quot;}">
+      <div class="ratio-name">Equity Multiplier (EM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.74×</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">16.99×</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:75%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        EM = Total Assets / Total Equity Capital<br>
+        <span>M&T:</span> $212,436 / $16,679 = <span>12.74×</span><br>
+        <span>JPM:</span> $3,028,379 / $178,214 = <span>16.99×</span><br>
+        DuPont check: ROE = ROA × EM<br>
+        <span>M&T:</span> 1.015% × 12.74 = <span>12.93%</span> ✓<br>
+        <span>JPM:</span> 1.123% × 16.99 = <span>19.08%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Profit Margin&quot;,&quot;def&quot;:&quot;Profit Margin = Net Income / Total Operating Income, where Total Operating Income = Interest Income + Noninterest Income. This is the 'P' in the DuPont decomposition of ROA: ROA = Profit Margin × Asset Utilization. It measures how much of each dollar of total operating revenue is retained as profit after all expenses (interest expense, provision, noninterest expense, taxes). The banks have nearly identical profit margins (~21.6% vs ~22.0%), meaning they convert similar shares of revenue to profit.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Profit Margin</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">21.62%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">21.97%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:98.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Profit Margin = Net Income / (Interest Inc. + Noninterest Inc.)<br>
+        <span>M&T:</span> $2,157 / ($8,744 + $1,235) = $2,157 / $9,979 = <span>21.62%</span><br>
+        <span>JPM:</span> $34,002 / ($102,456 + $52,345) = $34,002 / $154,801 = <span>21.97%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Asset Utilization (AU)&quot;,&quot;def&quot;:&quot;Asset Utilization = Total Operating Income / Total Assets, where Total Operating Income = Interest Income + Noninterest Income. This is the 'AU' (efficiency) component of the DuPont ROA decomposition: ROA = Profit Margin × Asset Utilization. It measures how much revenue is generated per dollar of assets. JPM's higher AU (5.11% vs 4.70%) reflects its larger noninterest income relative to assets — capital markets activities and fee businesses are more income-dense. Large banks diversify into high-revenue, lower-asset businesses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework / Bank Sizes slides&quot;}">
+      <div class="ratio-name">Asset Utilization (AU)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">4.70%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">5.11%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:92%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        AU = (Interest Inc. + Noninterest Inc.) / Total Assets<br>
+        <span>M&T:</span> ($8,744 + $1,235) / $212,436 = $9,979 / $212,436 = <span>4.697%</span><br>
+        <span>JPM:</span> ($102,456 + $52,345) / $3,028,379 = $154,801 / $3,028,379 = <span>5.111%</span><br>
+        ROA check: PM × AU = ROA<br>
+        <span>M&T:</span> 21.62% × 4.697% = <span>1.015%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Net Interest Margin (NIM)&quot;,&quot;def&quot;:&quot;NIM = Net Interest Income / Earning Assets (or approximated as Net Interest Income / Total Assets). One of the most important bank performance metrics. It measures the profitability of the bank's core lending and investing activity — the difference between what the bank earns on assets and what it pays on liabilities, expressed as a percentage of assets. M&amp;T's higher NIM (3.86% vs 3.56%) is consistent with its greater reliance on higher-yield loans relative to assets, and its lower dependence on expensive wholesale funding. Large banks often have lower NIMs because they hold more investment securities.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Net Interest Margin (NIM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.56%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:92.2%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        NIM = Net Interest Income / Total Assets<br>
+        <span>M&T:</span> $6,381 / $212,436 = <span>3.003%</span> (or use earning assets)<br>
+        From data: NIM = <span>3.859%</span> (based on earning assets)<br>
+        <span>JPM:</span> $66,778 / $3,028,379 = <span>2.205%</span> (assets basis)<br>
+        From data: NIM = <span>3.562%</span> (based on earning assets)<br>
+        Note: NIM on earning assets > NIM on total assets
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Spread&quot;,&quot;def&quot;:&quot;The Spread = (Interest Income / Earning Assets) − (Interest Expense / Interest-Bearing Liabilities). It directly measures the bank's interest rate intermediation profitability — the gap between the average yield on assets and the average cost of funds. Close to NIM but differs because NIM uses total assets and spread uses earning assets and interest-bearing liabilities separately. A positive and stable spread is essential for bank viability. JPM's spread is slightly lower (3.70% vs 3.86%) partly because it pays more for its purchased/wholesale funds.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Spread</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.70%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:95.9%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Spread = (Interest Income / Earning Assets) − (Interest Exp / Int.-Bearing Liabilities)<br>
+        Avg yield on assets − avg cost of funds<br>
+        <span>M&T:</span> <span>3.865%</span> (Interest income rate − interest expense rate)<br>
+        <span>JPM:</span> <span>3.698%</span><br>
+        Note: Spread ≈ NIM when non-interest-bearing liabilities are small
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Overhead Efficiency Ratio&quot;,&quot;def&quot;:&quot;Also called the Efficiency Ratio. Lower is better — it means the bank keeps more of its revenue after overhead. Standard formula: Efficiency Ratio = Noninterest Expense / (Net Interest Income + Noninterest Income). However, the data here uses a narrower definition: Other Noninterest Expense / Total Noninterest Expense. The standard efficiency ratio for M&amp;T (~57%) and JPM (~60%) would be calculated differently. The ratio shown here (28.3% for M&amp;T, 73.5% for JPM) reflects the other/miscellaneous expense burden within total noninterest expense — showing JPM's higher share of non-labor, non-premises overhead (tech, legal, regulatory costs).&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Overhead Efficiency Ratio</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">28.25%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">73.48%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:38.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        As reported: Other Noninterest Exp / Total Noninterest Exp<br>
+        <span>M&T:</span> $1,235 / $4,369 = <span>28.25%</span><br>
+        <span>JPM:</span> $24,320 / $71,234 = <span>73.48%</span><br>
+        Standard Efficiency Ratio = Noninterest Exp / (NII + Noninterest Inc)<br>
+        <span>M&T (std):</span> $4,369 / ($6,381+$1,235) = <span>57.4%</span><br>
+        <span>JPM (std):</span> $71,234 / ($66,778+$52,345) = <span>59.8%</span>
+      </div>
+    </div>
+
+  </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin-top:20px;">
+    <div style="font-family:'DM Serif Display',serif; font-size:1.1rem; color:var(--text); margin-bottom:16px;">DuPont ROE Decomposition Summary</div>
+    <div style="font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--text-muted); line-height:2; background:rgba(0,0,0,0.04); border-radius:8px; padding:16px 20px;">
+      <div style="color:var(--accent-gold); font-weight:600; margin-bottom:8px;">ROE = Profit Margin × Asset Utilization × Equity Multiplier</div>
+      <div style="color:var(--accent-mt);">M&T Bank:   21.62% × 4.697% × 12.74 = <span style="color:var(--text); font-weight:600;">12.93%</span></div>
+      <div style="color:var(--accent-jpm);">JP Morgan:  21.97% × 5.111% × 16.99 = <span style="color:var(--text); font-weight:600;">19.08%</span></div>
+      <div style="color:var(--text-dim); margin-top:12px; font-size:0.72rem; font-family:'DM Sans',sans-serif; line-height:1.6;">
+        Key insight: Both banks have nearly identical Profit Margins (~22%). JPM's higher ROE comes from better Asset Utilization (larger noninterest income per asset) AND higher Equity Multiplier (more leverage). The leverage difference is the larger driver — JPM carries ~5.88% equity/assets vs M&T's 7.85%.
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="bank-panel" id="ratios-jpm" style="--hide-jpm:flex; --hide-mt:none;">
+    <div class="ratios-grid">
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Equity (ROE)&quot;,&quot;def&quot;:&quot;The ultimate measure of bank performance for shareholders. ROE = Net Income / Total Equity Capital. It reflects how efficiently management uses shareholders' funds to generate profit. ROE can be decomposed using the DuPont framework: ROE = Profit Margin × Asset Utilization × Equity Multiplier = ROA × Equity Multiplier. JPM's higher ROE (19.1% vs 12.9%) is driven primarily by its higher leverage (equity multiplier) despite similar ROA.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework / Return on Equity slides&quot;}">
+      <div class="ratio-name">Return on Equity (ROE)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.93%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">19.08%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label"><span style="color:var(--accent-mt)">M&T</span><span style="color:var(--accent-jpm)">JPM</span></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:67.7%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROE = Net Income / Total Equity Capital<br>
+        <span>M&T:</span> $2,157 / $16,679 = <span>12.93%</span><br>
+        <span>JPM:</span> $34,002 / $178,214 = <span>19.08%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Assets (ROA)&quot;,&quot;def&quot;:&quot;ROA = Net Income / Total Assets. Measures how efficiently the bank uses its assets to generate profit. Industry benchmark: ROA above 1% is generally considered good performance. Both banks exceed 1%, indicating healthy profitability. JPM's marginally higher ROA (1.12% vs 1.02%) reflects its more efficient use of assets — driven by higher noninterest income from capital markets. The DuPont decomposition: ROA = Profit Margin × Asset Utilization.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Return on Assets (ROA)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">1.02%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">1.12%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:91%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROA = Net Income / Total Assets<br>
+        <span>M&T:</span> $2,157 / $212,436 = <span>1.015%</span><br>
+        <span>JPM:</span> $34,002 / $3,028,379 = <span>1.123%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Equity Multiplier (EM)&quot;,&quot;def&quot;:&quot;EM = Total Assets / Total Equity Capital. This is the leverage component of the DuPont ROE framework. A higher multiplier means the bank is using more debt relative to equity to fund its assets — amplifying both returns and risks. JPM's EM of 17.0x vs M&amp;T's 12.7x explains why JPM has higher ROE despite similar ROA: ROE = ROA × EM. This is consistent with the textbook: large banks operate with lower equity ratios (higher leverage) than small banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework slide / Bank Sizes slide&quot;}">
+      <div class="ratio-name">Equity Multiplier (EM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.74×</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">16.99×</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:75%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        EM = Total Assets / Total Equity Capital<br>
+        <span>M&T:</span> $212,436 / $16,679 = <span>12.74×</span><br>
+        <span>JPM:</span> $3,028,379 / $178,214 = <span>16.99×</span><br>
+        DuPont check: ROE = ROA × EM<br>
+        <span>M&T:</span> 1.015% × 12.74 = <span>12.93%</span> ✓<br>
+        <span>JPM:</span> 1.123% × 16.99 = <span>19.08%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Profit Margin&quot;,&quot;def&quot;:&quot;Profit Margin = Net Income / Total Operating Income, where Total Operating Income = Interest Income + Noninterest Income. This is the 'P' in the DuPont decomposition of ROA: ROA = Profit Margin × Asset Utilization. It measures how much of each dollar of total operating revenue is retained as profit after all expenses (interest expense, provision, noninterest expense, taxes). The banks have nearly identical profit margins (~21.6% vs ~22.0%), meaning they convert similar shares of revenue to profit.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Profit Margin</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">21.62%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">21.97%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:98.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Profit Margin = Net Income / (Interest Inc. + Noninterest Inc.)<br>
+        <span>M&T:</span> $2,157 / ($8,744 + $1,235) = $2,157 / $9,979 = <span>21.62%</span><br>
+        <span>JPM:</span> $34,002 / ($102,456 + $52,345) = $34,002 / $154,801 = <span>21.97%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Asset Utilization (AU)&quot;,&quot;def&quot;:&quot;Asset Utilization = Total Operating Income / Total Assets, where Total Operating Income = Interest Income + Noninterest Income. This is the 'AU' (efficiency) component of the DuPont ROA decomposition: ROA = Profit Margin × Asset Utilization. It measures how much revenue is generated per dollar of assets. JPM's higher AU (5.11% vs 4.70%) reflects its larger noninterest income relative to assets — capital markets activities and fee businesses are more income-dense. Large banks diversify into high-revenue, lower-asset businesses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework / Bank Sizes slides&quot;}">
+      <div class="ratio-name">Asset Utilization (AU)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">4.70%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">5.11%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:92%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        AU = (Interest Inc. + Noninterest Inc.) / Total Assets<br>
+        <span>M&T:</span> ($8,744 + $1,235) / $212,436 = $9,979 / $212,436 = <span>4.697%</span><br>
+        <span>JPM:</span> ($102,456 + $52,345) / $3,028,379 = $154,801 / $3,028,379 = <span>5.111%</span><br>
+        ROA check: PM × AU = ROA<br>
+        <span>M&T:</span> 21.62% × 4.697% = <span>1.015%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Net Interest Margin (NIM)&quot;,&quot;def&quot;:&quot;NIM = Net Interest Income / Earning Assets (or approximated as Net Interest Income / Total Assets). One of the most important bank performance metrics. It measures the profitability of the bank's core lending and investing activity — the difference between what the bank earns on assets and what it pays on liabilities, expressed as a percentage of assets. M&amp;T's higher NIM (3.86% vs 3.56%) is consistent with its greater reliance on higher-yield loans relative to assets, and its lower dependence on expensive wholesale funding. Large banks often have lower NIMs because they hold more investment securities.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Net Interest Margin (NIM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.56%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:92.2%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        NIM = Net Interest Income / Total Assets<br>
+        <span>M&T:</span> $6,381 / $212,436 = <span>3.003%</span> (or use earning assets)<br>
+        From data: NIM = <span>3.859%</span> (based on earning assets)<br>
+        <span>JPM:</span> $66,778 / $3,028,379 = <span>2.205%</span> (assets basis)<br>
+        From data: NIM = <span>3.562%</span> (based on earning assets)<br>
+        Note: NIM on earning assets > NIM on total assets
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Spread&quot;,&quot;def&quot;:&quot;The Spread = (Interest Income / Earning Assets) − (Interest Expense / Interest-Bearing Liabilities). It directly measures the bank's interest rate intermediation profitability — the gap between the average yield on assets and the average cost of funds. Close to NIM but differs because NIM uses total assets and spread uses earning assets and interest-bearing liabilities separately. A positive and stable spread is essential for bank viability. JPM's spread is slightly lower (3.70% vs 3.86%) partly because it pays more for its purchased/wholesale funds.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Spread</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.70%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:95.9%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Spread = (Interest Income / Earning Assets) − (Interest Exp / Int.-Bearing Liabilities)<br>
+        Avg yield on assets − avg cost of funds<br>
+        <span>M&T:</span> <span>3.865%</span> (Interest income rate − interest expense rate)<br>
+        <span>JPM:</span> <span>3.698%</span><br>
+        Note: Spread ≈ NIM when non-interest-bearing liabilities are small
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Overhead Efficiency Ratio&quot;,&quot;def&quot;:&quot;Also called the Efficiency Ratio. Lower is better — it means the bank keeps more of its revenue after overhead. Standard formula: Efficiency Ratio = Noninterest Expense / (Net Interest Income + Noninterest Income). However, the data here uses a narrower definition: Other Noninterest Expense / Total Noninterest Expense. The standard efficiency ratio for M&amp;T (~57%) and JPM (~60%) would be calculated differently. The ratio shown here (28.3% for M&amp;T, 73.5% for JPM) reflects the other/miscellaneous expense burden within total noninterest expense — showing JPM's higher share of non-labor, non-premises overhead (tech, legal, regulatory costs).&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Overhead Efficiency Ratio</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">28.25%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">73.48%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:38.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        As reported: Other Noninterest Exp / Total Noninterest Exp<br>
+        <span>M&T:</span> $1,235 / $4,369 = <span>28.25%</span><br>
+        <span>JPM:</span> $24,320 / $71,234 = <span>73.48%</span><br>
+        Standard Efficiency Ratio = Noninterest Exp / (NII + Noninterest Inc)<br>
+        <span>M&T (std):</span> $4,369 / ($6,381+$1,235) = <span>57.4%</span><br>
+        <span>JPM (std):</span> $71,234 / ($66,778+$52,345) = <span>59.8%</span>
+      </div>
+    </div>
+
+  </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin-top:20px;">
+    <div style="font-family:'DM Serif Display',serif; font-size:1.1rem; color:var(--text); margin-bottom:16px;">DuPont ROE Decomposition Summary</div>
+    <div style="font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--text-muted); line-height:2; background:rgba(0,0,0,0.04); border-radius:8px; padding:16px 20px;">
+      <div style="color:var(--accent-gold); font-weight:600; margin-bottom:8px;">ROE = Profit Margin × Asset Utilization × Equity Multiplier</div>
+      <div style="color:var(--accent-mt);">M&T Bank:   21.62% × 4.697% × 12.74 = <span style="color:var(--text); font-weight:600;">12.93%</span></div>
+      <div style="color:var(--accent-jpm);">JP Morgan:  21.97% × 5.111% × 16.99 = <span style="color:var(--text); font-weight:600;">19.08%</span></div>
+      <div style="color:var(--text-dim); margin-top:12px; font-size:0.72rem; font-family:'DM Sans',sans-serif; line-height:1.6;">
+        Key insight: Both banks have nearly identical Profit Margins (~22%). JPM's higher ROE comes from better Asset Utilization (larger noninterest income per asset) AND higher Equity Multiplier (more leverage). The leverage difference is the larger driver — JPM carries ~5.88% equity/assets vs M&T's 7.85%.
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="bank-panel" id="ratios-both">
+    <div class="ratios-grid">
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Equity (ROE)&quot;,&quot;def&quot;:&quot;The ultimate measure of bank performance for shareholders. ROE = Net Income / Total Equity Capital. It reflects how efficiently management uses shareholders' funds to generate profit. ROE can be decomposed using the DuPont framework: ROE = Profit Margin × Asset Utilization × Equity Multiplier = ROA × Equity Multiplier. JPM's higher ROE (19.1% vs 12.9%) is driven primarily by its higher leverage (equity multiplier) despite similar ROA.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework / Return on Equity slides&quot;}">
+      <div class="ratio-name">Return on Equity (ROE)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.93%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">19.08%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label"><span style="color:var(--accent-mt)">M&T</span><span style="color:var(--accent-jpm)">JPM</span></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:67.7%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROE = Net Income / Total Equity Capital<br>
+        <span>M&T:</span> $2,157 / $16,679 = <span>12.93%</span><br>
+        <span>JPM:</span> $34,002 / $178,214 = <span>19.08%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Return on Assets (ROA)&quot;,&quot;def&quot;:&quot;ROA = Net Income / Total Assets. Measures how efficiently the bank uses its assets to generate profit. Industry benchmark: ROA above 1% is generally considered good performance. Both banks exceed 1%, indicating healthy profitability. JPM's marginally higher ROA (1.12% vs 1.02%) reflects its more efficient use of assets — driven by higher noninterest income from capital markets. The DuPont decomposition: ROA = Profit Margin × Asset Utilization.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Return on Assets (ROA)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">1.02%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">1.12%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:91%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        ROA = Net Income / Total Assets<br>
+        <span>M&T:</span> $2,157 / $212,436 = <span>1.015%</span><br>
+        <span>JPM:</span> $34,002 / $3,028,379 = <span>1.123%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Equity Multiplier (EM)&quot;,&quot;def&quot;:&quot;EM = Total Assets / Total Equity Capital. This is the leverage component of the DuPont ROE framework. A higher multiplier means the bank is using more debt relative to equity to fund its assets — amplifying both returns and risks. JPM's EM of 17.0x vs M&amp;T's 12.7x explains why JPM has higher ROE despite similar ROA: ROE = ROA × EM. This is consistent with the textbook: large banks operate with lower equity ratios (higher leverage) than small banks.&quot;,&quot;source&quot;:&quot;Chapter 12 — ROE Framework slide / Bank Sizes slide&quot;}">
+      <div class="ratio-name">Equity Multiplier (EM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">12.74×</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">16.99×</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:75%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        EM = Total Assets / Total Equity Capital<br>
+        <span>M&T:</span> $212,436 / $16,679 = <span>12.74×</span><br>
+        <span>JPM:</span> $3,028,379 / $178,214 = <span>16.99×</span><br>
+        DuPont check: ROE = ROA × EM<br>
+        <span>M&T:</span> 1.015% × 12.74 = <span>12.93%</span> ✓<br>
+        <span>JPM:</span> 1.123% × 16.99 = <span>19.08%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Profit Margin&quot;,&quot;def&quot;:&quot;Profit Margin = Net Income / Total Operating Income, where Total Operating Income = Interest Income + Noninterest Income. This is the 'P' in the DuPont decomposition of ROA: ROA = Profit Margin × Asset Utilization. It measures how much of each dollar of total operating revenue is retained as profit after all expenses (interest expense, provision, noninterest expense, taxes). The banks have nearly identical profit margins (~21.6% vs ~22.0%), meaning they convert similar shares of revenue to profit.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework slides&quot;}">
+      <div class="ratio-name">Profit Margin</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">21.62%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">21.97%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:98.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Profit Margin = Net Income / (Interest Inc. + Noninterest Inc.)<br>
+        <span>M&T:</span> $2,157 / ($8,744 + $1,235) = $2,157 / $9,979 = <span>21.62%</span><br>
+        <span>JPM:</span> $34,002 / ($102,456 + $52,345) = $34,002 / $154,801 = <span>21.97%</span>
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Asset Utilization (AU)&quot;,&quot;def&quot;:&quot;Asset Utilization = Total Operating Income / Total Assets, where Total Operating Income = Interest Income + Noninterest Income. This is the 'AU' (efficiency) component of the DuPont ROA decomposition: ROA = Profit Margin × Asset Utilization. It measures how much revenue is generated per dollar of assets. JPM's higher AU (5.11% vs 4.70%) reflects its larger noninterest income relative to assets — capital markets activities and fee businesses are more income-dense. Large banks diversify into high-revenue, lower-asset businesses.&quot;,&quot;source&quot;:&quot;Chapter 12 — Return on Assets / ROE Framework / Bank Sizes slides&quot;}">
+      <div class="ratio-name">Asset Utilization (AU)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">4.70%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">5.11%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:92%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        AU = (Interest Inc. + Noninterest Inc.) / Total Assets<br>
+        <span>M&T:</span> ($8,744 + $1,235) / $212,436 = $9,979 / $212,436 = <span>4.697%</span><br>
+        <span>JPM:</span> ($102,456 + $52,345) / $3,028,379 = $154,801 / $3,028,379 = <span>5.111%</span><br>
+        ROA check: PM × AU = ROA<br>
+        <span>M&T:</span> 21.62% × 4.697% = <span>1.015%</span> ✓
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Net Interest Margin (NIM)&quot;,&quot;def&quot;:&quot;NIM = Net Interest Income / Earning Assets (or approximated as Net Interest Income / Total Assets). One of the most important bank performance metrics. It measures the profitability of the bank's core lending and investing activity — the difference between what the bank earns on assets and what it pays on liabilities, expressed as a percentage of assets. M&amp;T's higher NIM (3.86% vs 3.56%) is consistent with its greater reliance on higher-yield loans relative to assets, and its lower dependence on expensive wholesale funding. Large banks often have lower NIMs because they hold more investment securities.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Net Interest Margin (NIM)</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.56%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:92.2%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        NIM = Net Interest Income / Total Assets<br>
+        <span>M&T:</span> $6,381 / $212,436 = <span>3.003%</span> (or use earning assets)<br>
+        From data: NIM = <span>3.859%</span> (based on earning assets)<br>
+        <span>JPM:</span> $66,778 / $3,028,379 = <span>2.205%</span> (assets basis)<br>
+        From data: NIM = <span>3.562%</span> (based on earning assets)<br>
+        Note: NIM on earning assets > NIM on total assets
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Spread&quot;,&quot;def&quot;:&quot;The Spread = (Interest Income / Earning Assets) − (Interest Expense / Interest-Bearing Liabilities). It directly measures the bank's interest rate intermediation profitability — the gap between the average yield on assets and the average cost of funds. Close to NIM but differs because NIM uses total assets and spread uses earning assets and interest-bearing liabilities separately. A positive and stable spread is essential for bank viability. JPM's spread is slightly lower (3.70% vs 3.86%) partly because it pays more for its purchased/wholesale funds.&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Spread</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">3.86%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">3.70%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:100%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:95.9%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        Spread = (Interest Income / Earning Assets) − (Interest Exp / Int.-Bearing Liabilities)<br>
+        Avg yield on assets − avg cost of funds<br>
+        <span>M&T:</span> <span>3.865%</span> (Interest income rate − interest expense rate)<br>
+        <span>JPM:</span> <span>3.698%</span><br>
+        Note: Spread ≈ NIM when non-interest-bearing liabilities are small
+      </div>
+    </div>
+
+    <div class="ratio-card" data-tt="{&quot;label&quot;:&quot;Overhead Efficiency Ratio&quot;,&quot;def&quot;:&quot;Also called the Efficiency Ratio. Lower is better — it means the bank keeps more of its revenue after overhead. Standard formula: Efficiency Ratio = Noninterest Expense / (Net Interest Income + Noninterest Income). However, the data here uses a narrower definition: Other Noninterest Expense / Total Noninterest Expense. The standard efficiency ratio for M&amp;T (~57%) and JPM (~60%) would be calculated differently. The ratio shown here (28.3% for M&amp;T, 73.5% for JPM) reflects the other/miscellaneous expense burden within total noninterest expense — showing JPM's higher share of non-labor, non-premises overhead (tech, legal, regulatory costs).&quot;,&quot;source&quot;:&quot;Chapter 12 — Other Ratios slide&quot;}">
+      <div class="ratio-name">Overhead Efficiency Ratio</div>
+      <div class="ratio-values">
+        <div class="ratio-val">
+          <div class="ratio-val-bank mt">M&amp;T Bank</div>
+          <div class="ratio-val-num">28.25%</div>
+        </div>
+        <div class="ratio-val">
+          <div class="ratio-val-bank jpm">JP Morgan</div>
+          <div class="ratio-val-num">73.48%</div>
+        </div>
+      </div>
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track"><div class="ratio-bar-fill mt" style="width:38.4%"></div></div>
+        <div class="ratio-bar-track"><div class="ratio-bar-fill jpm" style="width:100%"></div></div>
+      </div>
+      <div class="ratio-formula">
+        As reported: Other Noninterest Exp / Total Noninterest Exp<br>
+        <span>M&T:</span> $1,235 / $4,369 = <span>28.25%</span><br>
+        <span>JPM:</span> $24,320 / $71,234 = <span>73.48%</span><br>
+        Standard Efficiency Ratio = Noninterest Exp / (NII + Noninterest Inc)<br>
+        <span>M&T (std):</span> $4,369 / ($6,381+$1,235) = <span>57.4%</span><br>
+        <span>JPM (std):</span> $71,234 / ($66,778+$52,345) = <span>59.8%</span>
+      </div>
+    </div>
+
+  </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin-top:20px;">
+    <div style="font-family:'DM Serif Display',serif; font-size:1.1rem; color:var(--text); margin-bottom:16px;">DuPont ROE Decomposition Summary</div>
+    <div style="font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--text-muted); line-height:2; background:rgba(0,0,0,0.04); border-radius:8px; padding:16px 20px;">
+      <div style="color:var(--accent-gold); font-weight:600; margin-bottom:8px;">ROE = Profit Margin × Asset Utilization × Equity Multiplier</div>
+      <div style="color:var(--accent-mt);">M&T Bank:   21.62% × 4.697% × 12.74 = <span style="color:var(--text); font-weight:600;">12.93%</span></div>
+      <div style="color:var(--accent-jpm);">JP Morgan:  21.97% × 5.111% × 16.99 = <span style="color:var(--text); font-weight:600;">19.08%</span></div>
+      <div style="color:var(--text-dim); margin-top:12px; font-size:0.72rem; font-family:'DM Sans',sans-serif; line-height:1.6;">
+        Key insight: Both banks have nearly identical Profit Margins (~22%). JPM's higher ROE comes from better Asset Utilization (larger noninterest income per asset) AND higher Equity Multiplier (more leverage). The leverage difference is the larger driver — JPM carries ~5.88% equity/assets vs M&T's 7.85%.
+      </div>
+    </div>
+  </div>
+  </div>
+
+</div>
+
+</div><!-- end .content -->
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'ratios') setTimeout(animateBars, 50);
+}
+
+function showBank(pageId, bank, el) {
+  var wrap = document.getElementById('stabs-' + pageId);
+  wrap.querySelectorAll('.stab').forEach(function(t){ t.classList.remove('st-mt','st-jpm','st-both'); });
+  if (bank === 'mt')        el.classList.add('st-mt');
+  else if (bank === 'jpm')  el.classList.add('st-jpm');
+  else                      el.classList.add('st-both');
+  document.querySelectorAll('#page-' + pageId + ' .bank-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById(pageId + '-' + bank).classList.add('active');
+  if (pageId === 'ratios') setTimeout(animateBars, 50);
+}
+
+// Tooltip
+const tooltip = document.getElementById('tooltip');
+const ttLabel = document.getElementById('tt-label');
+const ttDef = document.getElementById('tt-def');
+const ttCalc = document.getElementById('tt-calc');
+const ttSource = document.getElementById('tt-source');
+
+function showTooltip(e, data) {
+  const d = JSON.parse(data);
+  ttLabel.textContent = d.label;
+  ttDef.textContent = d.def;
+  if (d.calc) {
+    ttCalc.style.display = 'block';
+    ttCalc.textContent = d.calc;
+  } else {
+    ttCalc.style.display = 'none';
+  }
+  ttSource.textContent = '📖 ' + d.source;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const x = e.clientX + 16;
+  const y = e.clientY + 16;
+  const tw = 340, th = 180;
+  const fx = x + tw > window.innerWidth ? e.clientX - tw - 8 : x;
+  const fy = y + th > window.innerHeight ? e.clientY - th - 8 : y;
+  tooltip.style.left = fx + 'px';
+  tooltip.style.top = fy + 'px';
+}
+
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('[data-tt]');
+  if (el) showTooltip(e, el.dataset.tt);
+});
+document.addEventListener('mousemove', e => {
+  if (tooltip.classList.contains('visible')) moveTooltip(e);
+});
+document.addEventListener('mouseout', e => {
+  const el = e.target.closest('[data-tt]');
+  if (el && !el.contains(e.relatedTarget)) {
+    tooltip.classList.remove('visible');
+  }
+});
+
+// Animate ratio bars on tab switch
+function animateBars() {
+  var activePanels = document.querySelectorAll('#page-ratios .bank-panel.active');
+  var scope = activePanels.length ? activePanels[0] : document;
+  scope.querySelectorAll('.ratio-bar-fill').forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0';
+    setTimeout(() => b.style.width = w, 50);
+  });
+}
+// animateBars is called inside showPage/showBank for ratios
+</script>
+</body>
+</html>
